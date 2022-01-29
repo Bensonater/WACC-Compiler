@@ -60,10 +60,6 @@ fragment CHARACTER: CHAR | '\\' ESC_CHAR;
 fragment ALPHA: 'a'..'z' | 'A'..'Z';
 fragment UNDERSCORE: '_';
 
-// Identifier
-
-IDENT: (UNDERSCORE | ALPHA) (UNDERSCORE | ALPHA | DIGIT)*;
-
 // String literal
 
 STR_LITER: '"' CHARACTER* '"';
@@ -113,3 +109,7 @@ ENDWHILE: 'done';
 BEGIN: 'begin';
 END: 'end';
 SEMICOLON: ';';
+
+// Identifier
+
+IDENT: (UNDERSCORE | ALPHA) (UNDERSCORE | ALPHA | DIGIT)*;
