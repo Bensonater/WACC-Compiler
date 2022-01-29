@@ -43,7 +43,7 @@ R_BRACKET: ']';
 
 // Numbers
 
-DIGIT: '0'..'9';
+fragment DIGIT: '0'..'9';
 fragment INT_SIGN: PLUS | MINUS;
 INTEGER: INT_SIGN? DIGIT+;
 
@@ -57,8 +57,12 @@ FALSE: 'false';
 fragment CHAR: ~('\\' | '\'' | '"');
 fragment ESC_CHAR: '0' | 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\';
 fragment CHARACTER: CHAR | '\\' ESC_CHAR;
-ALPHA: 'a'..'z' | 'A'..'Z';
-UNDERSCORE: '_';
+fragment ALPHA: 'a'..'z' | 'A'..'Z';
+fragment UNDERSCORE: '_';
+
+// Identifier
+
+IDENT: (UNDERSCORE | ALPHA) (UNDERSCORE | ALPHA | DIGIT)*;
 
 // String literal
 

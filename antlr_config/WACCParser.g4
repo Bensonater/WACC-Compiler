@@ -6,14 +6,14 @@ options {
 
 program: BEGIN func* stat END;
 
-func: type ident L_PARENTHESIS paramList? R_PARENTHESIS IS stat END;
+func: type IDENT L_PARENTHESIS paramList? R_PARENTHESIS IS stat END;
 
 paramList: param (COMMA param)*;
 
-param: type ident;
+param: type IDENT;
 
 stat: SKIP_STAT
-| type ident ASSIGN assignRhs
+| type IDENT ASSIGN assignRhs
 | assignLhs ASSIGN assignRhs
 | READ assignLhs
 | FREE expr
@@ -26,7 +26,7 @@ stat: SKIP_STAT
 | BEGIN stat END
 | stat SEMICOLON stat;
 
-assignLhs: ident
+assignLhs: IDENT
 | arrayElem
 | pairElem;
 
@@ -34,7 +34,7 @@ assignRhs: expr
 | arrayLiter
 | NEWPAIR L_PARENTHESIS expr COMMA expr R_PARENTHESIS
 | pairElem
-| CALL ident L_PARENTHESIS argList? R_PARENTHESIS;
+| CALL IDENT L_PARENTHESIS argList? R_PARENTHESIS;
 
 argList: expr (COMMA expr)*;
 
@@ -53,7 +53,7 @@ expr: INTEGER
 | CHAR_LITER
 | STR_LITER
 | NULL
-| ident
+| IDENT
 | arrayElem
 | unaryOper expr
 | expr binaryOper expr
@@ -64,9 +64,7 @@ unaryOper: NOT | MINUS | LEN | ORD | CHR;
 binaryOper: MULT | DIV | MOD | PLUS | MINUS | GT | GTE | LT | LTE
 | EQ | NEQ | AND | OR;
 
-ident: (UNDERSCORE | ALPHA) (UNDERSCORE | ALPHA | DIGIT)*;
-
-arrayElem: ident (L_BRACKET expr R_BRACKET)+;
+arrayElem: IDENT (L_BRACKET expr R_BRACKET)+;
 
 arrayLiter: L_BRACKET (expr (COMMA expr)* )? R_BRACKET;
 
