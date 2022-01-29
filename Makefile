@@ -1,4 +1,4 @@
-# Sample Makefile for the WACC Compiler lab: edit this to build your own comiler
+# Sample Makefile for the WACC Compiler lab: edit this to build your own compiler
 
 # Useful locations
 
