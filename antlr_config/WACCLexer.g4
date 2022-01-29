@@ -4,13 +4,9 @@ lexer grammar WACCLexer;
 
 COMMENT: '#' [^EOL]* -> skip;
 
-// Whitespace
+// WHITESPACE
 
-WS : [ \t]+ -> skip;
-
-// EOL
-
-EOL: '\n';
+WS: [ \n\r\t\f]+ -> skip;
 
 // Binary Operators
 
@@ -40,10 +36,10 @@ NEQ: '!=';
 
 // Brackets
 
-L_PARENTHESES: '(';
-R_PARENTHESES: ')';
-L_SQ_BRACKETS: '[';
-R_SQ_BRACKETS: ']';
+L_PARENTHESIS: '(';
+R_PARENTHESIS: ')';
+L_BRACKET: '[';
+R_BRACKET: ']';
 
 // Numbers
 
@@ -58,10 +54,10 @@ FALSE: 'false';
 
 // Characters
 
-fragment CHAR: [^\\\'"];
-fragment ESC_CHAR: [0|b|t|n|f|r|"|\'|\\];
+fragment CHAR: ~('\\' | '\'' | '"');
+fragment ESC_CHAR: '0' | 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\';
 fragment CHARACTER: CHAR | '\\' ESC_CHAR;
-ALPHA: [a-zA-Z];
+ALPHA: 'a'..'z' | 'A'..'Z';
 UNDERSCORE: '_';
 
 // String literal
@@ -95,7 +91,7 @@ IS: 'is';
 
 // Statements
 
-SKIP: 'skip';
+SKIP_STAT: 'skip';
 ASSIGN: '=';
 READ: 'read';
 FREE: 'free';
