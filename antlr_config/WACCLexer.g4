@@ -2,11 +2,11 @@ lexer grammar WACCLexer;
 
 // Comments
 
-COMMENT: '#' [^EOL]* -> skip;
+COMMENT: '#' (~'\n')* -> skip;
 
 // WHITESPACE
 
-WS: [ \n\r\t\f]+ -> skip;
+WS: (' ' | '\n' | '\r' | '\t' | '\f')+ -> skip;
 
 // Binary Operators
 
