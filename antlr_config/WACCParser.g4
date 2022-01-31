@@ -56,13 +56,27 @@ expr: INTEGER
 | IDENT
 | arrayElem
 | unaryOper expr
-| expr binaryOper expr
+| expr binaryOper1 expr
+| expr binaryOper2 expr
+| expr binaryOper3 expr
+| expr binaryOper4 expr
+| expr binaryOper5 expr
+| expr binaryOper6 expr
 | L_PARENTHESIS expr R_PARENTHESIS;
 
 unaryOper: NOT | MINUS | LEN | ORD | CHR;
 
-binaryOper: MULT | DIV | MOD | PLUS | MINUS | GT | GTE | LT | LTE
-| EQ | NEQ | AND | OR;
+binaryOper1: MULT | DIV | MOD;
+
+binaryOper2: PLUS | MINUS;
+
+binaryOper3: GT | GTE | LT | LTE;
+
+binaryOper4: EQ | NEQ;
+
+binaryOper5: AND;
+
+binaryOper6: OR;
 
 arrayElem: IDENT (L_BRACKET expr R_BRACKET)+;
 
