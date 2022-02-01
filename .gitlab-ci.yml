@@ -7,8 +7,8 @@ stages:
 build:
   stage: build
   script:
-    - make clean
-    - make
+    - sh make clean
+    - sh make
 
 test:
   stage: test
