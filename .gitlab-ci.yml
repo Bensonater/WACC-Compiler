@@ -4,6 +4,11 @@ stages:
 
 build:
   stage: build
+  artifacts:
+    paths:
+      - target/
+      - bin/
+      - src/main/
   script:
     - make clean
     - cd antlr_config && ./antlrBuild
