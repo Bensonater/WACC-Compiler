@@ -1,13 +1,19 @@
 image: maven:latest
 
 stages:
+  - b_script
   - build
   - test
+
+b_script:
+  stage: b_script
+  image: ruby:2.5
+  script:
+    - apt-get -y install build-essential
 
 build:
   stage: build
   script:
-    - apt-get -y install build-essential
     - make clean
     - make
 
