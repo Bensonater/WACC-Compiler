@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test</artifactId>
+            <artifactId>kotlin-test-junit</artifactId>
             <version>1.6.10</version>
         </dependency>
     </dependencies>
