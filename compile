@@ -3,4 +3,5 @@
 # You are free to change the language used for this script,
 # but do *not* change its name.
 
-puts "TODO: setup this script to call your WACC compiler"
+system("kotlin -cp target/classes:lib/antlr-4.9.3-complete.jar frontend.SemanticAnalyserKt < #{ARGV[0]}")
+exit $?.exitstatus
