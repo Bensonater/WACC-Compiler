@@ -48,21 +48,22 @@ pairType: PAIR L_PARENTHESIS pairElemType COMMA pairElemType R_PARENTHESIS;
 
 pairElemType: baseType | type L_BRACKET R_BRACKET | PAIR;
 
-expr: INTEGER
-| boolLiter
-| CHAR_LITER
-| STR_LITER
-| NULL
-| IDENT
-| arrayElem
-| unaryOper expr
-| expr binaryOper1 expr
-| expr binaryOper2 expr
-| expr binaryOper3 expr
-| expr binaryOper4 expr
-| expr binaryOper5 expr
-| expr binaryOper6 expr
-| L_PARENTHESIS expr R_PARENTHESIS;
+expr: INTEGER #exprInt
+| boolLiter   #exprBool
+| CHAR_LITER  #exprChar
+| STR_LITER   #exprStr
+| NULL        #exprNull
+| IDENT       #exprIdent
+| arrayElem   #exprArrayElem
+| unaryOper expr         #exprUnOp
+| expr binaryOper1 expr  #exprNumericBinOp
+| expr binaryOper2 expr  #exprNumericBinOp
+| expr binaryOper3 expr  #exprAlphaNumericBinOp
+| expr binaryOper4 expr  #exprAnyBinOp
+| expr binaryOper5 expr  #exprBoolBinOp
+| expr binaryOper6 expr  #exprBoolBinOp
+| L_PARENTHESIS expr R_PARENTHESIS #exprBrackets
+;
 
 unaryOper: NOT | MINUS | LEN | ORD | CHR;
 
