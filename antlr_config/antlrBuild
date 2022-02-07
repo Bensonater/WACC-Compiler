@@ -1,11 +1,11 @@
 #!/bin/sh
 
-LEXER_FILE=BasicLexer.g4
-PARSER_FILE=BasicParser.g4
+LEXER_FILE=WACCLexer.g4
+PARSER_FILE=WACCParser.g4
 
 BASEDIR=$(dirname $0)
 
-TARGET_DIR=../src/antlr
+TARGET_DIR=../src/main/kotlin/antlr
 
 rm -rf $TARGET_DIR
 
