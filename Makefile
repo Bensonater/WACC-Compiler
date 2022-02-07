@@ -5,6 +5,7 @@
 ANTLR_DIR	 := antlr_config
 SOURCE_DIR	 := src/main/kotlin
 ANTLR_SOURCE_DIR := $(SOURCE_DIR)/antlr
+FRONTEND_SOURCE_DIR := $(SOURCE_DIR)/frontend
 OUTPUT_DIR	 := bin
 
 # Project tools
@@ -17,8 +18,8 @@ RM	:= rm -rf
 
 # Configure project Java flags
 
-FLAGS   := -d $(OUTPUT_DIR)
-JFLAGS	:= -sourcepath $(SOURCE_DIR) $(FLAGS) -cp lib/antlr-4.9.3-complete.jar
+FLAGS   := -d $(OUTPUT_DIR) -cp bin:lib/antlr-4.9.3-complete.jar
+JFLAGS	:= -sourcepath $(SOURCE_DIR) $(FLAGS)
 
 
 # The make rules:
@@ -28,11 +29,12 @@ all:
 	cd $(ANTLR_DIR) && ./$(ANTLR)
 	$(MKDIR) $(OUTPUT_DIR)
 	$(JAVAC) $(JFLAGS) $(ANTLR_SOURCE_DIR)/*.java
-	mvn compile
+	$(KOTLINC) $(FLAGS) $(FRONTEND_SOURCE_DIR)/*.kt
+# 	mvn compile
 
 # clean up all of the compiled files
 clean:
 	$(RM) $(OUTPUT_DIR) $(ANTLR_SOURCE_DIR)
-	mvn clean
+# 	mvn clean
 
 .PHONY: all clean
