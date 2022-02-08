@@ -3,148 +3,144 @@ package frontend.ast
 import antlr.WACCParser
 import antlr.WACCParserBaseVisitor
 
-class BuildAST: WACCParserBaseVisitor<AST>() {
-    override fun visitProgram(ctx: WACCParser.ProgramContext?): AST {
+class BuildAST : WACCParserBaseVisitor<ASTNode>() {
+    override fun visitProgram(ctx: WACCParser.ProgramContext?): ASTNode {
         return super.visitProgram(ctx)
     }
 
-    override fun visitFunc(ctx: WACCParser.FuncContext?): AST {
+    override fun visitFunc(ctx: WACCParser.FuncContext?): ASTNode {
         return super.visitFunc(ctx)
     }
 
-    override fun visitParamList(ctx: WACCParser.ParamListContext?): AST {
+    override fun visitParamList(ctx: WACCParser.ParamListContext?): ASTNode {
         return super.visitParamList(ctx)
     }
 
-    override fun visitParam(ctx: WACCParser.ParamContext?): AST {
+    override fun visitParam(ctx: WACCParser.ParamContext?): ASTNode {
         return super.visitParam(ctx)
     }
 
-    override fun visitStat(ctx: WACCParser.StatContext?): AST {
-        return super.visitStat(ctx)
-    }
-
-    override fun visitAssignLhs(ctx: WACCParser.AssignLhsContext?): AST {
+    override fun visitAssignLhs(ctx: WACCParser.AssignLhsContext?): ASTNode {
         return super.visitAssignLhs(ctx)
     }
 
-    override fun visitAssignRhs(ctx: WACCParser.AssignRhsContext?): AST {
+    override fun visitAssignRhs(ctx: WACCParser.AssignRhsContext?): ASTNode {
         return super.visitAssignRhs(ctx)
     }
 
-    override fun visitArgList(ctx: WACCParser.ArgListContext?): AST {
+    override fun visitArgList(ctx: WACCParser.ArgListContext?): ASTNode {
         return super.visitArgList(ctx)
     }
 
-    override fun visitPairElem(ctx: WACCParser.PairElemContext?): AST {
+    override fun visitPairElem(ctx: WACCParser.PairElemContext?): ASTNode {
         return super.visitPairElem(ctx)
     }
 
-    override fun visitType(ctx: WACCParser.TypeContext?): AST {
+    override fun visitType(ctx: WACCParser.TypeContext?): ASTNode {
         return super.visitType(ctx)
     }
 
-    override fun visitBaseType(ctx: WACCParser.BaseTypeContext?): AST {
+    override fun visitBaseType(ctx: WACCParser.BaseTypeContext?): ASTNode {
         return super.visitBaseType(ctx)
     }
 
-    override fun visitPairType(ctx: WACCParser.PairTypeContext?): AST {
+    override fun visitPairType(ctx: WACCParser.PairTypeContext?): ASTNode {
         return super.visitPairType(ctx)
     }
 
-    override fun visitPairElemType(ctx: WACCParser.PairElemTypeContext?): AST {
+    override fun visitPairElemType(ctx: WACCParser.PairElemTypeContext?): ASTNode {
         return super.visitPairElemType(ctx)
     }
 
-    override fun visitExprInt(ctx: WACCParser.ExprIntContext?): AST {
+    override fun visitExprInt(ctx: WACCParser.ExprIntContext?): ASTNode {
         return super.visitExprInt(ctx)
     }
 
-    override fun visitExprBrackets(ctx: WACCParser.ExprBracketsContext?): AST {
+    override fun visitExprBrackets(ctx: WACCParser.ExprBracketsContext?): ASTNode {
         return super.visitExprBrackets(ctx)
     }
 
-    override fun visitExprArrayElem(ctx: WACCParser.ExprArrayElemContext?): AST {
+    override fun visitExprArrayElem(ctx: WACCParser.ExprArrayElemContext?): ASTNode {
         return super.visitExprArrayElem(ctx)
     }
 
-    override fun visitExprStr(ctx: WACCParser.ExprStrContext?): AST {
+    override fun visitExprStr(ctx: WACCParser.ExprStrContext?): ASTNode {
         return super.visitExprStr(ctx)
     }
 
-    override fun visitExprAlphaNumericBinOp(ctx: WACCParser.ExprAlphaNumericBinOpContext?): AST {
+    override fun visitExprAlphaNumericBinOp(ctx: WACCParser.ExprAlphaNumericBinOpContext?): ASTNode {
         return super.visitExprAlphaNumericBinOp(ctx)
     }
 
-    override fun visitExprChar(ctx: WACCParser.ExprCharContext?): AST {
+    override fun visitExprChar(ctx: WACCParser.ExprCharContext?): ASTNode {
         return super.visitExprChar(ctx)
     }
 
-    override fun visitExprNull(ctx: WACCParser.ExprNullContext?): AST {
+    override fun visitExprNull(ctx: WACCParser.ExprNullContext?): ASTNode {
         return super.visitExprNull(ctx)
     }
 
-    override fun visitExprBool(ctx: WACCParser.ExprBoolContext?): AST {
+    override fun visitExprBool(ctx: WACCParser.ExprBoolContext?): ASTNode {
         return super.visitExprBool(ctx)
     }
 
-    override fun visitExprIdent(ctx: WACCParser.ExprIdentContext?): AST {
+    override fun visitExprIdent(ctx: WACCParser.ExprIdentContext?): ASTNode {
         return super.visitExprIdent(ctx)
     }
 
-    override fun visitExprNumericBinOp(ctx: WACCParser.ExprNumericBinOpContext?): AST {
+    override fun visitExprNumericBinOp(ctx: WACCParser.ExprNumericBinOpContext?): ASTNode {
         return super.visitExprNumericBinOp(ctx)
     }
 
-    override fun visitExprBoolBinOp(ctx: WACCParser.ExprBoolBinOpContext?): AST {
+    override fun visitExprBoolBinOp(ctx: WACCParser.ExprBoolBinOpContext?): ASTNode {
         return super.visitExprBoolBinOp(ctx)
     }
 
-    override fun visitExprAnyBinOp(ctx: WACCParser.ExprAnyBinOpContext?): AST {
+    override fun visitExprAnyBinOp(ctx: WACCParser.ExprAnyBinOpContext?): ASTNode {
         return super.visitExprAnyBinOp(ctx)
     }
 
-    override fun visitExprUnOp(ctx: WACCParser.ExprUnOpContext?): AST {
+    override fun visitExprUnOp(ctx: WACCParser.ExprUnOpContext?): ASTNode {
         return super.visitExprUnOp(ctx)
     }
 
-    override fun visitUnaryOper(ctx: WACCParser.UnaryOperContext?): AST {
+    override fun visitUnaryOper(ctx: WACCParser.UnaryOperContext?): ASTNode {
         return super.visitUnaryOper(ctx)
     }
 
-    override fun visitBinaryOper1(ctx: WACCParser.BinaryOper1Context?): AST {
+    override fun visitBinaryOper1(ctx: WACCParser.BinaryOper1Context?): ASTNode {
         return super.visitBinaryOper1(ctx)
     }
 
-    override fun visitBinaryOper2(ctx: WACCParser.BinaryOper2Context?): AST {
+    override fun visitBinaryOper2(ctx: WACCParser.BinaryOper2Context?): ASTNode {
         return super.visitBinaryOper2(ctx)
     }
 
-    override fun visitBinaryOper3(ctx: WACCParser.BinaryOper3Context?): AST {
+    override fun visitBinaryOper3(ctx: WACCParser.BinaryOper3Context?): ASTNode {
         return super.visitBinaryOper3(ctx)
     }
 
-    override fun visitBinaryOper4(ctx: WACCParser.BinaryOper4Context?): AST {
+    override fun visitBinaryOper4(ctx: WACCParser.BinaryOper4Context?): ASTNode {
         return super.visitBinaryOper4(ctx)
     }
 
-    override fun visitBinaryOper5(ctx: WACCParser.BinaryOper5Context?): AST {
+    override fun visitBinaryOper5(ctx: WACCParser.BinaryOper5Context?): ASTNode {
         return super.visitBinaryOper5(ctx)
     }
 
-    override fun visitBinaryOper6(ctx: WACCParser.BinaryOper6Context?): AST {
+    override fun visitBinaryOper6(ctx: WACCParser.BinaryOper6Context?): ASTNode {
         return super.visitBinaryOper6(ctx)
     }
 
-    override fun visitArrayElem(ctx: WACCParser.ArrayElemContext?): AST {
+    override fun visitArrayElem(ctx: WACCParser.ArrayElemContext?): ASTNode {
         return super.visitArrayElem(ctx)
     }
 
-    override fun visitArrayLiter(ctx: WACCParser.ArrayLiterContext?): AST {
+    override fun visitArrayLiter(ctx: WACCParser.ArrayLiterContext?): ASTNode {
         return super.visitArrayLiter(ctx)
     }
 
-    override fun visitBoolLiter(ctx: WACCParser.BoolLiterContext?): AST {
+    override fun visitBoolLiter(ctx: WACCParser.BoolLiterContext?): ASTNode {
         return super.visitBoolLiter(ctx)
     }
 }
