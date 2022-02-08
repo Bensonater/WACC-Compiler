@@ -16,11 +16,11 @@ stat: SKIP_STAT                      #statSkip
 | type IDENT ASSIGN assignRhs        #statDeclare
 | assignLhs ASSIGN assignRhs         #statAssign
 | READ assignLhs                     #statRead
-| FREE expr                          #statSingle
-| RETURN expr                        #statSingle
-| EXIT expr                          #statSingle
-| PRINT expr                         #statSingle
-| PRINTLN expr                       #statSingle
+| FREE expr                          #statSimple
+| RETURN expr                        #statSimple
+| EXIT expr                          #statSimple
+| PRINT expr                         #statSimple
+| PRINTLN expr                       #statSimple
 | IF expr THEN stat ELSE stat ENDIF  #statIf
 | WHILE expr DO stat ENDWHILE        #statWhile
 | BEGIN stat END                     #statBegin
