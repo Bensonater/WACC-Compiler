@@ -30,10 +30,6 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
         return ParamAST(ctx, visit(ctx.type()) as TypeAST, visit(ctx.IDENT()) as IdentAST)
     }
 
-    override fun visitAssignLhs(ctx: WACCParser.AssignLhsContext): ASTNode {
-        return visitChildren(ctx)
-    }
-
     override fun visitAssignRhs(ctx: WACCParser.AssignRhsContext): ASTNode {
         if (ctx.NEWPAIR() != null) {
             return NewPairAST(ctx,
@@ -51,10 +47,6 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
             return CallAST(ctx, visit(ctx.IDENT()) as IdentAST, argList)
         }
         return visitChildren(ctx)
-    }
-
-    override fun visitParamList(ctx: WACCParser.ParamListContext): ASTNode {
-        return super.visitParamList(ctx)
     }
 
     override fun visitStatWhile(ctx: WACCParser.StatWhileContext): ASTNode {
