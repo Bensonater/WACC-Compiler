@@ -1,7 +1,8 @@
-package frontend.ast
+package frontend.visitor
 
 import antlr.WACCParser
 import antlr.WACCParserBaseVisitor
+import frontend.ast.*
 
 class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     override fun visitProgram(ctx: WACCParser.ProgramContext): ASTNode {
@@ -23,12 +24,8 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
         return FuncAST(ctx, ident, paramList, stat)
     }
 
-    override fun visitParamList(ctx: WACCParser.ParamListContext?): ASTNode {
-        return super.visitParamList(ctx)
-    }
-
     override fun visitParam(ctx: WACCParser.ParamContext?): ASTNode {
-        return super.visitParam(ctx)
+        return ParamAST(ctx, visit(ctx.type()) as TypeAST, visit(ctx.IDENT()) as IdentAST)
     }
 
     override fun visitAssignLhs(ctx: WACCParser.AssignLhsContext?): ASTNode {
