@@ -3,13 +3,24 @@ package frontend.ast
 import antlr.WACCParser
 import antlr.WACCParserBaseVisitor
 
-class BuildAST : WACCParserBaseVisitor<ASTNode>() {
-    override fun visitProgram(ctx: WACCParser.ProgramContext?): ASTNode {
-        return super.visitProgram(ctx)
+class BuildAST: WACCParserBaseVisitor<ASTNode>() {
+    override fun visitProgram(ctx: WACCParser.ProgramContext): ASTNode {
+        val funcList = mutableListOf<FuncAST>()
+        for (func in ctx.func()) {
+            funcList.add(visit(func) as FuncAST)
+        }
+        val stat = visit(ctx.stat()) as StatAST
+        return ProgramAST(ctx, funcList, stat)
     }
 
-    override fun visitFunc(ctx: WACCParser.FuncContext?): ASTNode {
-        return super.visitFunc(ctx)
+    override fun visitFunc(ctx: WACCParser.FuncContext): ASTNode {
+        val paramList = mutableListOf<ParamAST>()
+        for (param in ctx.paramList().param()) {
+            paramList.add(visit(param) as ParamAST)
+        }
+        val ident = visit(ctx.ident()) as IdentAST
+        val stat = visit(ctx.stat()) as StatAS
+        return FuncAST(ctx, ident, paramList, stat)
     }
 
     override fun visitParamList(ctx: WACCParser.ParamListContext?): ASTNode {
