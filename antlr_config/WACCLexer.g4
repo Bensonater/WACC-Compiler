@@ -44,8 +44,7 @@ R_BRACKET: ']';
 // Numbers
 
 fragment DIGIT: '0'..'9';
-fragment INT_SIGN: PLUS | MINUS;
-INTEGER: INT_SIGN? DIGIT+;
+INTEGER: DIGIT+;
 
 // Boolean
 
