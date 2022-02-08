@@ -31,11 +31,26 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitAssignLhs(ctx: WACCParser.AssignLhsContext): ASTNode {
-        return super.visitAssignLhs(ctx)
+        return visitChildren(ctx)
     }
 
     override fun visitAssignRhs(ctx: WACCParser.AssignRhsContext): ASTNode {
-        return super.visitAssignRhs(ctx)
+        if (ctx.NEWPAIR() != null) {
+            return NewPairAST(ctx,
+                visit(ctx.expr(0)) as ExprAST,
+                visit(ctx.expr(1)) as ExprAST
+            )
+        }
+        if (ctx.CALL() != null) {
+            var argList = mutableListOf<ExprAST>()
+            if (ctx.argList() != null) {
+                for (expr in ctx.argList().expr()) {
+                    argList.add(visit(expr) as ExprAST)
+                }
+            }
+            return CallAST(ctx, visit(ctx.IDENT()) as IdentAST, argList)
+        }
+        return visitChildren(ctx)
     }
 
     override fun visitArgList(ctx: WACCParser.ArgListContext): ASTNode {
