@@ -53,6 +53,42 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
         return visitChildren(ctx)
     }
 
+    override fun visitParamList(ctx: WACCParser.ParamListContext): ASTNode {
+        return super.visitParamList(ctx)
+    }
+
+    override fun visitStatWhile(ctx: WACCParser.StatWhileContext): ASTNode {
+        return super.visitStatWhile(ctx)
+    }
+
+    override fun visitStatRead(ctx: WACCParser.StatReadContext): ASTNode {
+        return super.visitStatRead(ctx)
+    }
+
+    override fun visitStatBegin(ctx: WACCParser.StatBeginContext): ASTNode {
+        return super.visitStatBegin(ctx)
+    }
+
+    override fun visitStatDeclare(ctx: WACCParser.StatDeclareContext): ASTNode {
+        return super.visitStatDeclare(ctx)
+    }
+
+    override fun visitStatAssign(ctx: WACCParser.StatAssignContext): ASTNode {
+        return super.visitStatAssign(ctx)
+    }
+
+    override fun visitStatIf(ctx: WACCParser.StatIfContext): ASTNode {
+        return super.visitStatIf(ctx)
+    }
+
+    override fun visitStatMulti(ctx: WACCParser.StatMultiContext): ASTNode {
+        return super.visitStatMulti(ctx)
+    }
+
+    override fun visitStatSingle(ctx: WACCParser.StatSingleContext): ASTNode {
+        return super.visitStatSingle(ctx)
+    }
+
     override fun visitArgList(ctx: WACCParser.ArgListContext): ASTNode {
         return super.visitArgList(ctx)
     }
@@ -77,52 +113,16 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
         return super.visitPairElemType(ctx)
     }
 
-    override fun visitExprInt(ctx: WACCParser.ExprIntContext): ASTNode {
-        return super.visitExprInt(ctx)
+    override fun visitExprBinOp(ctx: WACCParser.ExprBinOpContext): ASTNode {
+        return super.visitExprBinOp(ctx)
     }
 
     override fun visitExprBrackets(ctx: WACCParser.ExprBracketsContext): ASTNode {
         return super.visitExprBrackets(ctx)
     }
 
-    override fun visitExprArrayElem(ctx: WACCParser.ExprArrayElemContext): ASTNode {
-        return super.visitExprArrayElem(ctx)
-    }
-
-    override fun visitExprStr(ctx: WACCParser.ExprStrContext): ASTNode {
-        return super.visitExprStr(ctx)
-    }
-
-    override fun visitExprAlphaNumericBinOp(ctx: WACCParser.ExprAlphaNumericBinOpContext): ASTNode {
-        return super.visitExprAlphaNumericBinOp(ctx)
-    }
-
-    override fun visitExprChar(ctx: WACCParser.ExprCharContext): ASTNode {
-        return super.visitExprChar(ctx)
-    }
-
-    override fun visitExprNull(ctx: WACCParser.ExprNullContext): ASTNode {
-        return super.visitExprNull(ctx)
-    }
-
-    override fun visitExprBool(ctx: WACCParser.ExprBoolContext): ASTNode {
-        return super.visitExprBool(ctx)
-    }
-
-    override fun visitExprIdent(ctx: WACCParser.ExprIdentContext): ASTNode {
-        return super.visitExprIdent(ctx)
-    }
-
-    override fun visitExprNumericBinOp(ctx: WACCParser.ExprNumericBinOpContext): ASTNode {
-        return super.visitExprNumericBinOp(ctx)
-    }
-
-    override fun visitExprBoolBinOp(ctx: WACCParser.ExprBoolBinOpContext): ASTNode {
-        return super.visitExprBoolBinOp(ctx)
-    }
-
-    override fun visitExprAnyBinOp(ctx: WACCParser.ExprAnyBinOpContext): ASTNode {
-        return super.visitExprAnyBinOp(ctx)
+    override fun visitExprSingle(ctx: WACCParser.ExprSingleContext): ASTNode {
+        return super.visitExprSingle(ctx)
     }
 
     override fun visitExprUnOp(ctx: WACCParser.ExprUnOpContext): ASTNode {
@@ -167,41 +167,5 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
 
     override fun visitBoolLiter(ctx: WACCParser.BoolLiterContext): ASTNode {
         return super.visitBoolLiter(ctx)
-    }
-
-    override fun visitReadStat(ctx: WACCParser.ReadStatContext): ASTNode {
-        return super.visitReadStat(ctx)
-    }
-
-    override fun visitIfStat(ctx: WACCParser.IfStatContext): ASTNode {
-        return super.visitIfStat(ctx)
-    }
-
-    override fun visitBeginStat(ctx: WACCParser.BeginStatContext): ASTNode {
-        return super.visitBeginStat(ctx)
-    }
-
-    override fun visitMultiStat(ctx: WACCParser.MultiStatContext): ASTNode {
-        return super.visitMultiStat(ctx)
-    }
-
-    override fun visitSkipStat(ctx: WACCParser.SkipStatContext): ASTNode {
-        return super.visitSkipStat(ctx)
-    }
-
-    override fun visitSingleStat(ctx: WACCParser.SingleStatContext): ASTNode {
-        return super.visitSingleStat(ctx)
-    }
-
-    override fun visitAssignStat(ctx: WACCParser.AssignStatContext): ASTNode {
-        return super.visitAssignStat(ctx)
-    }
-
-    override fun visitDeclareStat(ctx: WACCParser.DeclareStatContext): ASTNode {
-        return super.visitDeclareStat(ctx)
-    }
-
-    override fun visitWhileStat(ctx: WACCParser.WhileStatContext): ASTNode {
-        return super.visitWhileStat(ctx)
     }
 }
