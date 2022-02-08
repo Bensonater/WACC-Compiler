@@ -19,10 +19,6 @@ class Visitor : WACCParserBaseVisitor<Void>() {
         return super.visitParam(ctx)
     }
 
-    override fun visitStat(ctx: WACCParser.StatContext?): Void {
-        return super.visitStat(ctx)
-    }
-
     override fun visitAssignLhs(ctx: WACCParser.AssignLhsContext?): Void {
         return super.visitAssignLhs(ctx)
     }
