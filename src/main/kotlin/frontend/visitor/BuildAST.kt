@@ -27,7 +27,11 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
         }
         val ident = visit(ctx.IDENT()) as IdentAST
         val stat = visit(ctx.stat()) as StatAST
-        return FuncAST(ctx, ident, paramList, stat)
+        return if (stat is StatMultiAST) {
+            FuncAST(ctx, ident, paramList, stat.stats)
+        } else {
+            FuncAST(ctx, ident, paramList, mutableListOf(stat))
+        }
     }
 
     override fun visitParam(ctx: WACCParser.ParamContext): ASTNode {
@@ -42,7 +46,7 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
             )
         }
         if (ctx.CALL() != null) {
-            var argList = mutableListOf<ExprAST>()
+            val argList = mutableListOf<ExprAST>()
             if (ctx.argList() != null) {
                 for (expr in ctx.argList().expr()) {
                     argList.add(visit(expr) as ExprAST)
@@ -94,6 +98,10 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
 
     override fun visitStatSingle(ctx: WACCParser.StatSingleContext): ASTNode {
         return super.visitStatSingle(ctx)
+    }
+
+    override fun visitStatSkip(ctx: WACCParser.StatSkipContext): ASTNode {
+        return super.visitStatSkip(ctx)
     }
 
     override fun visitArgList(ctx: WACCParser.ArgListContext): ASTNode {
