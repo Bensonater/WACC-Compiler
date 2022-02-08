@@ -3,10 +3,7 @@ package frontend.visitor
 import antlr.WACCParser
 import antlr.WACCParserBaseVisitor
 import frontend.ast.*
-import frontend.ast.statement.CallAST
-import frontend.ast.statement.StatAST
-import frontend.ast.statement.StatMultiAST
-import frontend.ast.statement.WhileAST
+import frontend.ast.statement.*
 
 class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     override fun visitProgram(ctx: WACCParser.ProgramContext): ASTNode {
@@ -73,35 +70,53 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitStatRead(ctx: WACCParser.StatReadContext): ASTNode {
-        return super.visitStatRead(ctx)
-    }
-
-    override fun visitStatBegin(ctx: WACCParser.StatBeginContext): ASTNode {
-        return super.visitStatBegin(ctx)
+        return ReadAST(ctx, visit(ctx.assignLhs()))
     }
 
     override fun visitStatDeclare(ctx: WACCParser.StatDeclareContext): ASTNode {
-        return super.visitStatDeclare(ctx)
+        return DeclareAST(ctx,
+            visit(ctx.type()) as TypeAST,
+            visit(ctx.IDENT()) as IdentAST,
+            visit(ctx.assignRhs())
+        )
     }
 
     override fun visitStatAssign(ctx: WACCParser.StatAssignContext): ASTNode {
-        return super.visitStatAssign(ctx)
+        return AssignAST(ctx, visit(ctx.assignLhs()), visit(ctx.assignRhs()))
     }
 
     override fun visitStatIf(ctx: WACCParser.StatIfContext): ASTNode {
-        return super.visitStatIf(ctx)
+        return IfAST(ctx,
+            visit(ctx.expr()) as ExprAST,
+            visit(ctx.stat(0)) as StatAST,
+            visit(ctx.stat(1)) as StatAST
+        )
     }
 
     override fun visitStatMulti(ctx: WACCParser.StatMultiContext): ASTNode {
-        return super.visitStatMulti(ctx)
+        val statFirst = visit(ctx.stat(0)) as StatAST
+        val statSecond = visit(ctx.stat(1)) as StatAST
+        return if (statFirst is StatMultiAST) {
+            StatMultiAST(ctx, statFirst.stats + statSecond)
+        } else {
+            StatMultiAST(ctx, mutableListOf(statFirst, statSecond))
+        }
     }
 
-    override fun visitStatSingle(ctx: WACCParser.StatSingleContext): ASTNode {
-        return super.visitStatSingle(ctx)
+    override fun visitStatSimple(ctx: WACCParser.StatSimpleContext): ASTNode {
+        val command = when {
+            ctx.FREE() != null -> Command.FREE
+            ctx.RETURN() != null -> Command.RETURN
+            ctx.EXIT() != null -> Command.EXIT
+            ctx.PRINT() != null -> Command.PRINT
+            ctx.PRINTLN() != null -> Command.PRINTLN
+            else -> throw RuntimeException()
+        }
+        return StatSimpleAST(ctx, command, visit(ctx.expr()) as ExprAST)
     }
 
     override fun visitStatSkip(ctx: WACCParser.StatSkipContext): ASTNode {
-        return super.visitStatSkip(ctx)
+        return SkipAST(ctx)
     }
 
     override fun visitArgList(ctx: WACCParser.ArgListContext): ASTNode {

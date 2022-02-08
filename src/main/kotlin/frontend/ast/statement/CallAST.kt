@@ -5,5 +5,5 @@ import frontend.ast.ExprAST
 import frontend.ast.IdentAST
 import org.antlr.v4.runtime.ParserRuleContext
 
-class CallAST(ctx: ParserRuleContext, ident: IdentAST, paramList: List<ExprAST>) : ASTNode(ctx) {
+class CallAST(ctx: ParserRuleContext, ident: IdentAST, paramList: List<ExprAST>) : StatAST(ctx) {
 }
