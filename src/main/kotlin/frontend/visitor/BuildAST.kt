@@ -16,8 +16,10 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
 
     override fun visitFunc(ctx: WACCParser.FuncContext): ASTNode {
         val paramList = mutableListOf<ParamAST>()
-        for (param in ctx.paramList().param()) {
-            paramList.add(visit(param) as ParamAST)
+        if (ctx.paramList() != null) {
+            for (param in ctx.paramList().param()) {
+                paramList.add(visit(param) as ParamAST)
+            }
         }
         val ident = visit(ctx.IDENT()) as IdentAST
         val stat = visit(ctx.stat()) as StatAST
