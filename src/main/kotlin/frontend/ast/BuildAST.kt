@@ -18,8 +18,8 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
         for (param in ctx.paramList().param()) {
             paramList.add(visit(param) as ParamAST)
         }
-        val ident = visit(ctx.ident()) as IdentAST
-        val stat = visit(ctx.stat()) as StatAS
+        val ident = visit(ctx.IDENT()) as IdentAST
+        val stat = visit(ctx.stat()) as StatAST
         return FuncAST(ctx, ident, paramList, stat)
     }
 
