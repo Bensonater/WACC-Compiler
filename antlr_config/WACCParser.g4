@@ -49,7 +49,7 @@ pairType: PAIR L_PARENTHESIS pairElemType COMMA pairElemType R_PARENTHESIS;
 
 pairElemType: baseType | type L_BRACKET R_BRACKET | PAIR;
 
-expr: INTEGER #exprInt
+expr: (PLUS | MINUS)? INTEGER #exprInt
 | boolLiter   #exprBool
 | CHAR_LITER  #exprChar
 | STR_LITER   #exprStr
