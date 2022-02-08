@@ -154,4 +154,40 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     override fun visitBoolLiter(ctx: WACCParser.BoolLiterContext?): ASTNode {
         return super.visitBoolLiter(ctx)
     }
+
+    override fun visitReadStat(ctx: WACCParser.ReadStatContext?): ASTNode {
+        return super.visitReadStat(ctx)
+    }
+
+    override fun visitIfStat(ctx: WACCParser.IfStatContext?): ASTNode {
+        return super.visitIfStat(ctx)
+    }
+
+    override fun visitBeginStat(ctx: WACCParser.BeginStatContext?): ASTNode {
+        return super.visitBeginStat(ctx)
+    }
+
+    override fun visitMultiStat(ctx: WACCParser.MultiStatContext?): ASTNode {
+        return super.visitMultiStat(ctx)
+    }
+
+    override fun visitSkipStat(ctx: WACCParser.SkipStatContext?): ASTNode {
+        return super.visitSkipStat(ctx)
+    }
+
+    override fun visitSingleStat(ctx: WACCParser.SingleStatContext?): ASTNode {
+        return super.visitSingleStat(ctx)
+    }
+
+    override fun visitAssignStat(ctx: WACCParser.AssignStatContext?): ASTNode {
+        return super.visitAssignStat(ctx)
+    }
+
+    override fun visitDeclareStat(ctx: WACCParser.DeclareStatContext?): ASTNode {
+        return super.visitDeclareStat(ctx)
+    }
+
+    override fun visitWhileStat(ctx: WACCParser.WhileStatContext?): ASTNode {
+        return super.visitWhileStat(ctx)
+    }
 }
