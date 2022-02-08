@@ -1,9 +1,10 @@
-package frontend.ast
+package frontend.ast.statement
 
 import frontend.SymbolTable
+import frontend.ast.ASTNode
 import org.antlr.v4.runtime.ParserRuleContext
 
-class StatAST(ctx: ParserRuleContext) : ASTNode(ctx) {
+abstract class StatAST(ctx: ParserRuleContext) : ASTNode(ctx) {
     override var symbolTable = SymbolTable()
 
 }

@@ -3,6 +3,10 @@ package frontend.visitor
 import antlr.WACCParser
 import antlr.WACCParserBaseVisitor
 import frontend.ast.*
+import frontend.ast.statement.CallAST
+import frontend.ast.statement.StatAST
+import frontend.ast.statement.StatMultiAST
+import frontend.ast.statement.WhileAST
 
 class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     override fun visitProgram(ctx: WACCParser.ProgramContext): ASTNode {
@@ -50,7 +54,18 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitStatWhile(ctx: WACCParser.StatWhileContext): ASTNode {
-        return super.visitStatWhile(ctx)
+        val ctxStat = visit(ctx.stat()) as StatAST
+        return if (ctxStat is StatMultiAST) {
+            WhileAST (ctx,
+                visit(ctx.expr()) as ExprAST,
+                ctxStat.stats
+            )
+        } else {
+            WhileAST (ctx,
+                visit(ctx.expr()) as ExprAST,
+                mutableListOf(ctxStat)
+            )
+        }
     }
 
     override fun visitStatRead(ctx: WACCParser.StatReadContext): ASTNode {
