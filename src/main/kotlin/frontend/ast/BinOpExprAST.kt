@@ -33,7 +33,8 @@ enum class BoolBinOp : BinOp {
     OR
 }
 
-class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: ExprAST, val expr2: ExprAST) : ExprAST(ctx) {
+class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: ExprAST, val expr2: ExprAST) :
+    ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         val result = when (binOp) {
             is IntBinOp -> checkInt()
@@ -43,10 +44,8 @@ class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: Expr
                 false
             }
         }
-        if (!result) {
-            // TODO: Raise error here
-        }
-        return true
+
+        return result and expr1.check(symbolTable) and expr2.check(symbolTable)
     }
 
     private fun checkInt(): Boolean {

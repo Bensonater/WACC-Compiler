@@ -29,10 +29,7 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                 false
             }
         }
-        if (!result) {
-            // throw an error about incompatible type
-        }
-        return true
+        return result and expr.check(symbolTable)
     }
 
     override fun getType(symbolTable: SymbolTable): TypeAST? {
