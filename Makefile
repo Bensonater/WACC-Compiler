@@ -32,9 +32,12 @@ all:
 # 	$(KOTLINC) $(FLAGS) $(FRONTEND_SOURCE_DIR)/*.kt
 	mvn compile
 
+test:
+	mvn test
+
 # clean up all of the compiled files
 clean:
 # 	$(RM) $(OUTPUT_DIR) $(ANTLR_SOURCE_DIR)
 	mvn clean
 
-.PHONY: all clean
+.PHONY: all test clean
