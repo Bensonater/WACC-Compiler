@@ -2,9 +2,9 @@ package frontend.visitor
 
 import antlr.WACCParser.*
 import antlr.WACCParserBaseVisitor
-import frontend.ast.ASTNode
+import frontend.errors.SyntaxErrorHandler
 
-class SyntaxChecker: WACCParserBaseVisitor<Void>()  {
+class SyntaxChecker(val syntaxErrorHandler: SyntaxErrorHandler) : WACCParserBaseVisitor<Void>()  {
 
     private fun statIsExitOrReturn(stat: StatContext) = (stat is StatSimpleContext) &&
             (stat.EXIT() != null || stat.RETURN() != null)
@@ -47,7 +47,7 @@ class SyntaxChecker: WACCParserBaseVisitor<Void>()  {
         }
 
         if (!endsWithExitOrReturn) {
-           // syntaxError("Function does not end with an exit or return statement", ctx)
+            syntaxErrorHandler.missingExitOrReturnError(ctx)
         }
         return null
     }
@@ -56,7 +56,7 @@ class SyntaxChecker: WACCParserBaseVisitor<Void>()  {
         try {
             (ctx.text).toInt()
         } catch (e: NumberFormatException) {
-//            syntaxError("int out of bound", ctx)
+            syntaxErrorHandler.intOverflowError(ctx)
         }
         return null
     }
