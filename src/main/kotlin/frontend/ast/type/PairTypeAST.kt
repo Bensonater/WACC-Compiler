@@ -8,4 +8,22 @@ class PairTypeAST(ctx: ParserRuleContext, val typeFst: TypeAST, val typeSnd: Typ
     override fun check(symbolTable: SymbolTable): Boolean {
         return typeFst.check(symbolTable) && typeSnd.check(symbolTable)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PairTypeAST
+
+        if (typeFst != other.typeFst) return false
+        if (typeSnd != other.typeSnd) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = typeFst.hashCode()
+        result = 31 * result + typeSnd.hashCode()
+        return result
+    }
 }
