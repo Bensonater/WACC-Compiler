@@ -10,5 +10,5 @@ enum class BaseType {
     STRING
 }
 
-class BaseTypeAST (ctx: ParserRuleContext, val type:BaseType) : ASTNode(ctx) {
+class BaseTypeAST (ctx: ParserRuleContext, val type:BaseType) : TypeAST(ctx) {
 }
