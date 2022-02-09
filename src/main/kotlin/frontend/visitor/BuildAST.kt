@@ -119,28 +119,38 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
         return SkipAST(ctx)
     }
 
-    override fun visitArgList(ctx: WACCParser.ArgListContext): ASTNode {
-        return super.visitArgList(ctx)
-    }
 
     override fun visitPairElem(ctx: WACCParser.PairElemContext): ASTNode {
-        return super.visitPairElem(ctx)
-    }
-
-    override fun visitType(ctx: WACCParser.TypeContext): ASTNode {
-        return super.visitType(ctx)
+        val index = when {
+            ctx.FST() != null -> PairIndex.FST
+            ctx.SND() != null -> PairIndex.SND
+            else -> throw RuntimeException()
+        }
+        return PairElemAST(ctx, index, visit(ctx.expr()) as ExprAST)
     }
 
     override fun visitBaseType(ctx: WACCParser.BaseTypeContext): ASTNode {
-        return super.visitBaseType(ctx)
+        val baseType = when {
+            ctx.INT_T() != null -> BaseType.INT
+            ctx.BOOL_T() != null -> BaseType.BOOL
+            ctx.CHAR_T() != null -> BaseType.CHAR
+            ctx.STRING_T() != null -> BaseType.STRING
+            else -> throw RuntimeException()
+        }
+        return BaseTypeAST(ctx, baseType)
     }
 
     override fun visitPairType(ctx: WACCParser.PairTypeContext): ASTNode {
-        return super.visitPairType(ctx)
+        return PairTypeAST(ctx, visit(ctx.pairElemType(0)) as TypeAST,
+        visit(ctx.pairElemType(1)) as TypeAST)
     }
 
     override fun visitPairElemType(ctx: WACCParser.PairElemTypeContext): ASTNode {
-        return super.visitPairElemType(ctx)
+        return if (ctx.PAIR() != null) {
+            NullablePairOfPairTypeAST(ctx)
+        } else {
+            visitChildren(ctx)
+        }
     }
 
     override fun visitExprBinOp(ctx: WACCParser.ExprBinOpContext): ASTNode {
