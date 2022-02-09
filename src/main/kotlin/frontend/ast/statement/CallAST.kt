@@ -4,6 +4,7 @@ import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.FuncAST
 import frontend.ast.IdentAST
+import frontend.ast.type.TypeAST
 import org.antlr.v4.runtime.ParserRuleContext
 
 class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<ExprAST>) : StatAST(ctx) {
@@ -32,5 +33,9 @@ class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<Ex
             }
         }
         return true
+    }
+
+    override fun getType(symbolTable: SymbolTable): TypeAST? {
+        return ident.getType(symbolTable)
     }
 }
