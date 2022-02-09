@@ -41,13 +41,15 @@ argList: expr (COMMA expr)*;
 
 pairElem: FST expr | SND expr;
 
-type: baseType | type L_BRACKET R_BRACKET | pairType;
+type: baseType | arrayType | pairType;
 
 baseType: INT_T | BOOL_T | CHAR_T | STRING_T;
 
+arrayType: (baseType | pairType) (L_BRACKET R_BRACKET)+;
+
 pairType: PAIR L_PARENTHESIS pairElemType COMMA pairElemType R_PARENTHESIS;
 
-pairElemType: baseType | type L_BRACKET R_BRACKET | PAIR;
+pairElemType: baseType | arrayType | PAIR;
 
 expr: (PLUS | MINUS)? INTEGER      #exprSingle
 | boolLiter                        #exprSingle

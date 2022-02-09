@@ -4,6 +4,7 @@ import antlr.WACCParser
 import antlr.WACCParserBaseVisitor
 import frontend.ast.*
 import frontend.ast.statement.*
+import frontend.ast.type.*
 
 class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     override fun visitProgram(ctx: WACCParser.ProgramContext): ASTNode {
@@ -142,7 +143,8 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
 
     override fun visitPairType(ctx: WACCParser.PairTypeContext): ASTNode {
         return PairTypeAST(ctx, visit(ctx.pairElemType(0)) as TypeAST,
-        visit(ctx.pairElemType(1)) as TypeAST)
+        visit(ctx.pairElemType(1)) as TypeAST
+        )
     }
 
     override fun visitPairElemType(ctx: WACCParser.PairElemTypeContext): ASTNode {
