@@ -24,6 +24,7 @@ class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val st
         for (func in funcList) {
             if (symbolTable.get(func.ident.name) != null) {
                 // Return semantic error "Function is already defined {func.ident.name}"
+                return false
             }
             symbolTable.put(func.ident.name, func)
         }
