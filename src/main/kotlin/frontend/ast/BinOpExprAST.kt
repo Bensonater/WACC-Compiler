@@ -1,9 +1,6 @@
 package frontend.ast
 
 import frontend.SymbolTable
-import frontend.ast.literal.BoolLiterAST
-import frontend.ast.literal.CharLiterAST
-import frontend.ast.literal.IntLiterAST
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
 import frontend.ast.type.TypeAST
@@ -36,31 +33,39 @@ enum class BoolBinOp : BinOp {
 class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: ExprAST, val expr2: ExprAST) :
     ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
-        val result = when (binOp) {
-            is IntBinOp -> checkInt()
-            is CmpBinOp -> checkCmp()
-            is BoolBinOp -> checkBool()
+        if (!expr1.check(symbolTable) || !expr2.check(symbolTable)) {
+            return false
+        }
+        val expr1Type = expr1.getType(symbolTable)
+        val expr2Type = expr2.getType(symbolTable)
+        if (expr1Type !is BaseTypeAST || expr2Type !is BaseTypeAST) {
+            return false
+        }
+
+        return when (binOp) {
+            is IntBinOp -> checkInt(expr1Type, expr2Type)
+            is CmpBinOp -> checkCmp(expr1Type, expr2Type)
+            is BoolBinOp -> checkBool(expr1Type, expr2Type)
             else -> {
                 false
             }
         }
 
-        return result and expr1.check(symbolTable) and expr2.check(symbolTable)
     }
 
-    private fun checkInt(): Boolean {
-        return (expr1 is IntLiterAST) and (expr2 is IntLiterAST)
+    private fun checkInt(type1: BaseTypeAST, type2: BaseTypeAST): Boolean {
+        return type1.type == BaseType.INT && type2.type == BaseType.INT
     }
 
-    private fun checkCmp(): Boolean {
-        if ((binOp == CmpBinOp.EQ) or (binOp == CmpBinOp.NEQ)) {
-            return true
+    private fun checkCmp(type1: BaseTypeAST, type2: BaseTypeAST): Boolean {
+        if (binOp == CmpBinOp.EQ || binOp == CmpBinOp.NEQ) {
+            return type1.type == type2.type
         }
-        return checkInt() or ((expr1 is CharLiterAST) and (expr2 is CharLiterAST))
+        return checkInt(type1, type2) || (type1.type == BaseType.CHAR && type2.type == BaseType.CHAR)
     }
 
-    private fun checkBool(): Boolean {
-        return (expr1 is BoolLiterAST) and (expr2 is BoolLiterAST)
+    private fun checkBool(type1: BaseTypeAST, type2: BaseTypeAST): Boolean {
+        return type1.type == BaseType.BOOL && type2.type == BaseType.BOOL
     }
 
     override fun getType(symbolTable: SymbolTable): TypeAST? {
