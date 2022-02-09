@@ -3,7 +3,9 @@ package frontend.visitor
 import antlr.WACCParser
 import antlr.WACCParserBaseVisitor
 import frontend.ast.*
+import frontend.ast.literal.*
 import frontend.ast.statement.*
+import frontend.ast.type.*
 
 class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     override fun visitProgram(ctx: WACCParser.ProgramContext): ASTNode {
@@ -25,9 +27,9 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
         val ident = visit(ctx.IDENT()) as IdentAST
         val stat = visit(ctx.stat()) as StatAST
         return if (stat is StatMultiAST) {
-            FuncAST(ctx, ident, paramList, stat.stats)
+            FuncAST(ctx, visit(ctx.type()) as TypeAST, ident, paramList, stat.stats)
         } else {
-            FuncAST(ctx, ident, paramList, mutableListOf(stat))
+            FuncAST(ctx, visit(ctx.type()) as TypeAST, ident, paramList, mutableListOf(stat))
         }
     }
 
@@ -88,8 +90,8 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     override fun visitStatIf(ctx: WACCParser.StatIfContext): ASTNode {
         return IfAST(ctx,
             visit(ctx.expr()) as ExprAST,
-            visit(ctx.stat(0)) as StatAST,
-            visit(ctx.stat(1)) as StatAST
+            mutableListOf(visit(ctx.stat(0)) as StatMultiAST) ,
+            mutableListOf(visit(ctx.stat(1)) as StatMultiAST)
         )
     }
 
@@ -140,9 +142,14 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
         return BaseTypeAST(ctx, baseType)
     }
 
+    override fun visitArrayType(ctx: WACCParser.ArrayTypeContext): ASTNode {
+        return ArrayTypeAST(ctx, visit(ctx.getChild(0)) as TypeAST, ctx.L_BRACKET().size)
+    }
+
     override fun visitPairType(ctx: WACCParser.PairTypeContext): ASTNode {
         return PairTypeAST(ctx, visit(ctx.pairElemType(0)) as TypeAST,
-        visit(ctx.pairElemType(1)) as TypeAST)
+        visit(ctx.pairElemType(1)) as TypeAST
+        )
     }
 
     override fun visitPairElemType(ctx: WACCParser.PairElemTypeContext): ASTNode {
@@ -218,5 +225,17 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
             ctx.FALSE() != null -> BoolLiterAST(ctx, false)
             else -> throw RuntimeException()
         }
+    }
+
+    override fun visitIntLiter(ctx: WACCParser.IntLiterContext): ASTNode {
+        return IntLiterAST(ctx, Integer.parseInt(ctx.text))
+    }
+
+    override fun visitStrLiter(ctx: WACCParser.StrLiterContext): ASTNode {
+        return StrLiterAST(ctx, ctx.text.substring(1, ctx.text.length - 1))
+    }
+
+    override fun visitCharLiter(ctx: WACCParser.CharLiterContext): ASTNode {
+        return CharLiterAST(ctx, ctx.text.substring(1, ctx.text.length - 1)[0])
     }
 }

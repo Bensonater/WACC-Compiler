@@ -4,7 +4,7 @@ options {
   tokenVocab=WACCLexer;
 }
 
-program: BEGIN func* stat END;
+program: BEGIN func* stat END EOF;
 
 func: type IDENT L_PARENTHESIS paramList? R_PARENTHESIS IS stat END;
 
@@ -41,18 +41,20 @@ argList: expr (COMMA expr)*;
 
 pairElem: FST expr | SND expr;
 
-type: baseType | type L_BRACKET R_BRACKET | pairType;
+type: baseType | arrayType | pairType;
 
 baseType: INT_T | BOOL_T | CHAR_T | STRING_T;
 
+arrayType: (baseType | pairType) (L_BRACKET R_BRACKET)+;
+
 pairType: PAIR L_PARENTHESIS pairElemType COMMA pairElemType R_PARENTHESIS;
 
-pairElemType: baseType | type L_BRACKET R_BRACKET | PAIR;
+pairElemType: baseType | arrayType | PAIR;
 
-expr: (PLUS | MINUS)? INTEGER      #exprSingle
+expr: intLiter                     #exprSingle
 | boolLiter                        #exprSingle
-| CHAR_LITER                       #exprSingle
-| STR_LITER                        #exprSingle
+| charLiter                       #exprSingle
+| strLiter                        #exprSingle
 | NULL                             #exprSingle
 | IDENT                            #exprSingle
 | arrayElem                        #exprSingle
@@ -85,3 +87,9 @@ arrayElem: IDENT (L_BRACKET expr R_BRACKET)+;
 arrayLiter: L_BRACKET (expr (COMMA expr)* )? R_BRACKET;
 
 boolLiter: TRUE | FALSE;
+
+intLiter: (PLUS | MINUS)? INTEGER;
+
+strLiter: STR_LITER;
+
+charLiter: CHAR_LITER;

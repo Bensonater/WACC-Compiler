@@ -3,7 +3,9 @@ package frontend
 import antlr.*
 import frontend.errors.SUCCESS_CODE
 import frontend.errors.SYNTAX_ERROR_CODE
+import frontend.errors.SyntaxErrorHandler
 import frontend.errors.SyntaxErrorListener
+import frontend.visitor.SyntaxChecker
 import org.antlr.v4.runtime.*
 
 object FrontendMain {
@@ -29,6 +31,16 @@ object FrontendMain {
 
         println(tree.toStringTree(parser))
 
+        val syntaxErrorHandler = SyntaxErrorHandler()
+
+        val checkSyntaxVisitor = SyntaxChecker(syntaxErrorHandler)
+        checkSyntaxVisitor.visit(tree)
+
+
+        if (syntaxErrorHandler.hasErrors()) {
+            syntaxErrorHandler.printErrors()
+            return SYNTAX_ERROR_CODE
+        }
         // 1. syntaxCheck
         // 2. buildAst (Traverse parseTree)
         // 3. semanticCheck (Visitor)

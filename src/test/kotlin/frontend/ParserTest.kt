@@ -17,7 +17,7 @@ class ParserTest {
         val tokens = CommonTokenStream(lexer)
         val parser = WACCParser(tokens)
         val tree = parser.program() // begin parsing at program rule
-        assertEquals("(program begin (stat skip) end)", tree.toStringTree(parser))
+        assertEquals("(program begin (stat skip) end <EOF>)", tree.toStringTree(parser))
     }
 
     @Test
@@ -27,7 +27,7 @@ class ParserTest {
         val tokens = CommonTokenStream(lexer)
         val parser = WACCParser(tokens)
         val tree = parser.program() // begin parsing at program rule
-        assertEquals("(program begin (stat print (expr \"lorem ipsum\")) end)", tree.toStringTree(parser))
+        assertEquals("(program begin (stat print (expr (strLiter \"lorem ipsum\"))) end <EOF>)", tree.toStringTree(parser))
     }
 
     @Test
@@ -37,7 +37,7 @@ class ParserTest {
         val tokens = CommonTokenStream(lexer)
         val parser = WACCParser(tokens)
         val tree = parser.program() // begin parsing at program rule
-        assertEquals("(program begin (stat (type (baseType int)) i = (assignRhs (expr 10))) end)", tree.toStringTree(parser))
+        assertEquals("(program begin (stat (type (baseType int)) i = (assignRhs (expr (intLiter 10)))) end <EOF>)", tree.toStringTree(parser))
     }
 
     @Test
@@ -50,8 +50,9 @@ class ParserTest {
         val tokens = CommonTokenStream(lexer)
         val parser = WACCParser(tokens)
         val tree = parser.program() // begin parsing at program rule
-        assertEquals("(program begin (stat (stat (type (baseType int)) " +
-                "i = (assignRhs (expr 10))) ; (stat print (expr \"lorem ipsum\"))) end)", tree.toStringTree(parser))
+        assertEquals("(program begin (stat (stat (type (baseType int)) i = " +
+                "(assignRhs (expr (intLiter 10)))) ; (stat print (expr (strLiter \"lorem ipsum\")))) end <EOF>)",
+            tree.toStringTree(parser))
     }
 
     @Test
@@ -63,8 +64,9 @@ class ParserTest {
         val tokens = CommonTokenStream(lexer)
         val parser = WACCParser(tokens)
         val tree = parser.program() // begin parsing at program rule
-        assertEquals("(program begin (stat (type (baseType int)) i = (assignRhs (expr " +
-                "(expr (expr 10) (binaryOper2 +) (expr (expr 5) (binaryOper1 *) (expr 6))) " +
-                "(binaryOper2 -) (expr 2)))) end)", tree.toStringTree(parser))
+        assertEquals("(program begin (stat (type (baseType int)) i = " +
+                "(assignRhs (expr (expr (expr (intLiter 10)) (binaryOper2 +) (expr " +
+                "(expr (intLiter 5)) (binaryOper1 *) (expr (intLiter 6)))) (binaryOper2 -) " +
+                "(expr (intLiter 2))))) end <EOF>)", tree.toStringTree(parser))
     }
 }
