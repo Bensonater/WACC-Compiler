@@ -90,8 +90,8 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     override fun visitStatIf(ctx: WACCParser.StatIfContext): ASTNode {
         return IfAST(ctx,
             visit(ctx.expr()) as ExprAST,
-            visit(ctx.stat(0)) as StatAST,
-            visit(ctx.stat(1)) as StatAST
+            mutableListOf(visit(ctx.stat(0)) as StatMultiAST) ,
+            mutableListOf(visit(ctx.stat(1)) as StatMultiAST)
         )
     }
 
