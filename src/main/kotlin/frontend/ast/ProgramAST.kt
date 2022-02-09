@@ -1,22 +1,20 @@
 package frontend.ast
 
 import frontend.SymbolTable
-import frontend.ast.literal.BoolLiterAST
-import frontend.ast.literal.CharLiterAST
-import frontend.ast.literal.IntLiterAST
-import frontend.ast.literal.StrLiterAST
 import frontend.ast.statement.StatAST
+import frontend.ast.type.BaseType
+import frontend.ast.type.BaseTypeAST
 import org.antlr.v4.runtime.ParserRuleContext
 
 class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val stat: StatAST) : ASTNode(ctx) {
     override var symbolTable = SymbolTable()
 
     /* Inserts all base type into Symbol Table */
-    init{
-        symbolTable.put("int", IntLiterAST(ctx, 1))
-        symbolTable.put("bool", BoolLiterAST(ctx, true))
-        symbolTable.put("char", CharLiterAST(ctx, 'a'))
-        symbolTable.put("string", StrLiterAST(ctx, ""))
+    init {
+        symbolTable.put("int", BaseTypeAST(ctx, BaseType.INT))
+        symbolTable.put("bool", BaseTypeAST(ctx, BaseType.BOOL))
+        symbolTable.put("char", BaseTypeAST(ctx, BaseType.CHAR))
+        symbolTable.put("string", BaseTypeAST(ctx, BaseType.STRING))
     }
 
     override fun check(symbolTable: SymbolTable): Boolean {
