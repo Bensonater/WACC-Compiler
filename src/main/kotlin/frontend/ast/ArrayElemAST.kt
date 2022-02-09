@@ -15,7 +15,7 @@ class ArrayElemAST (val ctx: ParserRuleContext, val ident: IdentAST, val listOfI
             typeAST.type
         }
     }
-class ArrayElemAST (ctx: ParserRuleContext, val ident: IdentAST, val listOfIndex: List<ExprAST>) : ExprAST(ctx) {
+
     override fun check(symbolTable: SymbolTable): Boolean {
         val typeAST = ident.getType(symbolTable) as ArrayTypeAST
         listOfIndex.forEach {
@@ -25,5 +25,4 @@ class ArrayElemAST (ctx: ParserRuleContext, val ident: IdentAST, val listOfIndex
         }
         return true
     }
-}
 }
