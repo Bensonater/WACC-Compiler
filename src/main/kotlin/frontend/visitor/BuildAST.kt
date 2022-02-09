@@ -3,6 +3,7 @@ package frontend.visitor
 import antlr.WACCParser
 import antlr.WACCParserBaseVisitor
 import frontend.ast.*
+import frontend.ast.literal.*
 import frontend.ast.statement.*
 import frontend.ast.type.*
 
@@ -224,5 +225,17 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
             ctx.FALSE() != null -> BoolLiterAST(ctx, false)
             else -> throw RuntimeException()
         }
+    }
+
+    override fun visitIntLiter(ctx: WACCParser.IntLiterContext): ASTNode {
+        return IntLiterAST(ctx, Integer.parseInt(ctx.text))
+    }
+
+    override fun visitStrLiter(ctx: WACCParser.StrLiterContext): ASTNode {
+        return StrLiterAST(ctx, ctx.text.substring(1, ctx.text.length - 1))
+    }
+
+    override fun visitCharLiter(ctx: WACCParser.CharLiterContext): ASTNode {
+        return CharLiterAST(ctx, ctx.text.substring(1, ctx.text.length - 1)[0])
     }
 }

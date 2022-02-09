@@ -51,10 +51,10 @@ pairType: PAIR L_PARENTHESIS pairElemType COMMA pairElemType R_PARENTHESIS;
 
 pairElemType: baseType | arrayType | PAIR;
 
-expr: (PLUS | MINUS)? INTEGER      #exprSingle
+expr: intLiter                     #exprSingle
 | boolLiter                        #exprSingle
-| CHAR_LITER                       #exprSingle
-| STR_LITER                        #exprSingle
+| charLiter                       #exprSingle
+| strLiter                        #exprSingle
 | NULL                             #exprSingle
 | IDENT                            #exprSingle
 | arrayElem                        #exprSingle
@@ -87,3 +87,9 @@ arrayElem: IDENT (L_BRACKET expr R_BRACKET)+;
 arrayLiter: L_BRACKET (expr (COMMA expr)* )? R_BRACKET;
 
 boolLiter: TRUE | FALSE;
+
+intLiter: (PLUS | MINUS)? INTEGER;
+
+strLiter: STR_LITER;
+
+charLiter: CHAR_LITER;
