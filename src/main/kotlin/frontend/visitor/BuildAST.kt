@@ -27,9 +27,9 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
         val ident = visit(ctx.IDENT()) as IdentAST
         val stat = visit(ctx.stat()) as StatAST
         return if (stat is StatMultiAST) {
-            FuncAST(ctx, ident, paramList, stat.stats)
+            FuncAST(ctx, visit(ctx.type()) as TypeAST, ident, paramList, stat.stats)
         } else {
-            FuncAST(ctx, ident, paramList, mutableListOf(stat))
+            FuncAST(ctx, visit(ctx.type()) as TypeAST, ident, paramList, mutableListOf(stat))
         }
     }
 

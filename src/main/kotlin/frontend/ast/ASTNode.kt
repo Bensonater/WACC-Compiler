@@ -11,7 +11,7 @@ abstract class ASTNode(ctx: ParserRuleContext) {
         return true
     }
 
-    open fun getTypeOf(symbolTable: SymbolTable): TypeAST? {
+    open fun getType(symbolTable: SymbolTable): TypeAST? {
         return null
     }
 

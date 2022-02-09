@@ -4,6 +4,9 @@ import frontend.SymbolTable
 import frontend.ast.literal.BoolLiterAST
 import frontend.ast.literal.CharLiterAST
 import frontend.ast.literal.IntLiterAST
+import frontend.ast.type.BaseType
+import frontend.ast.type.BaseTypeAST
+import frontend.ast.type.TypeAST
 import org.antlr.v4.runtime.ParserRuleContext
 
 interface BinOp
@@ -30,7 +33,7 @@ enum class BoolBinOp : BinOp {
     OR
 }
 
-class BinOpExprAST(ctx: ParserRuleContext, val binOp: BinOp, val expr1: ExprAST, val expr2: ExprAST) : ExprAST(ctx) {
+class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: ExprAST, val expr2: ExprAST) : ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         val result = when (binOp) {
             is IntBinOp -> checkInt()
@@ -59,6 +62,13 @@ class BinOpExprAST(ctx: ParserRuleContext, val binOp: BinOp, val expr1: ExprAST,
 
     private fun checkBool(): Boolean {
         return (expr1 is BoolLiterAST) and (expr2 is BoolLiterAST)
+    }
+
+    override fun getType(symbolTable: SymbolTable): TypeAST? {
+        return if (binOp is IntBinOp)
+            BaseTypeAST(ctx, BaseType.INT)
+        else
+            BaseTypeAST(ctx, BaseType.BOOL)
     }
 
 }
