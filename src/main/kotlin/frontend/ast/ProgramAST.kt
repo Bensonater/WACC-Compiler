@@ -17,7 +17,6 @@ class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val st
         symbolTable.put("bool", BoolLiterAST(ctx, true))
         symbolTable.put("char", CharLiterAST(ctx, 'a'))
         symbolTable.put("string", StrLiterAST(ctx, ""))
-
     }
 
     override fun check(symbolTable: SymbolTable): Boolean {
