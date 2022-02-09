@@ -1,8 +1,13 @@
 package frontend.ast.statement
 
+import frontend.SymbolTable
 import frontend.ast.ASTNode
 import org.antlr.v4.runtime.ParserRuleContext
 
-class AssignAST(ctx: ParserRuleContext, assignLhs: ASTNode, assignRhs: ASTNode) : StatAST(ctx) {
-
+class AssignAST(val ctx: ParserRuleContext, val assignLhs: ASTNode, val assignRhs: ASTNode) : StatAST(ctx) {
+    override fun check(symbolTable: SymbolTable): Boolean {
+        this.symbolTable = symbolTable
+        //symbolTable.lookupAll(assignLhs)
+        return true
+    }
 }
