@@ -28,6 +28,11 @@ object FrontendMain {
 
 
         println(tree.toStringTree(parser))
+
+        // 1. syntaxCheck
+        // 2. buildAst (Traverse parseTree)
+        // 3. semanticCheck (Visitor)
+
 //    val visitor = AstVisitor()
 //    ASTNode ast = visitor.visit(tree)
 

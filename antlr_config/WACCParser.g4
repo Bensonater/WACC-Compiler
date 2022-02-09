@@ -12,19 +12,20 @@ paramList: param (COMMA param)*;
 
 param: type IDENT;
 
-stat: SKIP_STAT
-| type IDENT ASSIGN assignRhs
-| assignLhs ASSIGN assignRhs
-| READ assignLhs
-| FREE expr
-| RETURN expr
-| EXIT expr
-| PRINT expr
-| PRINTLN expr
-| IF expr THEN stat ELSE stat ENDIF
-| WHILE expr DO stat ENDWHILE
-| BEGIN stat END
-| stat SEMICOLON stat;
+stat: SKIP_STAT                      #statSkip
+| type IDENT ASSIGN assignRhs        #statDeclare
+| assignLhs ASSIGN assignRhs         #statAssign
+| READ assignLhs                     #statRead
+| FREE expr                          #statSimple
+| RETURN expr                        #statSimple
+| EXIT expr                          #statSimple
+| PRINT expr                         #statSimple
+| PRINTLN expr                       #statSimple
+| IF expr THEN stat ELSE stat ENDIF  #statIf
+| WHILE expr DO stat ENDWHILE        #statWhile
+| BEGIN stat END                     #statBegin
+| stat SEMICOLON stat                #statMulti
+;
 
 assignLhs: IDENT
 | arrayElem
@@ -48,20 +49,20 @@ pairType: PAIR L_PARENTHESIS pairElemType COMMA pairElemType R_PARENTHESIS;
 
 pairElemType: baseType | type L_BRACKET R_BRACKET | PAIR;
 
-expr: (PLUS | MINUS)? INTEGER #exprInt
-| boolLiter   #exprBool
-| CHAR_LITER  #exprChar
-| STR_LITER   #exprStr
-| NULL        #exprNull
-| IDENT       #exprIdent
-| arrayElem   #exprArrayElem
-| unaryOper expr         #exprUnOp
-| expr binaryOper1 expr  #exprNumericBinOp
-| expr binaryOper2 expr  #exprNumericBinOp
-| expr binaryOper3 expr  #exprAlphaNumericBinOp
-| expr binaryOper4 expr  #exprAnyBinOp
-| expr binaryOper5 expr  #exprBoolBinOp
-| expr binaryOper6 expr  #exprBoolBinOp
+expr: (PLUS | MINUS)? INTEGER      #exprSingle
+| boolLiter                        #exprSingle
+| CHAR_LITER                       #exprSingle
+| STR_LITER                        #exprSingle
+| NULL                             #exprSingle
+| IDENT                            #exprSingle
+| arrayElem                        #exprSingle
+| unaryOper expr                   #exprUnOp
+| expr binaryOper1 expr            #exprBinOp
+| expr binaryOper2 expr            #exprBinOp
+| expr binaryOper3 expr            #exprBinOp
+| expr binaryOper4 expr            #exprBinOp
+| expr binaryOper5 expr            #exprBinOp
+| expr binaryOper6 expr            #exprBinOp
 | L_PARENTHESIS expr R_PARENTHESIS #exprBrackets
 ;
 

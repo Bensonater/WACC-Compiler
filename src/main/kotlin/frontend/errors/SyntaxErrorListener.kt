@@ -13,7 +13,6 @@ class SyntaxErrorListener : BaseErrorListener() {
         msg: String?,
         e: RecognitionException?
     ) {
-        println("Syntax Error (100)\n - Line $line:$charPositionInLine : $msg")
-        
+        println("Syntax Error ($SYNTAX_ERROR_CODE)\n - Line $line:$charPositionInLine : $msg")
     }
 }
