@@ -1,4 +1,6 @@
 package frontend.ast
 
-class ExprAST {
+import org.antlr.v4.runtime.ParserRuleContext
+
+abstract class ExprAST(ctx: ParserRuleContext) : ASTNode(ctx) {
 }

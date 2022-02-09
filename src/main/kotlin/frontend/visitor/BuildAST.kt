@@ -154,58 +154,69 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitExprBinOp(ctx: WACCParser.ExprBinOpContext): ASTNode {
-        return super.visitExprBinOp(ctx)
-    }
-
-    override fun visitExprBrackets(ctx: WACCParser.ExprBracketsContext): ASTNode {
-        return super.visitExprBrackets(ctx)
-    }
-
-    override fun visitExprSingle(ctx: WACCParser.ExprSingleContext): ASTNode {
-        return super.visitExprSingle(ctx)
+        val binOp = when (ctx.getChild(1).text) {
+            "+" -> IntBinOp.PLUS
+            "-" -> IntBinOp.MINUS
+            "*" -> IntBinOp.MULT
+            "/" -> IntBinOp.DIV
+            "%" -> IntBinOp.MOD
+            ">=" -> CmpBinOp.GTE
+            ">" -> CmpBinOp.GT
+            "<=" -> CmpBinOp.LTE
+            "<" -> CmpBinOp.LT
+            "==" -> CmpBinOp.EQ
+            "!=" -> CmpBinOp.NEQ
+            "&&" -> BoolBinOp.AND
+            "||" -> BoolBinOp.OR
+            else -> throw RuntimeException()
+        }
+        return BinOpExprAST(ctx,
+            binOp as BinOp,
+            visit(ctx.expr(0)) as ExprAST,
+            visit(ctx.expr(1)) as ExprAST)
     }
 
     override fun visitExprUnOp(ctx: WACCParser.ExprUnOpContext): ASTNode {
-        return super.visitExprUnOp(ctx)
+        val unOp = when {
+            ctx.unaryOper().NOT() != null -> UnOp.NOT
+            ctx.unaryOper().MINUS() != null -> UnOp.MINUS
+            ctx.unaryOper().LEN() != null -> UnOp.LEN
+            ctx.unaryOper().ORD() != null -> UnOp.ORD
+            ctx.unaryOper().CHR() != null -> UnOp.CHR
+            else -> throw RuntimeException()
+        }
+
+        return UnOpExprAST(ctx, unOp, visit(ctx.expr()) as ExprAST)
     }
 
-    override fun visitUnaryOper(ctx: WACCParser.UnaryOperContext): ASTNode {
-        return super.visitUnaryOper(ctx)
-    }
-
-    override fun visitBinaryOper1(ctx: WACCParser.BinaryOper1Context): ASTNode {
-        return super.visitBinaryOper1(ctx)
-    }
-
-    override fun visitBinaryOper2(ctx: WACCParser.BinaryOper2Context): ASTNode {
-        return super.visitBinaryOper2(ctx)
-    }
-
-    override fun visitBinaryOper3(ctx: WACCParser.BinaryOper3Context): ASTNode {
-        return super.visitBinaryOper3(ctx)
-    }
-
-    override fun visitBinaryOper4(ctx: WACCParser.BinaryOper4Context): ASTNode {
-        return super.visitBinaryOper4(ctx)
-    }
-
-    override fun visitBinaryOper5(ctx: WACCParser.BinaryOper5Context): ASTNode {
-        return super.visitBinaryOper5(ctx)
-    }
-
-    override fun visitBinaryOper6(ctx: WACCParser.BinaryOper6Context): ASTNode {
-        return super.visitBinaryOper6(ctx)
+    override fun visitExprBrackets(ctx: WACCParser.ExprBracketsContext): ASTNode {
+        return visit(ctx.expr())
     }
 
     override fun visitArrayElem(ctx: WACCParser.ArrayElemContext): ASTNode {
-        return super.visitArrayElem(ctx)
+        val listOfIndex = mutableListOf<ExprAST>()
+        for (expr in ctx.expr()) {
+            listOfIndex.add(visit(expr) as ExprAST)
+        }
+        return ArrayElemAST(ctx,
+            visit(ctx.IDENT()) as IdentAST,
+            listOfIndex
+            )
     }
 
     override fun visitArrayLiter(ctx: WACCParser.ArrayLiterContext): ASTNode {
-        return super.visitArrayLiter(ctx)
+        val vals = mutableListOf<ExprAST>()
+        for (expr in ctx.expr()) {
+            vals.add(visit(expr) as ExprAST)
+        }
+        return ArrayLiterAST(ctx, vals)
     }
 
     override fun visitBoolLiter(ctx: WACCParser.BoolLiterContext): ASTNode {
-        return super.visitBoolLiter(ctx)
+        return when {
+            ctx.TRUE() != null -> BoolLiterAST(ctx, true)
+            ctx.FALSE() != null -> BoolLiterAST(ctx, false)
+            else -> throw RuntimeException()
+        }
     }
 }
