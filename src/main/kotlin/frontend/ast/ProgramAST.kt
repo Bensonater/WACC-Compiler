@@ -22,7 +22,7 @@ class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val st
     override fun check(symbolTable: SymbolTable): Boolean {
         for (func in funcList) {
             if (symbolTable.get(func.ident.name) != null) {
-                // Return semantic error "Function is already defined {func.ident.name}"
+                // Return semantic error "Function $func.ident.name is already defined."
                 return false
             }
             symbolTable.put(func.ident.name, func)
