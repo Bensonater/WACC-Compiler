@@ -1,9 +1,6 @@
 package frontend.ast
 
 import frontend.SymbolTable
-import frontend.ast.literal.BoolLiterAST
-import frontend.ast.literal.CharLiterAST
-import frontend.ast.literal.IntLiterAST
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
 import frontend.ast.type.TypeAST
@@ -19,17 +16,26 @@ enum class UnOp {
 
 class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST) : ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
-        val result = when (unOp) {
-            UnOp.NOT -> expr is BoolLiterAST
-            UnOp.MINUS -> expr is IntLiterAST
-            UnOp.LEN -> expr is ArrayElemAST
-            UnOp.ORD -> expr is CharLiterAST
-            UnOp.CHR -> expr is IntLiterAST
+        if (!expr.check(symbolTable)) {
+            return false
+        }
+        if (unOp == UnOp.LEN) {
+            return expr is ArrayElemAST
+        }
+
+        val exprType = expr.getType(symbolTable)
+        if (exprType !is BaseTypeAST) {
+            return false
+        }
+        return when (unOp) {
+            UnOp.NOT -> exprType.type == BaseType.BOOL
+            UnOp.MINUS -> exprType.type == BaseType.INT
+            UnOp.ORD -> exprType.type == BaseType.CHAR
+            UnOp.CHR -> exprType.type == BaseType.INT
             else -> {
                 false
             }
         }
-        return result and expr.check(symbolTable)
     }
 
     override fun getType(symbolTable: SymbolTable): TypeAST? {
