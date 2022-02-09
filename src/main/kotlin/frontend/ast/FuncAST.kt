@@ -10,10 +10,7 @@ class FuncAST(val ctx: ParserRuleContext, val type: TypeAST, val ident:IdentAST,
 
     override fun check(symbolTable: SymbolTable): Boolean {
         paramList.forEach { it.check(symbolTable) }
-        if (ident.getType(symbolTable) == null){
-            // TODO: throw semantic error about return type not found in symbol table
-            }
-
+        ident.check(symbolTable)
         stats.forEach { it.check(symbolTable) }
         return true
     }
