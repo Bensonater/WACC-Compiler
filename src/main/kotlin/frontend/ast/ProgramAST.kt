@@ -4,10 +4,20 @@ import frontend.SymbolTable
 import frontend.ast.statement.StatAST
 import org.antlr.v4.runtime.ParserRuleContext
 
-class ProgramAST(ctx: ParserRuleContext, funcList: List<FuncAST>, statAST: StatAST) : ASTNode(ctx) {
+class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val stat: StatAST) : ASTNode(ctx) {
     override var symbolTable = SymbolTable()
 
     override fun check(symbolTable: SymbolTable): Boolean {
+        for (func in funcList) {
+            if (symbolTable.get(func.ident.name) != null) {
+                // Return semantic error "Function is already defined {func.ident.name}"
+            }
+            symbolTable.put(func.ident.name, func)
+        }
+        for (func in funcList) {
+            func.check(symbolTable)
+        }
+        stat.check(symbolTable)
         return true
     }
 
