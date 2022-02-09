@@ -141,6 +141,10 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
         return BaseTypeAST(ctx, baseType)
     }
 
+    override fun visitArrayType(ctx: WACCParser.ArrayTypeContext): ASTNode {
+        return ArrayTypeAST(ctx, visit(ctx.getChild(0)) as TypeAST, ctx.L_BRACKET().size)
+    }
+
     override fun visitPairType(ctx: WACCParser.PairTypeContext): ASTNode {
         return PairTypeAST(ctx, visit(ctx.pairElemType(0)) as TypeAST,
         visit(ctx.pairElemType(1)) as TypeAST
