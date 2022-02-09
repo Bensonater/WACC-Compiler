@@ -4,7 +4,6 @@ import frontend.SymbolTable
 import frontend.ast.*
 import frontend.ast.literal.ArrayLiterAST
 import frontend.ast.type.ArrayTypeAST
-import frontend.ast.type.TypeAST
 import org.antlr.v4.runtime.ParserRuleContext
 
 class AssignAST(val ctx: ParserRuleContext, val assignLhs: ASTNode, val assignRhs: ASTNode) : StatAST(ctx) {
