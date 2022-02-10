@@ -3,6 +3,7 @@ package frontend.ast.statement
 import frontend.SymbolTable
 import frontend.ast.*
 import frontend.ast.type.ArrayTypeAST
+import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
 class AssignAST(val ctx: ParserRuleContext, val assignLhs: ASTNode, val assignRhs: ASTNode) : StatAST(ctx) {
@@ -17,15 +18,15 @@ class AssignAST(val ctx: ParserRuleContext, val assignLhs: ASTNode, val assignRh
             leftType = leftType.type
         }
         if (leftType != rightType) {
-            // Call semantic error "Assign Lhs and Rhs type mismatch"
+            semanticErrorHandler.typeMismatch(ctx, leftType!!.toString(), rightType!!.toString())
             return false
         }
         if (assignLhs is IdentAST && symbolTable.lookupAll(assignLhs.name) is FuncAST) {
-            // Call semantic error "Error assigning value to function"
+            semanticErrorHandler.invalidAssignment(ctx, "value", "function")
             return false
         }
         if (assignRhs is IdentAST && symbolTable.lookupAll(assignRhs.name) is FuncAST) {
-            // Call semantic error "Error assigning function to variable"
+            semanticErrorHandler.invalidAssignment(ctx, "function", "variable")
             return false
         }
         return true

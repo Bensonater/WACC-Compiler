@@ -5,6 +5,7 @@ import frontend.ast.ASTNode
 import frontend.ast.FuncAST
 import frontend.ast.IdentAST
 import frontend.ast.type.TypeAST
+import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
 class DeclareAST(val ctx: ParserRuleContext, val type: TypeAST, val ident: IdentAST, val assignRhs: ASTNode) : StatAST(ctx) {
@@ -12,14 +13,14 @@ class DeclareAST(val ctx: ParserRuleContext, val type: TypeAST, val ident: Ident
         this.symbolTable = symbolTable
         val identAST = symbolTable.get(ident.name)
         if (identAST != null && identAST !is FuncAST) {
-            // Call semantic error "Variable $ident.name already exist in scope"
+            semanticErrorHandler.alreadyDefined(ctx, ident.name)
             return false
         }
         if (!assignRhs.check(symbolTable)) {
             return false
         }
         if (assignRhs.getType(symbolTable) != type) {
-            // Call semantic error "Invalid type for Assign Rhs"
+            semanticErrorHandler.typeMismatch(ctx, type.toString(), assignRhs.getType(symbolTable).toString())
             return false
         }
         symbolTable.put(ident.name, this)

@@ -25,4 +25,8 @@ class BaseTypeAST (ctx: ParserRuleContext, val type:BaseType) : TypeAST(ctx) {
     override fun hashCode(): Int {
         return type.hashCode()
     }
+
+    override fun toString(): String {
+        return type.toString()
+    }
 }

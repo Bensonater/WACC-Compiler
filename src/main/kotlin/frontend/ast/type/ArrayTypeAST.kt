@@ -1,12 +1,12 @@
 package frontend.ast.type
 
 import frontend.SymbolTable
-import frontend.ast.ASTNode
 import org.antlr.v4.runtime.ParserRuleContext
 import java.util.*
 
-class ArrayTypeAST(ctx: ParserRuleContext, val type: TypeAST, val dimension: Int) : TypeAST(ctx)  {
+class ArrayTypeAST(ctx: ParserRuleContext, val type: TypeAST, val dimension: Int) : TypeAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
+        this.symbolTable = symbolTable
         return type.check(symbolTable)
     }
 
@@ -24,5 +24,14 @@ class ArrayTypeAST(ctx: ParserRuleContext, val type: TypeAST, val dimension: Int
 
     override fun hashCode(): Int {
         return Objects.hash(type, dimension)
+    }
+
+    override fun toString(): String {
+        val arrayString = StringBuilder()
+        arrayString.append(type.toString())
+        for (i in 1..dimension) {
+            arrayString.append("[]")
+        }
+        return arrayString.toString()
     }
 }

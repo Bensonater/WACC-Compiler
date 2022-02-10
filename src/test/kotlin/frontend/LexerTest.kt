@@ -8,9 +8,19 @@ import org.junit.jupiter.api.Test
 class LexerTest {
     @Test
     fun lexerReturnsBasicProgramTokens() {
-        val input = CharStreams.fromString("begin end")
+        val input = CharStreams.fromString("begin skip end")
         val lexer = WACCLexer(input)
         assertEquals("begin", lexer.nextToken().text)
+        assertEquals("skip", lexer.nextToken().text)
+        assertEquals("end", lexer.nextToken().text)
+    }
+
+    @Test
+    fun lexerReturnsStringTokens() {
+        val input = CharStreams.fromString("begin \"lorem ipsum\" end")
+        val lexer = WACCLexer(input)
+        assertEquals("begin", lexer.nextToken().text)
+        assertEquals("\"lorem ipsum\"", lexer.nextToken().text)
         assertEquals("end", lexer.nextToken().text)
     }
 
@@ -40,15 +50,6 @@ class LexerTest {
     }
 
     @Test
-    fun lexerReturnsStringTokens() {
-        val input = CharStreams.fromString("begin \"lorem ipsum\" end")
-        val lexer = WACCLexer(input)
-        assertEquals("begin", lexer.nextToken().text)
-        assertEquals("\"lorem ipsum\"", lexer.nextToken().text)
-        assertEquals("end", lexer.nextToken().text)
-    }
-
-    @Test
     fun lexerReturnsConditionalTokens() {
         val input = CharStreams.fromString("begin if true then else fi end")
         val lexer = WACCLexer(input)
@@ -63,7 +64,7 @@ class LexerTest {
 
     @Test
     fun lexerIgnoresWhitespace() {
-        val input = CharStreams.fromString("begin   int a           =            10        end")
+        val input = CharStreams.fromString("  begin  \n  int  a \t        =   \r  10        end")
         val lexer = WACCLexer(input)
         assertEquals("begin", lexer.nextToken().text)
         assertEquals("int", lexer.nextToken().text)

@@ -1,14 +1,15 @@
 package frontend.ast.literal
 
-import frontend.ast.ASTNode
-import frontend.ast.ExprAST
 import frontend.SymbolTable
+import frontend.ast.ExprAST
 import frontend.ast.type.ArrayTypeAST
 import frontend.ast.type.TypeAST
+import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
-class ArrayLiterAST (val ctx: ParserRuleContext, val vals: List<ExprAST>) : TypeAST(ctx) {
+class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : TypeAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
+        this.symbolTable = symbolTable
         for (value in vals) {
             if (!value.check(symbolTable)) {
                 return false
@@ -30,9 +31,16 @@ class ArrayLiterAST (val ctx: ParserRuleContext, val vals: List<ExprAST>) : Type
                 ArrayTypeAST(ctx, exprType!!, 1)
             }
         }
+        for (elem in vals) {
+            if (elem.getType(symbolTable) != arrayType) {
+                semanticErrorHandler.inconsistentArrayElem(ctx)
+                return null
+            }
+        }
         return arrayType
     }
 }
+
 class EmptyArrayAST(val ctx: ParserRuleContext) : TypeAST(ctx) {
 
 }

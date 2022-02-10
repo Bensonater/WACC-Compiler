@@ -6,8 +6,13 @@ import frontend.ast.*
 import frontend.ast.literal.*
 import frontend.ast.statement.*
 import frontend.ast.type.*
+import frontend.errors.SemanticErrorHandler
 
-class BuildAST: WACCParserBaseVisitor<ASTNode>() {
+
+
+class BuildAST : WACCParserBaseVisitor<ASTNode>() {
+
+
     override fun visitProgram(ctx: WACCParser.ProgramContext): ASTNode {
         val funcList = mutableListOf<FuncAST>()
         for (func in ctx.func()) {
