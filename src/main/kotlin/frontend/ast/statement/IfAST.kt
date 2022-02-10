@@ -16,7 +16,7 @@ class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<St
         }
         val exprType = expr.getType(symbolTable)
         if (exprType != BaseTypeAST(ctx, BaseType.BOOL)) {
-            // Call semantic error "If condition should be of type Bool
+            // Call semantic error "If condition should be of type Bool"
             return false
         }
         thenStat.forEach {
