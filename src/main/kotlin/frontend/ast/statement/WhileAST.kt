@@ -12,6 +12,7 @@ class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<AS
     val bodySymbolTable = SymbolTable()
 
     override fun check(symbolTable: SymbolTable): Boolean {
+        this.symbolTable = symbolTable
         bodySymbolTable.setParentTable(symbolTable)
         if (!expr.check(symbolTable)) {
             return false
