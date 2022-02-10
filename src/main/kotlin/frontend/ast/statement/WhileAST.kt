@@ -5,6 +5,7 @@ import frontend.ast.ASTNode
 import frontend.ast.ExprAST
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
+import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
 class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<ASTNode>) : StatAST(ctx) {
@@ -18,7 +19,7 @@ class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<AS
         }
         val exprType = expr.getType(symbolTable)
         if (exprType !is BaseTypeAST || exprType.type != BaseType.BOOL) {
-            // Call semantic error "While condition should be of type Bool"
+            semanticErrorHandler.invalidConditional(ctx)
             return false
         }
         stats.forEach {

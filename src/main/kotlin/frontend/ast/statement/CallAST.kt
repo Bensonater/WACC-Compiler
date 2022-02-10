@@ -5,6 +5,7 @@ import frontend.ast.ExprAST
 import frontend.ast.FuncAST
 import frontend.ast.IdentAST
 import frontend.ast.type.TypeAST
+import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
 class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<ExprAST>) : StatAST(ctx) {
@@ -12,11 +13,11 @@ class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<Ex
         this.symbolTable = symbolTable
         val function = symbolTable.lookupAll(ident.name)
         if (function == null || function !is FuncAST) {
-            // Call semantic error "Cannot find function $ident.name"
+            semanticErrorHandler.invalidIdentifier(ctx, ident.name)
             return false
         }
         if (function.paramList.size != args.size) {
-            // Call semantic error "Invalid number of arguments, expecting $function.paramList.size arguments"
+            semanticErrorHandler.invalidArgNumber(ctx, function.paramList.size)
             return false
         }
         for (i in args.indices) {
@@ -25,7 +26,7 @@ class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<Ex
             }
             val argType = args[i].getType(symbolTable)
             if (argType !== function.paramList[i].type) {
-                // Call semantic error "The $ith argument has invalid type, expecting $function.paramList[i].type"
+                semanticErrorHandler.invalidArgType(ctx, i, function.paramList[i].type.toString())
                 return false
             }
         }

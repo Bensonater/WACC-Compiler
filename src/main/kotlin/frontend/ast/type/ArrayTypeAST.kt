@@ -25,4 +25,13 @@ class ArrayTypeAST(ctx: ParserRuleContext, val type: TypeAST, val dimension: Int
     override fun hashCode(): Int {
         return Objects.hash(type, dimension)
     }
+
+    override fun toString(): String {
+        val arrayString = StringBuilder()
+        arrayString.append(type.toString())
+        for (i in 1..dimension) {
+            arrayString.append("[]")
+        }
+        return arrayString.toString()
+    }
 }

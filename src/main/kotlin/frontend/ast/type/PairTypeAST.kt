@@ -26,4 +26,8 @@ class PairTypeAST(ctx: ParserRuleContext, val typeFst: TypeAST, val typeSnd: Typ
         result = 31 * result + typeSnd.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "pair ($typeFst, $typeSnd)"
+    }
 }

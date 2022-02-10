@@ -4,6 +4,7 @@ import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
+import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
 class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<StatAST>, val elseStat: List<StatAST>) :
@@ -20,7 +21,7 @@ class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<St
         }
         val exprType = expr.getType(symbolTable)
         if (exprType != BaseTypeAST(ctx, BaseType.BOOL)) {
-            // Call semantic error "If condition should be of type Bool"
+            semanticErrorHandler.invalidConditional(ctx)
             return false
         }
         thenStat.forEach {

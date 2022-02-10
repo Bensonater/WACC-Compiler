@@ -4,6 +4,7 @@ import frontend.SymbolTable
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
 import frontend.ast.type.TypeAST
+import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
 enum class UnOp {
@@ -22,7 +23,7 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
         }
         if (unOp == UnOp.LEN) {
             if (expr !is ArrayElemAST) {
-                // Call semantic error "Error trying to call LEN on non array type"
+                semanticErrorHandler.typeMismatch(ctx, "ARRAY", expr.getType(symbolTable).toString())
                 return false
             }
             return true
@@ -34,25 +35,25 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
         when (unOp) {
             UnOp.NOT -> {
                 if (exprType.type != BaseType.BOOL) {
-                    // Call semantic error "Error calling NOT on non Bool type"
+                    semanticErrorHandler.typeMismatch(ctx, BaseType.BOOL.toString(), exprType.toString())
                     return false
                 }
             }
             UnOp.MINUS -> {
                 if (exprType.type != BaseType.INT) {
-                    // Call semantic error "Error calling MINUS on non Int type"
+                    semanticErrorHandler.typeMismatch(ctx, BaseType.INT.toString(), exprType.toString())
                     return false
                 }
             }
             UnOp.ORD -> {
                 if (exprType.type != BaseType.CHAR) {
-                    // Call semantic error "Error calling ORD on non CHAR type"
+                    semanticErrorHandler.typeMismatch(ctx, BaseType.CHAR.toString(), exprType.toString())
                     return false
                 }
             }
             UnOp.CHR -> {
                 if (exprType.type != BaseType.INT) {
-                    // Call semantic error "Error calling CHR on non Int type"
+                    semanticErrorHandler.typeMismatch(ctx, BaseType.INT.toString(), exprType.toString())
                     return false
                 }
             }

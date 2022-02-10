@@ -10,4 +10,8 @@ class NullablePairOfPairTypeAST(ctx: ParserRuleContext) : TypeAST(ctx)  {
     override fun hashCode(): Int {
         return javaClass.hashCode()
     }
+
+    override fun toString(): String {
+        return "NullablePairOfPairType"
+    }
 }
