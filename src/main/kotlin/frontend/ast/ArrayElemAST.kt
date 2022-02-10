@@ -17,6 +17,7 @@ class ArrayElemAST(val ctx: ParserRuleContext, val ident: IdentAST, val listOfIn
     }
 
     override fun check(symbolTable: SymbolTable): Boolean {
+        this.symbolTable = symbolTable
         if (!ident.check(symbolTable)) {
             return false
         }

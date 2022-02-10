@@ -33,6 +33,7 @@ enum class BoolBinOp : BinOp {
 class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: ExprAST, val expr2: ExprAST) :
     ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
+        this.symbolTable = symbolTable
         if (!expr1.check(symbolTable) || !expr2.check(symbolTable)) {
             return false
         }

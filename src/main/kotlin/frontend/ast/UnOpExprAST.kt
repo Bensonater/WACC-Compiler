@@ -16,6 +16,7 @@ enum class UnOp {
 
 class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST) : ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
+        this.symbolTable = symbolTable
         if (!expr.check(symbolTable)) {
             return false
         }
