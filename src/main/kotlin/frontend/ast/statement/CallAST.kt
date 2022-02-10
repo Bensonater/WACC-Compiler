@@ -10,9 +10,6 @@ import org.antlr.v4.runtime.ParserRuleContext
 class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<ExprAST>) : StatAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
-        if (!ident.check(symbolTable)) {
-            return false
-        }
         val function = symbolTable.lookupAll(ident.name)
         if (function == null || function !is FuncAST) {
             // Call semantic error "Cannot find function $ident.name"
