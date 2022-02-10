@@ -30,6 +30,12 @@ class ArrayLiterAST (val ctx: ParserRuleContext, val vals: List<ExprAST>) : Type
                 ArrayTypeAST(ctx, exprType!!, 1)
             }
         }
+        for (elem in vals) {
+            if (elem.getType(symbolTable) != arrayType) {
+                // Call semantic error "Type within array is inconsistent"
+                return null
+            }
+        }
         return arrayType
     }
 }
