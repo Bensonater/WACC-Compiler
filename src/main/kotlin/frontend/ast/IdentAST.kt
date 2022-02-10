@@ -18,7 +18,7 @@ class IdentAST(val ctx: ParserRuleContext, val name: String) : ASTNode(ctx) {
     }
 
     override fun getType(symbolTable: SymbolTable): TypeAST? {
-        val type = symbolTable.lookupAll(name)
+        val type = symbolTable.identLookUp(name)
         if (type == null) {
             // Semantic error, Variable $name has not been declared
             return null

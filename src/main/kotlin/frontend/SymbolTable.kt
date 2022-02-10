@@ -1,8 +1,9 @@
 package frontend
 
 import frontend.ast.ASTNode
+import frontend.ast.IdentAST
 
-class SymbolTable {
+open class SymbolTable {
     var symbolTable = HashMap<String, ASTNode>()
     lateinit var parent: SymbolTable
 
@@ -30,4 +31,22 @@ class SymbolTable {
         return null
     }
 
+    fun identLookUp(name: String): ASTNode?{
+        var st = this
+        while (st != null) {
+            var ast = st.get(name)
+            if (ast != null) {
+                return ast
+            }
+            if (st is FuncSymbolTable){
+                break
+            }
+            st = st.parent
+        }
+        return null
+    }
+
+
 }
+
+class FuncSymbolTable(val ident: IdentAST) : SymbolTable()
