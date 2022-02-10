@@ -24,7 +24,7 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
                 paramList.add(visit(param) as ParamAST)
             }
         }
-        val ident = visit(ctx.IDENT()) as IdentAST
+        val ident = visit(ctx.ident()) as IdentAST
         val stat = visit(ctx.stat()) as StatAST
         return if (stat is StatMultiAST) {
             FuncAST(ctx, visit(ctx.type()) as TypeAST, ident, paramList, stat.stats)
@@ -34,7 +34,7 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitParam(ctx: WACCParser.ParamContext): ASTNode {
-        return ParamAST(ctx, visit(ctx.type()) as TypeAST, visit(ctx.IDENT()) as IdentAST)
+        return ParamAST(ctx, visit(ctx.type()) as TypeAST, visit(ctx.ident()) as IdentAST)
     }
 
     override fun visitAssignRhs(ctx: WACCParser.AssignRhsContext): ASTNode {
@@ -51,7 +51,7 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
                     argList.add(visit(expr) as ExprAST)
                 }
             }
-            return CallAST(ctx, visit(ctx.IDENT()) as IdentAST, argList)
+            return CallAST(ctx, visit(ctx.ident()) as IdentAST, argList)
         }
         return visitChildren(ctx)
     }
@@ -78,7 +78,7 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
     override fun visitStatDeclare(ctx: WACCParser.StatDeclareContext): ASTNode {
         return DeclareAST(ctx,
             visit(ctx.type()) as TypeAST,
-            visit(ctx.IDENT()) as IdentAST,
+            visit(ctx.ident()) as IdentAST,
             visit(ctx.assignRhs())
         )
     }
@@ -206,7 +206,7 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
             listOfIndex.add(visit(expr) as ExprAST)
         }
         return ArrayElemAST(ctx,
-            visit(ctx.IDENT()) as IdentAST,
+            visit(ctx.ident()) as IdentAST,
             listOfIndex
             )
     }
@@ -217,6 +217,10 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
             vals.add(visit(expr) as ExprAST)
         }
         return ArrayLiterAST(ctx, vals)
+    }
+
+    override fun visitPairLiter(ctx: WACCParser.PairLiterContext): ASTNode {
+        return NullPairLiterAST(ctx)
     }
 
     override fun visitBoolLiter(ctx: WACCParser.BoolLiterContext): ASTNode {
@@ -237,5 +241,9 @@ class BuildAST: WACCParserBaseVisitor<ASTNode>() {
 
     override fun visitCharLiter(ctx: WACCParser.CharLiterContext): ASTNode {
         return CharLiterAST(ctx, ctx.text.substring(1, ctx.text.length - 1)[0])
+    }
+
+    override fun visitIdent(ctx: WACCParser.IdentContext): ASTNode {
+        return IdentAST(ctx, ctx.text)
     }
 }
