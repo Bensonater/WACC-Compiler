@@ -8,12 +8,10 @@ import frontend.ast.type.BaseTypeAST
 import org.antlr.v4.runtime.ParserRuleContext
 
 class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<ASTNode>) : StatAST(ctx) {
-    init {
-        this.symbolTable = SymbolTable()
-    }
+    val bodySymbolTable = SymbolTable()
 
     override fun check(symbolTable: SymbolTable): Boolean {
-        this.symbolTable.setParentTable(symbolTable)
+        bodySymbolTable.setParentTable(symbolTable)
         if (!expr.check(symbolTable)) {
             return false
         }
@@ -23,11 +21,10 @@ class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<AS
             return false
         }
         stats.forEach {
-            if (!it.check(symbolTable)) {
+            if (!it.check(bodySymbolTable)) {
                 return false
             }
         }
-
         return true
     }
 }

@@ -8,12 +8,12 @@ import org.antlr.v4.runtime.ParserRuleContext
 
 class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<StatAST>, val elseStat: List<StatAST>) :
     StatAST(ctx) {
-    init {
-        this.symbolTable = SymbolTable()
-    }
+    val thenSymbolTable = SymbolTable()
+    val elseSymbolTable = SymbolTable()
 
     override fun check(symbolTable: SymbolTable): Boolean {
-        this.symbolTable.setParentTable(symbolTable)
+        thenSymbolTable.setParentTable(symbolTable)
+        elseSymbolTable.setParentTable(symbolTable)
         if (!expr.check(symbolTable)) {
             return false
         }
@@ -23,12 +23,12 @@ class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<St
             return false
         }
         thenStat.forEach {
-            if (!it.check(symbolTable)) {
+            if (!it.check(thenSymbolTable)) {
                 return false
             }
         }
         elseStat.forEach {
-            if (!it.check(symbolTable)) {
+            if (!it.check(elseSymbolTable)) {
                 return false
             }
         }
