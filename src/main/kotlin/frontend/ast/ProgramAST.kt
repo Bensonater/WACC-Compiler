@@ -7,10 +7,9 @@ import frontend.ast.type.BaseTypeAST
 import org.antlr.v4.runtime.ParserRuleContext
 
 class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val stat: StatAST) : ASTNode(ctx) {
-    override var symbolTable = SymbolTable()
-
     /* Inserts all base type into Symbol Table */
     init {
+        this.symbolTable = SymbolTable()
         symbolTable.put("int", BaseTypeAST(ctx, BaseType.INT))
         symbolTable.put("bool", BaseTypeAST(ctx, BaseType.BOOL))
         symbolTable.put("char", BaseTypeAST(ctx, BaseType.CHAR))

@@ -8,7 +8,9 @@ import frontend.ast.type.BaseTypeAST
 import org.antlr.v4.runtime.ParserRuleContext
 
 class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<ASTNode>) : StatAST(ctx) {
-    override var symbolTable = SymbolTable()
+    init {
+        this.symbolTable = SymbolTable()
+    }
 
     override fun check(symbolTable: SymbolTable): Boolean {
         if (!expr.check(symbolTable)) {
