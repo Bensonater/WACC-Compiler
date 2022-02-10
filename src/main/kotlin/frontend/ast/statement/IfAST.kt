@@ -6,16 +6,17 @@ import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
 import org.antlr.v4.runtime.ParserRuleContext
 
-class IfAST(ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<StatAST>, val elseStat: List<StatAST>) :
+class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<StatAST>, val elseStat: List<StatAST>) :
     StatAST(ctx) {
-    override var symbolTable = SymbolTable()
 
     override fun check(symbolTable: SymbolTable): Boolean {
+        this.symbolTable = symbolTable
         if (!expr.check(symbolTable)) {
             return false
         }
         val exprType = expr.getType(symbolTable)
-        if (exprType !is BaseTypeAST || exprType.type != BaseType.BOOL) {
+        if (exprType != BaseTypeAST(ctx, BaseType.BOOL)) {
+            // Call semantic error "If condition should be of type Bool"
             return false
         }
         thenStat.forEach {
