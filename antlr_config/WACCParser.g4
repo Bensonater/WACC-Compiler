@@ -6,14 +6,14 @@ options {
 
 program: BEGIN func* stat END EOF;
 
-func: type IDENT L_PARENTHESIS paramList? R_PARENTHESIS IS stat END;
+func: type ident L_PARENTHESIS paramList? R_PARENTHESIS IS stat END;
 
 paramList: param (COMMA param)*;
 
-param: type IDENT;
+param: type ident;
 
 stat: SKIP_STAT                      #statSkip
-| type IDENT ASSIGN assignRhs        #statDeclare
+| type ident ASSIGN assignRhs        #statDeclare
 | assignLhs ASSIGN assignRhs         #statAssign
 | READ assignLhs                     #statRead
 | FREE expr                          #statSimple
@@ -27,7 +27,7 @@ stat: SKIP_STAT                      #statSkip
 | stat SEMICOLON stat                #statMulti
 ;
 
-assignLhs: IDENT
+assignLhs: ident
 | arrayElem
 | pairElem;
 
@@ -35,7 +35,7 @@ assignRhs: expr
 | arrayLiter
 | NEWPAIR L_PARENTHESIS expr COMMA expr R_PARENTHESIS
 | pairElem
-| CALL IDENT L_PARENTHESIS argList? R_PARENTHESIS;
+| CALL ident L_PARENTHESIS argList? R_PARENTHESIS;
 
 argList: expr (COMMA expr)*;
 
@@ -53,10 +53,10 @@ pairElemType: baseType | arrayType | PAIR;
 
 expr: intLiter                     #exprSingle
 | boolLiter                        #exprSingle
-| charLiter                       #exprSingle
-| strLiter                        #exprSingle
-| NULL                             #exprSingle
-| IDENT                            #exprSingle
+| charLiter                        #exprSingle
+| strLiter                         #exprSingle
+| pairLiter                        #exprSingle
+| ident                            #exprSingle
 | arrayElem                        #exprSingle
 | unaryOper expr                   #exprUnOp
 | expr binaryOper1 expr            #exprBinOp
@@ -82,7 +82,7 @@ binaryOper5: AND;
 
 binaryOper6: OR;
 
-arrayElem: IDENT (L_BRACKET expr R_BRACKET)+;
+arrayElem: ident (L_BRACKET expr R_BRACKET)+;
 
 arrayLiter: L_BRACKET (expr (COMMA expr)* )? R_BRACKET;
 
@@ -93,3 +93,7 @@ intLiter: (PLUS | MINUS)? INTEGER;
 strLiter: STR_LITER;
 
 charLiter: CHAR_LITER;
+
+ident: IDENT;
+
+pairLiter: NULL;
