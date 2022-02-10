@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.ParserRuleContext
 class ArrayElemAST(val ctx: ParserRuleContext, val ident: IdentAST, val listOfIndex: List<ExprAST>) : ExprAST(ctx) {
 
     override fun check(symbolTable: SymbolTable): Boolean {
+        this.symbolTable = symbolTable
         if (!ident.check(symbolTable)) {
             return false
         }

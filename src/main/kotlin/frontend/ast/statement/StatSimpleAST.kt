@@ -14,6 +14,7 @@ enum class Command {
 
 class StatSimpleAST(ctx: ParserRuleContext, val command: Command, val expr: ExprAST) : StatAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
+        this.symbolTable = symbolTable
         if (!expr.check(symbolTable)) {
             return false
         }
