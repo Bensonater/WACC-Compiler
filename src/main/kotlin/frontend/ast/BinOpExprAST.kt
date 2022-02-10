@@ -4,6 +4,7 @@ import frontend.SymbolTable
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
 import frontend.ast.type.TypeAST
+import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
 interface BinOp
@@ -40,7 +41,7 @@ class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: Expr
         val expr1Type = expr1.getType(symbolTable)
         val expr2Type = expr2.getType(symbolTable)
         if (expr1Type !is BaseTypeAST || expr2Type !is BaseTypeAST || expr1Type != expr2Type) {
-            // Call semantic error "Type mismatch for binary operator expression"
+            semanticErrorHandler.typeMismatch(ctx, expr1Type.toString(), expr2Type.toString())
             return false
         }
 
@@ -56,8 +57,12 @@ class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: Expr
     }
 
     private fun checkInt(type1: BaseTypeAST, type2: BaseTypeAST): Boolean {
-        if (type1.type != BaseType.INT || type2.type != BaseType.INT) {
-            // Call semantic error "Type mismatch for binary operator expression, expecting Int"
+        if (type1.type != BaseType.INT) {
+            semanticErrorHandler.typeMismatch(ctx, BaseType.INT.toString(), type1.type.toString())
+            return false
+        }
+        if (type2.type != BaseType.INT) {
+            semanticErrorHandler.typeMismatch(ctx, BaseType.INT.toString(), type2.type.toString())
             return false
         }
         return true
@@ -67,7 +72,8 @@ class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: Expr
         if (binOp == CmpBinOp.LT || binOp == CmpBinOp.GT || binOp == CmpBinOp.LTE || binOp == CmpBinOp.GTE) {
             if (!(type1.type == BaseType.INT && type2.type == BaseType.INT ||
                 type1.type == BaseType.CHAR && type2.type == BaseType.CHAR)) {
-                // Call semantic error "Type mismatch, expecting Int or Char for LT, GT, LTE or GTE"
+                semanticErrorHandler.typeMismatch(ctx,
+                    "both INT or both CHAR", "comparing ${type1.type} and ${type2.type}")
                 return false
             }
         }
@@ -75,8 +81,12 @@ class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: Expr
     }
 
     private fun checkBool(type1: BaseTypeAST, type2: BaseTypeAST): Boolean {
-        if (type1.type != BaseType.BOOL || type2.type != BaseType.BOOL) {
-            // Call semantic error "Type mismatch for binary operator expression, expecting Bool"
+        if (type1.type != BaseType.BOOL) {
+            semanticErrorHandler.typeMismatch(ctx, BaseType.BOOL.toString(), type1.type.toString())
+            return false
+        }
+        if (type2.type != BaseType.BOOL) {
+            semanticErrorHandler.typeMismatch(ctx, BaseType.BOOL.toString(), type2.type.toString())
             return false
         }
         return true

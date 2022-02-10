@@ -4,6 +4,7 @@ import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.type.ArrayTypeAST
 import frontend.ast.type.TypeAST
+import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
 class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : TypeAST(ctx) {
@@ -32,7 +33,7 @@ class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : TypeA
         }
         for (elem in vals) {
             if (elem.getType(symbolTable) != arrayType) {
-                // Call semantic error "Type within array is inconsistent"
+                semanticErrorHandler.inconsistentArrayElem(ctx)
                 return null
             }
         }

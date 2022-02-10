@@ -1,14 +1,18 @@
 package frontend
 
 import antlr.*
-import frontend.errors.SUCCESS_CODE
-import frontend.errors.SYNTAX_ERROR_CODE
-import frontend.errors.SyntaxErrorHandler
-import frontend.errors.SyntaxErrorListener
+import frontend.errors.*
+import frontend.visitor.BuildAST
 import frontend.visitor.SyntaxChecker
 import org.antlr.v4.runtime.*
 
+
+val semanticErrorHandler = SemanticErrorHandler()
+
+
 object FrontendMain {
+
+
     fun main(input: CharStream) : Int {
 
         val errorListener = SyntaxErrorListener()
@@ -28,25 +32,25 @@ object FrontendMain {
             return SYNTAX_ERROR_CODE
         }
 
-
-        println(tree.toStringTree(parser))
-
         val syntaxErrorHandler = SyntaxErrorHandler()
 
         val checkSyntaxVisitor = SyntaxChecker(syntaxErrorHandler)
         checkSyntaxVisitor.visit(tree)
 
-
         if (syntaxErrorHandler.hasErrors()) {
             syntaxErrorHandler.printErrors()
             return SYNTAX_ERROR_CODE
         }
-        // 1. syntaxCheck
-        // 2. buildAst (Traverse parseTree)
-        // 3. semanticCheck (Visitor)
 
-//    val visitor = AstVisitor()
-//    ASTNode ast = visitor.visit(tree)
+
+        val checkSemanticVisitor = BuildAST()
+
+        if (semanticErrorHandler.hasErrors()) {
+            semanticErrorHandler.printErrors()
+            return SEMANTIC_ERROR_CODE
+        }
+
+        val ast = checkSemanticVisitor.visit(tree)
 
         return SUCCESS_CODE
     }

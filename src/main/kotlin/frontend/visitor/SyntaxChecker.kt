@@ -4,7 +4,7 @@ import antlr.WACCParser.*
 import antlr.WACCParserBaseVisitor
 import frontend.errors.SyntaxErrorHandler
 
-class SyntaxChecker(val syntaxErrorHandler: SyntaxErrorHandler) : WACCParserBaseVisitor<Void>()  {
+class SyntaxChecker(private val syntaxErrorHandler: SyntaxErrorHandler) : WACCParserBaseVisitor<Void>()  {
 
     private fun statIsExitOrReturn(stat: StatContext) = (stat is StatSimpleContext) &&
             (stat.EXIT() != null || stat.RETURN() != null)

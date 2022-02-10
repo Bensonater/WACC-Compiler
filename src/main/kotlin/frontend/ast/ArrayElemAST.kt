@@ -3,6 +3,7 @@ package frontend.ast
 import frontend.SymbolTable
 import frontend.ast.type.ArrayTypeAST
 import frontend.ast.type.TypeAST
+import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
 class ArrayElemAST(val ctx: ParserRuleContext, val ident: IdentAST, val listOfIndex: List<ExprAST>) : ExprAST(ctx) {
@@ -14,11 +15,11 @@ class ArrayElemAST(val ctx: ParserRuleContext, val ident: IdentAST, val listOfIn
         }
         val typeAST = ident.getType(symbolTable)
         if (typeAST !is ArrayTypeAST) {
-            // Call semantic error "Array elem type isn't an array"
+            semanticErrorHandler.typeMismatch(ctx, "ARRAY", typeAST.toString())
             return false
         }
         if (listOfIndex.size != typeAST.dimension) {
-            // Call semantic error "Array index dimension doesn't match actual array dimension"
+            semanticErrorHandler.invalidIndex(ctx)
             return false
         }
         listOfIndex.forEach {
