@@ -33,12 +33,14 @@ enum class BoolBinOp : BinOp {
 class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: ExprAST, val expr2: ExprAST) :
     ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
+        this.symbolTable = symbolTable
         if (!expr1.check(symbolTable) || !expr2.check(symbolTable)) {
             return false
         }
         val expr1Type = expr1.getType(symbolTable)
         val expr2Type = expr2.getType(symbolTable)
-        if (expr1Type !is BaseTypeAST || expr2Type !is BaseTypeAST) {
+        if (expr1Type !is BaseTypeAST || expr2Type !is BaseTypeAST || expr1Type != expr2Type) {
+            // Call semantic error "Type mismatch for binary operator expression"
             return false
         }
 
@@ -54,21 +56,33 @@ class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: Expr
     }
 
     private fun checkInt(type1: BaseTypeAST, type2: BaseTypeAST): Boolean {
-        return type1.type == BaseType.INT && type2.type == BaseType.INT
+        if (type1.type != BaseType.INT || type2.type != BaseType.INT) {
+            // Call semantic error "Type mismatch for binary operator expression, expecting Int"
+            return false
+        }
+        return true
     }
 
     private fun checkCmp(type1: BaseTypeAST, type2: BaseTypeAST): Boolean {
-        if (binOp == CmpBinOp.EQ || binOp == CmpBinOp.NEQ) {
-            return type1.type == type2.type
+        if (binOp == CmpBinOp.LT || binOp == CmpBinOp.GT || binOp == CmpBinOp.LTE || binOp == CmpBinOp.GTE) {
+            if (!(type1.type == BaseType.INT && type2.type == BaseType.INT ||
+                type1.type == BaseType.CHAR && type2.type == BaseType.CHAR)) {
+                // Call semantic error "Type mismatch, expecting Int or Char for LT, GT, LTE or GTE"
+                return false
+            }
         }
-        return checkInt(type1, type2) || (type1.type == BaseType.CHAR && type2.type == BaseType.CHAR)
+        return true
     }
 
     private fun checkBool(type1: BaseTypeAST, type2: BaseTypeAST): Boolean {
-        return type1.type == BaseType.BOOL && type2.type == BaseType.BOOL
+        if (type1.type != BaseType.BOOL || type2.type != BaseType.BOOL) {
+            // Call semantic error "Type mismatch for binary operator expression, expecting Bool"
+            return false
+        }
+        return true
     }
 
-    override fun getType(symbolTable: SymbolTable): TypeAST? {
+    override fun getType(symbolTable: SymbolTable): TypeAST {
         return if (binOp is IntBinOp)
             BaseTypeAST(ctx, BaseType.INT)
         else
