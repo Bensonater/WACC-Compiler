@@ -7,7 +7,7 @@ import frontend.ast.type.ArrayTypeAST
 import frontend.ast.type.PairTypeAST
 import frontend.ast.type.TypeAST
 
-class IdentAST(val ctx: ParserRuleContext, val name: String) : ASTNode(ctx) {
+class IdentAST(val ctx: ParserRuleContext, val name: String) : ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
         if (symbolTable.lookupAll(name) == null) {
