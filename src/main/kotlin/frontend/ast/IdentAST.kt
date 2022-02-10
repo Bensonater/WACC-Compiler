@@ -9,7 +9,8 @@ import frontend.ast.type.TypeAST
 
 class IdentAST(val ctx: ParserRuleContext, val name: String) : ASTNode(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
-        if (symbolTable.get(name) == null) {
+        this.symbolTable = symbolTable
+        if (symbolTable.lookupAll(name) == null) {
             // Return semantic error "Variable is not assigned {name}"
             return false
         }
@@ -17,7 +18,7 @@ class IdentAST(val ctx: ParserRuleContext, val name: String) : ASTNode(ctx) {
     }
 
     override fun getType(symbolTable: SymbolTable): TypeAST? {
-        val type = symbolTable.lookupAll(name)
+        val type = symbolTable.identLookUp(name)
         if (type == null) {
             // Semantic error, Variable $name has not been declared
             return null
