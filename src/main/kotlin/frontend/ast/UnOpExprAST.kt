@@ -21,25 +21,47 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
             return false
         }
         if (unOp == UnOp.LEN) {
-            return expr is ArrayElemAST
+            if (expr !is ArrayElemAST) {
+                // Call semantic error "Error trying to call LEN on non array type"
+                return false
+            }
+            return true
         }
-
         val exprType = expr.getType(symbolTable)
         if (exprType !is BaseTypeAST) {
             return false
         }
-        return when (unOp) {
-            UnOp.NOT -> exprType.type == BaseType.BOOL
-            UnOp.MINUS -> exprType.type == BaseType.INT
-            UnOp.ORD -> exprType.type == BaseType.CHAR
-            UnOp.CHR -> exprType.type == BaseType.INT
-            else -> {
-                false
+        when (unOp) {
+            UnOp.NOT -> {
+                if (exprType.type != BaseType.BOOL) {
+                    // Call semantic error "Error calling NOT on non Bool type"
+                    return false
+                }
             }
+            UnOp.MINUS -> {
+                if (exprType.type != BaseType.INT) {
+                    // Call semantic error "Error calling MINUS on non Int type"
+                    return false
+                }
+            }
+            UnOp.ORD -> {
+                if (exprType.type != BaseType.CHAR) {
+                    // Call semantic error "Error calling ORD on non CHAR type"
+                    return false
+                }
+            }
+            UnOp.CHR -> {
+                if (exprType.type != BaseType.INT) {
+                    // Call semantic error "Error calling CHR on non Int type"
+                    return false
+                }
+            }
+            else -> {return false}
         }
+        return true
     }
 
-    override fun getType(symbolTable: SymbolTable): TypeAST? {
+    override fun getType(symbolTable: SymbolTable): TypeAST {
         return when (unOp) {
             UnOp.NOT -> BaseTypeAST(ctx, BaseType.BOOL)
             UnOp.CHR -> BaseTypeAST(ctx, BaseType.CHAR)
