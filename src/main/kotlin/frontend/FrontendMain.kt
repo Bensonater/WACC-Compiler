@@ -43,14 +43,16 @@ object FrontendMain {
         }
 
 
-        val checkSemanticVisitor = BuildAST()
+        val buildASTVisitor = BuildAST()
+
+        val ast = buildASTVisitor.visit(tree)
+
+        ast.check(SymbolTable())
 
         if (semanticErrorHandler.hasErrors()) {
             semanticErrorHandler.printErrors()
             return SEMANTIC_ERROR_CODE
         }
-
-        val ast = checkSemanticVisitor.visit(tree)
 
         return SUCCESS_CODE
     }
