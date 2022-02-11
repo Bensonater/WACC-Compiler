@@ -7,9 +7,14 @@ import frontend.ast.type.BaseTypeAST
 import frontend.ast.type.TypeAST
 import org.antlr.v4.runtime.ParserRuleContext
 
+/**
+ * AST node representing an integer literal.
+ * The value can store both positive and negative list of digits as
+ * it is of type Int.
+ */
 class IntLiterAST(val ctx: ParserRuleContext, val value: Int) : ExprAST(ctx) {
 
-    override fun getType(symbolTable: SymbolTable): TypeAST? {
+    override fun getType(symbolTable: SymbolTable): TypeAST {
         return BaseTypeAST(ctx, BaseType.INT)
     }
 }
