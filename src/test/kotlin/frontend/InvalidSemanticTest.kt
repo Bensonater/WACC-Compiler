@@ -15,9 +15,12 @@ class InvalidSemanticTest : TestUtils {
     @Test
     fun invalidFilesReturnSemanticError() {
         var newErrorCount = 0
+        var totalTests = 0
         var failingTests = 0
         doForEachFile(File("wacc_examples/invalid/semanticErr")){ file ->
-            println("TESTING " + file.name)
+            var failedTest = false
+            totalTests++
+
             val errorListener = SyntaxErrorListener()
             val input = CharStreams.fromStream(file.inputStream())
             val lexer = WACCLexer(input)
@@ -36,26 +39,31 @@ class InvalidSemanticTest : TestUtils {
             checkSyntaxVisitor.visit(tree)
 
             if(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0){
-                println("- SYNTAX ERROR - " + file.name)
-                failingTests++
+                println("- SYNTAX ERROR - ")
+                failedTest = true
+            } else {
+                val buildASTVisitor = BuildAST()
+
+                val ast = buildASTVisitor.visit(tree)
+
+                ast.check(SymbolTable())
+
+                val oldErrorCount = newErrorCount
+                newErrorCount = semanticErrorHandler.errorCount()
+
+                if(newErrorCount - oldErrorCount == 0){
+                    println("- NO SEMANTIC ERROR - ")
+                    failedTest = true
+                }
             }
-
-            val buildASTVisitor = BuildAST()
-
-            val ast = buildASTVisitor.visit(tree)
-
-            ast.check(SymbolTable())
-
-            val oldErrorCount = newErrorCount
-            newErrorCount = semanticErrorHandler.errorCount()
-
-            if(newErrorCount - oldErrorCount == 0){
-                println("- NO SEMANTIC ERROR - " + file.name)
+            if (failedTest) {
+                println("TEST " + file.name + " FAILED")
                 failingTests++
+            } else {
+                println("TEST " + file.name + " PASSED")
             }
-
         }
-        println("$failingTests FAILING TESTS")
+        println("PASSING " + (totalTests - failingTests) + "/" + totalTests)
         assertTrue(failingTests == 0)
     }
 }
