@@ -14,8 +14,8 @@ class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<St
 
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
-        thenSymbolTable.setParentTable(symbolTable)
-        elseSymbolTable.setParentTable(symbolTable)
+        thenSymbolTable.parent = symbolTable
+        elseSymbolTable.parent = symbolTable
         if (!expr.check(symbolTable)) {
             return false
         }

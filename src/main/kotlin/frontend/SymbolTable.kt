@@ -15,10 +15,6 @@ open class SymbolTable {
         symbolTable[name] = astNode
     }
 
-    fun setParentTable(st: SymbolTable) {
-        parent = st
-    }
-
     fun lookupAll(name: String): ASTNode? {
         var st = this
         while (true) {
@@ -60,7 +56,6 @@ open class SymbolTable {
         }
         return st.type
     }
-
 
 }
 
