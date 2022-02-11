@@ -4,6 +4,10 @@ import org.antlr.v4.runtime.ParserRuleContext
 
 class SemanticErrorHandler : ErrorHandler() {
 
+    override fun errorText(ctx: ParserRuleContext): String {
+        return ("Semantic Error ($SEMANTIC_ERROR_CODE)\n - At ${ctx.getStart().line}:${ctx.getStart().charPositionInLine} : ")
+    }
+
     fun inconsistentArrayElem (ctx: ParserRuleContext) {
         addErrorWithContext(ctx, "Type within array is inconsistent")
     }

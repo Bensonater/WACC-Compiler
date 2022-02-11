@@ -14,16 +14,14 @@ abstract class ErrorHandler {
         }
     }
 
-    private fun syntaxError(error: String) {
+    protected fun throwError(error: String) {
         errors.add(error)
     }
 
-    private fun syntaxErrorText(ctx: ParserRuleContext): String {
-        return ("Syntax Error ($SYNTAX_ERROR_CODE)\n - At ${ctx.getStart().line}:${ctx.getStart().charPositionInLine} : ")
-    }
+    abstract fun errorText(ctx: ParserRuleContext): String
 
     protected fun addErrorWithContext (ctx: ParserRuleContext, errorMessage: String) {
-        val error = syntaxErrorText(ctx) + errorMessage
-        syntaxError(error)
+        val error = errorText(ctx) + errorMessage
+        throwError(error)
     }
 }
