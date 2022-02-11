@@ -6,6 +6,8 @@ abstract class ErrorHandler {
 
     protected val errors: MutableList<String> = mutableListOf()
 
+    fun errorCount() : Int = errors.size
+
     fun hasErrors(): Boolean = errors.isNotEmpty()
 
     fun printErrors() {
@@ -14,7 +16,7 @@ abstract class ErrorHandler {
         }
     }
 
-    protected fun throwError(error: String) {
+    private fun throwError(error: String) {
         errors.add(error)
     }
 
