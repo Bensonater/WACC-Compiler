@@ -23,6 +23,8 @@ class FuncAST(
             this.symbolTable.put(it.ident.name, it)
         }
 
+        this.symbolTable.put(ident.name, this)
+
         stats.forEach {
             if (!it.check(this.symbolTable)) {
                 return false
