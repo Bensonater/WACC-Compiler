@@ -11,27 +11,21 @@ import frontend.semanticErrorHandler
 class IdentAST(val ctx: ParserRuleContext, val name: String) : ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
-        if (symbolTable.lookupAll(name) == null) {
+        if (symbolTable.identLookUp(name) == null) {
             semanticErrorHandler.invalidIdentifier(ctx, name)
             return false
         }
         return true
     }
 
-    override fun getType(symbolTable: SymbolTable): TypeAST? {
-        val type = symbolTable.identLookUp(name)
-        return if (type == null) {
-            semanticErrorHandler.invalidIdentifier(ctx, name)
-            null
-        } else {
-            when (type) {
+    override fun getType(symbolTable: SymbolTable): TypeAST {
+        return when (val type = symbolTable.lookupAll(name)) {
                 is DeclareAST -> type.type
                 is FuncAST -> type.type
                 is ParamAST -> type.type
                 is ArrayTypeAST -> type
                 is PairTypeAST -> type
                 else -> throw RuntimeException("Unknown type")
-            }
         }
     }
 }
