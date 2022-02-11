@@ -1,19 +1,21 @@
 package frontend
 
-import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.junit.jupiter.api.Test
 import java.io.File
 import antlr.*
 import frontend.errors.SyntaxErrorHandler
 import frontend.errors.SyntaxErrorListener
+import frontend.visitor.BuildAST
 import frontend.visitor.SyntaxChecker
+import org.antlr.v4.runtime.CharStreams
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class InvalidSyntaxTest {
+class InvalidSemanticTest {
     @Test
-    fun invalidFilesReturnSyntaxError() {
-        doForEachFile(File("wacc_examples/invalid/syntaxErr")){ file ->
+    fun invalidFilesReturnSemanticError() {
+        doForEachFile(File("wacc_examples/invalid/semanticErr")){ file ->
             val errorListener = SyntaxErrorListener()
             val input = CharStreams.fromStream(file.inputStream())
             val lexer = WACCLexer(input)
@@ -31,9 +33,17 @@ class InvalidSyntaxTest {
             val checkSyntaxVisitor = SyntaxChecker(syntaxErrorHandler)
             checkSyntaxVisitor.visit(tree)
 
-            assertTrue(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
-            }
+            assertFalse(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
+
+            val buildASTVisitor = BuildAST()
+
+            val ast = buildASTVisitor.visit(tree)
+
+            ast.check(SymbolTable())
+
+            assertTrue(semanticErrorHandler.hasErrors())
         }
+    }
 
 
     fun <T> doForEachFile(file: File, operation: (File) -> T): List<T>{
