@@ -5,6 +5,10 @@ import frontend.ast.*
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
+/**
+ * AST node representing an assignment statement to an existing variable.
+ * Checks that type of left and right-hand side matches.
+ */
 class AssignAST(val ctx: ParserRuleContext, val assignLhs: ASTNode, val assignRhs: ASTNode) : StatAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
@@ -18,11 +22,11 @@ class AssignAST(val ctx: ParserRuleContext, val assignLhs: ASTNode, val assignRh
             return false
         }
         if (assignLhs is IdentAST && symbolTable.lookupAll(assignLhs.name) is FuncAST) {
-            semanticErrorHandler.invalidAssignment(ctx, "value", "function")
+            semanticErrorHandler.invalidAssignment(ctx, rightType.toString(), "FUNCTION")
             return false
         }
         if (assignRhs is IdentAST && symbolTable.lookupAll(assignRhs.name) is FuncAST) {
-            semanticErrorHandler.invalidAssignment(ctx, "function", "variable")
+            semanticErrorHandler.invalidAssignment(ctx, leftType.toString(), "FUNCTION")
             return false
         }
         return true

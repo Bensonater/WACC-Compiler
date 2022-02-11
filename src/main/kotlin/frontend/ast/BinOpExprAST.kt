@@ -31,6 +31,11 @@ enum class BoolBinOp : BinOp {
     OR
 }
 
+/**
+ * AST node representing a binary operator expression.
+ * Checks the type of left and right-hand side expressions match.
+ * Checks expression type is compatible with each operator.
+ */
 class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: ExprAST, val expr2: ExprAST) :
     ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {

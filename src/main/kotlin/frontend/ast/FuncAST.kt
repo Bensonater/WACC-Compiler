@@ -6,6 +6,11 @@ import frontend.ast.statement.StatAST
 import frontend.ast.type.TypeAST
 import org.antlr.v4.runtime.ParserRuleContext
 
+/**
+ * AST node representing a function with the type, identifier, parameters and body.
+ * Creates new scope by assigning new symbol table for the function body.
+ * Records each parameter in symbol table.
+ */
 class FuncAST(
     val ctx: ParserRuleContext,
     val type: TypeAST,
@@ -18,7 +23,7 @@ class FuncAST(
     }
 
     override fun check(symbolTable: SymbolTable): Boolean {
-        this.symbolTable.setParentTable(symbolTable)
+        this.symbolTable.parent = symbolTable
         paramList.forEach {
             this.symbolTable.put(it.ident.name, it)
         }

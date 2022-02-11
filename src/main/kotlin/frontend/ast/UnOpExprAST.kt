@@ -16,6 +16,10 @@ enum class UnOp {
     CHR
 }
 
+/**
+ * AST node representing an unary operator expression.
+ * Checks expression type is compatible with each operator.
+ */
 class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST) : ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable

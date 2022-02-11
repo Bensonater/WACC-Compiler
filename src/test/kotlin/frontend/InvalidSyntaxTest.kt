@@ -1,19 +1,31 @@
 package frontend
 
+import antlr.WACCLexer
+import antlr.WACCParser
+import frontend.errors.SyntaxErrorHandler
+import frontend.errors.SyntaxErrorListener
+import frontend.visitor.SyntaxChecker
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.junit.jupiter.api.Test
 import java.io.File
-import antlr.*
-import frontend.errors.SyntaxErrorHandler
-import frontend.errors.SyntaxErrorListener
-import frontend.visitor.SyntaxChecker
 import kotlin.test.assertTrue
 
 class InvalidSyntaxTest : TestUtils {
+    val root = "wacc_examples/invalid/syntaxErr"
+
+    /**
+     * Tests all the invalid WACC example files with syntax errors, ensuring that at least
+     * one syntax error is returned
+     */
     @Test
     fun invalidFilesReturnSyntaxError() {
-        doForEachFile(File("wacc_examples/invalid/syntaxErr")){ file ->
+        var totalTests = 0
+        var failingTests = 0
+        doForEachFile(File(root)) { file ->
+            println("- TESTING: " + file.name)
+            totalTests++
+
             val errorListener = SyntaxErrorListener()
             val input = CharStreams.fromStream(file.inputStream())
             val lexer = WACCLexer(input)
@@ -31,10 +43,17 @@ class InvalidSyntaxTest : TestUtils {
             val checkSyntaxVisitor = SyntaxChecker(syntaxErrorHandler)
             checkSyntaxVisitor.visit(tree)
 
-            assertTrue(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
+            if (syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0) {
+                println("   TEST " + file.name + " PASSED")
+            } else {
+                println("X NO SYNTAX ERROR X")
+                println("   TEST " + file.name + " FAILED")
+                failingTests++
             }
         }
-
+        println("PASSING " + (totalTests - failingTests) + "/" + totalTests)
+        assertTrue(failingTests == 0)
+    }
 
 
 }

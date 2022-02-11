@@ -8,12 +8,17 @@ import frontend.ast.type.BaseTypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
+/**
+ * AST node representing a while statement with a condition expression and a body.
+ * Creates new scope by assigning new symbol table for the body block.
+ * Checks condition expression is of type BOOL.
+ */
 class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<ASTNode>) : StatAST(ctx) {
     val bodySymbolTable = SymbolTable()
 
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
-        bodySymbolTable.setParentTable(symbolTable)
+        bodySymbolTable.parent = symbolTable
         if (!expr.check(symbolTable)) {
             return false
         }

@@ -8,6 +8,10 @@ import frontend.ast.type.PairTypeAST
 import frontend.ast.type.TypeAST
 import frontend.semanticErrorHandler
 
+/**
+ * AST node representing an identifier.
+ * Checks the identifier is in scope.
+ */
 class IdentAST(val ctx: ParserRuleContext, val name: String) : ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable

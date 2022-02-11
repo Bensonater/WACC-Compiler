@@ -158,7 +158,7 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
 
     override fun visitPairElemType(ctx: WACCParser.PairElemTypeContext): ASTNode {
         return if (ctx.PAIR() != null) {
-            NullablePairOfPairTypeAST(ctx)
+            ArbitraryTypeAST(ctx)
         } else {
             visitChildren(ctx)
         }

@@ -6,6 +6,11 @@ import frontend.ast.type.TypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
+/**
+ * AST node representing an array element when indexing an array.
+ * Checks identifier is of type array and in scope.
+ * Checks indexing dimension matches array dimension.
+ */
 class ArrayElemAST(val ctx: ParserRuleContext, val ident: IdentAST, val listOfIndex: List<ExprAST>) : ExprAST(ctx) {
 
     override fun check(symbolTable: SymbolTable): Boolean {

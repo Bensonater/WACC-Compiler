@@ -7,6 +7,11 @@ import frontend.ast.type.BaseTypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
+/**
+ * AST node representing an if statement with a then and else block.
+ * Creates new scope by assigning new symbol table for then and else block.
+ * Checks if condition expression is of type BOOL.
+ */
 class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<StatAST>, val elseStat: List<StatAST>) :
     StatAST(ctx) {
     val thenSymbolTable = SymbolTable()
@@ -14,8 +19,8 @@ class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<St
 
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
-        thenSymbolTable.setParentTable(symbolTable)
-        elseSymbolTable.setParentTable(symbolTable)
+        thenSymbolTable.parent = symbolTable
+        elseSymbolTable.parent = symbolTable
         if (!expr.check(symbolTable)) {
             return false
         }

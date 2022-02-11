@@ -7,6 +7,10 @@ import frontend.ast.type.BaseTypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
+/**
+ * AST node representing the entire program with a function list and body statement.
+ * Checks each function is not already defined and records in the symbol table.
+ */
 class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val stat: StatAST) : ASTNode(ctx) {
     /* Inserts all base type into Symbol Table */
     init {

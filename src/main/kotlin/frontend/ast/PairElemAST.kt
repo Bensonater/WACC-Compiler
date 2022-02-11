@@ -12,6 +12,10 @@ enum class PairIndex {
     SND
 }
 
+/**
+ * AST node representing a pair element when indexing pair.
+ * Checks expression is of pair type.
+ */
 class PairElemAST (val ctx: ParserRuleContext, val index: PairIndex, val expr: ExprAST) : ASTNode(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable

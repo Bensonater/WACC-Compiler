@@ -4,6 +4,10 @@ import frontend.ast.ASTNode
 import frontend.ast.type.TypeAST
 
 open class SymbolTable {
+    /**
+     * The Hashmap is used to represent the symbol table
+     * The parent points to the outer scope
+     */
     var symbolTable = HashMap<String, ASTNode>()
     var parent: SymbolTable? = null
 
@@ -15,10 +19,9 @@ open class SymbolTable {
         symbolTable[name] = astNode
     }
 
-    fun setParentTable(st: SymbolTable) {
-        parent = st
-    }
-
+    /**
+     * Searches for the token in all symbol tables
+     */
     fun lookupAll(name: String): ASTNode? {
         var st = this
         while (true) {
@@ -33,6 +36,9 @@ open class SymbolTable {
         }
     }
 
+    /**
+     * Searches for the token in the current function scope
+     */
     fun identLookUp(name: String): ASTNode? {
         var st = this
         while (true) {
@@ -50,6 +56,9 @@ open class SymbolTable {
         }
     }
 
+    /**
+     * Checks if the current symbol table belongs to a function
+     */
     fun funcTypeLookUp(): TypeAST? {
         var st = this
         while (st !is FuncSymbolTable) {
@@ -60,8 +69,6 @@ open class SymbolTable {
         }
         return st.type
     }
-
-
 }
 
 class FuncSymbolTable(val type: TypeAST) : SymbolTable()

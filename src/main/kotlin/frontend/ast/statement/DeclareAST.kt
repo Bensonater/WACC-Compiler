@@ -8,6 +8,12 @@ import frontend.ast.type.TypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
+/**
+ * AST node representing a declare statement for new variables.
+ * Checks identifier isn't already defined in local scope.
+ * Checks that right-hand side matches type.
+ * Records newly declared variable in local symbol table.
+ */
 class DeclareAST(val ctx: ParserRuleContext, val type: TypeAST, val ident: IdentAST, val assignRhs: ASTNode) : StatAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable

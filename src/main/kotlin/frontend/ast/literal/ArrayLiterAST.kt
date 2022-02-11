@@ -1,14 +1,20 @@
 package frontend.ast.literal
 
 import frontend.SymbolTable
+import frontend.ast.ASTNode
 import frontend.ast.ExprAST
 import frontend.ast.type.ArrayTypeAST
-import frontend.ast.type.NullablePairOfPairTypeAST
+import frontend.ast.type.ArbitraryTypeAST
 import frontend.ast.type.TypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
-class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : TypeAST(ctx) {
+/**
+ * AST node that is used for instantiating new arrays.
+ * vals represents the elements in the array.
+ * E.g. [1, 3, 9, 102]
+ */
+class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : ASTNode(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
         for (elem in vals) {
@@ -30,7 +36,7 @@ class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : TypeA
 
     override fun getType(symbolTable: SymbolTable): TypeAST {
         return if (vals.isEmpty()) {
-            ArrayTypeAST(ctx, NullablePairOfPairTypeAST(ctx), 1)
+            ArrayTypeAST(ctx, ArbitraryTypeAST(ctx), 1)
         } else {
             val exprType = vals[0].getType(symbolTable)
             if (exprType is ArrayTypeAST) {

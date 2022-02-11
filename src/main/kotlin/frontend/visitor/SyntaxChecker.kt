@@ -52,6 +52,10 @@ class SyntaxChecker(private val syntaxErrorHandler: SyntaxErrorHandler) : WACCPa
         return null
     }
 
+    /**
+     * The WACC language supports integers in the inclusive range [−2^31, 2^31−1]. This is the same for Java integers.
+     * Therefore, the Java NumberFormatException can be used.
+     */
     override fun visitIntLiter(ctx: IntLiterContext): Void? {
         try {
             (ctx.text).toInt()
