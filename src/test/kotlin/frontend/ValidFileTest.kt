@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 class ValidFileTest : TestUtils {
     @Test
     fun validFilesReturnNoErrors() {
-        var newErrorCount = 0
+        var newErrorCount = semanticErrorHandler.errorCount()
         var totalTests = 0
         var failingTests = 0
         doForEachFile(File("wacc_examples/valid/")){ file ->
