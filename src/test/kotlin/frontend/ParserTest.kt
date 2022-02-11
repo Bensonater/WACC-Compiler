@@ -9,78 +9,57 @@ import org.junit.jupiter.api.Test
 
 
 class ParserTest {
+    private fun checkParserOutput(expectedTree: String, input: String) {
+        val charInput = CharStreams.fromString(input)
+        val lexer = WACCLexer(charInput)
+        val tokens = CommonTokenStream(lexer)
+        val parser = WACCParser(tokens)
+        val tree = parser.program() // Begin parsing at program rule
+        assertEquals(expectedTree, tree.toStringTree(parser))
+    }
 
     @Test
     fun parserReturnsBasicProgramTreeWithSkip() {
-        val input = CharStreams.fromString("begin skip end")
-        val lexer = WACCLexer(input)
-        val tokens = CommonTokenStream(lexer)
-        val parser = WACCParser(tokens)
-        val tree = parser.program() // begin parsing at program rule
-        assertEquals("(program begin (stat skip) end <EOF>)", tree.toStringTree(parser))
+        val expectedTree = "(program begin (stat skip) end <EOF>)"
+        checkParserOutput(expectedTree, "begin skip end")
     }
 
     @Test
     fun parserReturnsPrintTree() {
-        val input = CharStreams.fromString("begin print \"lorem ipsum\" end")
-        val lexer = WACCLexer(input)
-        val tokens = CommonTokenStream(lexer)
-        val parser = WACCParser(tokens)
-        val tree = parser.program() // begin parsing at program rule
-        assertEquals(
-            "(program begin (stat print (expr (strLiter \"lorem ipsum\"))) end <EOF>)",
-            tree.toStringTree(parser)
-        )
+        val expectedTree =
+            "(program begin (stat print (expr (strLiter \"lorem ipsum\"))) end <EOF>)"
+        checkParserOutput(expectedTree, "begin print \"lorem ipsum\" end")
     }
 
     @Test
     fun parserReturnsAssignmentTree() {
-        val input = CharStreams.fromString("begin int i = 10 end")
-        val lexer = WACCLexer(input)
-        val tokens = CommonTokenStream(lexer)
-        val parser = WACCParser(tokens)
-        val tree = parser.program() // begin parsing at program rule
-        assertEquals(
-            "(program begin (stat (type (baseType int)) (ident i) = " +
-                    "(assignRhs (expr (intLiter 10)))) end <EOF>)", tree.toStringTree(parser)
-        )
+        val expectedTree = "(program begin (stat (type (baseType int)) (ident i) = " +
+                "(assignRhs (expr (intLiter 10)))) end <EOF>)"
+        checkParserOutput(expectedTree, "begin int i = 10 end")
     }
 
     @Test
     fun parserReturnsSequenceTree() {
-        val input = CharStreams.fromString(
-            "begin\n" +
+        val expectedTree = "(program begin (stat (stat (type (baseType int)) (ident i) = " +
+                "(assignRhs (expr (intLiter 10)))) ; (stat print (expr (strLiter \"lorem ipsum\")))) end <EOF>)"
+        checkParserOutput(
+            expectedTree, "begin\n" +
                     "    int i = 10;\n" +
                     "    print \"lorem ipsum\"\n" +
                     "end"
-        )
-        val lexer = WACCLexer(input)
-        val tokens = CommonTokenStream(lexer)
-        val parser = WACCParser(tokens)
-        val tree = parser.program() // begin parsing at program rule
-        assertEquals(
-            "(program begin (stat (stat (type (baseType int)) (ident i) = " +
-                    "(assignRhs (expr (intLiter 10)))) ; (stat print (expr (strLiter \"lorem ipsum\")))) end <EOF>)",
-            tree.toStringTree(parser)
         )
     }
 
     @Test
     fun parserReturnsCorrectOrderOfOperationsTree() {
-        val input = CharStreams.fromString(
-            "begin\n" +
+        val expectedTree = "(program begin (stat (type (baseType int)) (ident i) = (assignRhs" +
+                " (expr (expr (expr (intLiter 10)) (binaryOper2 +) (expr " +
+                "(expr (intLiter 5)) (binaryOper1 *) (expr (intLiter 6)))) (binaryOper2 -) " +
+                "(expr (intLiter 2))))) end <EOF>)"
+        checkParserOutput(
+            expectedTree, "begin\n" +
                     "    int i = 10 + 5 * 6 - 2\n" +
                     "end"
-        )
-        val lexer = WACCLexer(input)
-        val tokens = CommonTokenStream(lexer)
-        val parser = WACCParser(tokens)
-        val tree = parser.program() // begin parsing at program rule
-        assertEquals(
-            "(program begin (stat (type (baseType int)) (ident i) = (assignRhs" +
-                    " (expr (expr (expr (intLiter 10)) (binaryOper2 +) (expr " +
-                    "(expr (intLiter 5)) (binaryOper1 *) (expr (intLiter 6)))) (binaryOper2 -) " +
-                    "(expr (intLiter 2))))) end <EOF>)", tree.toStringTree(parser)
         )
     }
 }
