@@ -15,8 +15,8 @@ class PairTypeAST(ctx: ParserRuleContext, val typeFst: TypeAST, val typeSnd: Typ
 
         other as PairTypeAST
 
-        if (typeFst != other.typeFst) return false
-        if (typeSnd != other.typeSnd) return false
+        if (typeFst !is NullablePairOfPairTypeAST && typeFst != other.typeFst) return false
+        if (typeSnd !is NullablePairOfPairTypeAST && typeSnd != other.typeSnd) return false
 
         return true
     }
