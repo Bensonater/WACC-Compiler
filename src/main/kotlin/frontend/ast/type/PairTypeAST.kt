@@ -11,12 +11,13 @@ class PairTypeAST(ctx: ParserRuleContext, val typeFst: TypeAST, val typeSnd: Typ
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
+        if (other is NullablePairOfPairTypeAST) return true
         if (javaClass != other?.javaClass) return false
 
         other as PairTypeAST
 
-        if (typeFst !is NullablePairOfPairTypeAST && typeFst != other.typeFst) return false
-        if (typeSnd !is NullablePairOfPairTypeAST && typeSnd != other.typeSnd) return false
+        if (typeFst != other.typeFst) return false
+        if (typeSnd != other.typeSnd) return false
 
         return true
     }
