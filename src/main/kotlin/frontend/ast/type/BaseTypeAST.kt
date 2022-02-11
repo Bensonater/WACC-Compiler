@@ -10,6 +10,10 @@ enum class BaseType {
     STRING
 }
 
+/**
+ * This AST node represents all the possible BaseTypes (Int, bool, char and string).
+ * It allows for the type to be passed into the AST node.
+ */
 class BaseTypeAST (ctx: ParserRuleContext, val type:BaseType) : TypeAST(ctx) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
