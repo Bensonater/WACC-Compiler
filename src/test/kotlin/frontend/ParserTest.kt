@@ -9,12 +9,16 @@ import org.junit.jupiter.api.Test
 
 
 class ParserTest {
+    /**
+     * Runs the lexer and parser on the provided input, ensuring the final tree
+     * matches with the expectation
+     */
     private fun checkParserOutput(expectedTree: String, input: String) {
         val charInput = CharStreams.fromString(input)
         val lexer = WACCLexer(charInput)
         val tokens = CommonTokenStream(lexer)
         val parser = WACCParser(tokens)
-        val tree = parser.program() // Begin parsing at program rule
+        val tree = parser.program()
         assertEquals(expectedTree, tree.toStringTree(parser))
     }
 

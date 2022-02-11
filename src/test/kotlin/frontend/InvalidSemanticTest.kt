@@ -13,12 +13,18 @@ import java.io.File
 import kotlin.test.assertTrue
 
 class InvalidSemanticTest : TestUtils {
+    val root = "wacc_examples/invalid/semanticErr"
+
+    /**
+     * Tests all the invalid WACC example files with semantic errors, ensuring that at least
+     * one semantic error is returned, with no syntax errors
+     */
     @Test
     fun invalidFilesReturnSemanticError() {
         var newErrorCount = 0
         var totalTests = 0
         var failingTests = 0
-        doForEachFile(File("wacc_examples/invalid/semanticErr")) { file ->
+        doForEachFile(File(root)) { file ->
             var failedTest = false
             println("- TESTING: " + file.name)
             totalTests++

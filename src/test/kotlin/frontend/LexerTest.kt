@@ -6,6 +6,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class LexerTest {
+    /**
+     * Runs the lexer on the provided input, ensuring each token matches
+     * with the expectation
+     */
     private fun checkLexerOutput(input: String, tokens: List<String>) {
         val charInput = CharStreams.fromString(input)
         val lexer = WACCLexer(charInput)

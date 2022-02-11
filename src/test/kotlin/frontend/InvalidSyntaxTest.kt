@@ -12,11 +12,17 @@ import java.io.File
 import kotlin.test.assertTrue
 
 class InvalidSyntaxTest : TestUtils {
+    val root = "wacc_examples/invalid/syntaxErr"
+
+    /**
+     * Tests all the invalid WACC example files with syntax errors, ensuring that at least
+     * one syntax error is returned
+     */
     @Test
     fun invalidFilesReturnSyntaxError() {
         var totalTests = 0
         var failingTests = 0
-        doForEachFile(File("wacc_examples/invalid/syntaxErr")) { file ->
+        doForEachFile(File(root)) { file ->
             println("- TESTING: " + file.name)
             totalTests++
 
