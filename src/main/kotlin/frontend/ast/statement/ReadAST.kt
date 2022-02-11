@@ -7,6 +7,10 @@ import frontend.ast.type.BaseTypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
+/**
+ * AST node representing a read statement that stores input to variable.
+ * Checks variable is either of type CHAR or INT.
+ */
 class ReadAST(val ctx: ParserRuleContext, val assignLhs: ASTNode) : StatAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable

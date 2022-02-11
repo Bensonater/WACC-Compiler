@@ -57,7 +57,7 @@ open class SymbolTable {
     }
 
     /**
-     * Cheks if the current symbol table belongs to a function
+     * Checks if the current symbol table belongs to a function
      */
     fun funcTypeLookUp(): TypeAST? {
         var st = this

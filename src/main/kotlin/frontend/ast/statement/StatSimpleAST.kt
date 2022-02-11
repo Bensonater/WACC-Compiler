@@ -13,6 +13,10 @@ enum class Command {
     FREE, RETURN, EXIT, PRINT, PRINTLN
 }
 
+/**
+ * AST node representing simple statements with one command and one expression.
+ * Checks that the expression type is compatible with each command.
+ */
 class StatSimpleAST(val ctx: ParserRuleContext, val command: Command, val expr: ExprAST) : StatAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable

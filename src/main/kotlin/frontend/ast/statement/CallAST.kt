@@ -8,6 +8,12 @@ import frontend.ast.type.TypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
+/**
+ * AST node representing a call function statement.
+ * Checks identifier is a function and in scope.
+ * Checks number of arguments match required parameters for that function.
+ * Checks each argument matches required type for each parameter.
+ */
 class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<ExprAST>) : StatAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
@@ -33,7 +39,7 @@ class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<Ex
         return true
     }
 
-    override fun getType(symbolTable: SymbolTable): TypeAST? {
+    override fun getType(symbolTable: SymbolTable): TypeAST {
         return ident.getType(symbolTable)
     }
 }
