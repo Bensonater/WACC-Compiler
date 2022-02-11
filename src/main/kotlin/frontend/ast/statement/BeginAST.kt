@@ -8,7 +8,7 @@ class BeginAST(ctx: ParserRuleContext, val stats: List<StatAST>) : StatAST(ctx) 
         this.symbolTable = SymbolTable()
         this.symbolTable.setParentTable(symbolTable)
         for (stat in stats) {
-            if (!stat.check(symbolTable)) {
+            if (!stat.check(this.symbolTable)) {
                 return false
             }
         }

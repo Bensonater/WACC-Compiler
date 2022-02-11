@@ -24,7 +24,7 @@ class FuncAST(
         }
 
         stats.forEach {
-            if (!it.check(symbolTable)) {
+            if (!it.check(this.symbolTable)) {
                 return false
             }
         }
