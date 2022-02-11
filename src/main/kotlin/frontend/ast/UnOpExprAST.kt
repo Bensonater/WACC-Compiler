@@ -1,6 +1,7 @@
 package frontend.ast
 
 import frontend.SymbolTable
+import frontend.ast.type.ArrayTypeAST
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
 import frontend.ast.type.TypeAST
@@ -22,7 +23,7 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
             return false
         }
         if (unOp == UnOp.LEN) {
-            if (expr !is ArrayElemAST) {
+            if (expr.getType(symbolTable) !is ArrayTypeAST) {
                 semanticErrorHandler.typeMismatch(ctx, "ARRAY", expr.getType(symbolTable).toString())
                 return false
             }
