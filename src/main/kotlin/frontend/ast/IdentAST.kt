@@ -11,7 +11,7 @@ import frontend.semanticErrorHandler
 class IdentAST(val ctx: ParserRuleContext, val name: String) : ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
-        if (symbolTable.lookupAll(name) == null) {
+        if (symbolTable.identLookUp(name) == null) {
             semanticErrorHandler.invalidIdentifier(ctx, name)
             return false
         }
