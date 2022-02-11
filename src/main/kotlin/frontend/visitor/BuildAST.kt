@@ -6,7 +6,6 @@ import frontend.ast.*
 import frontend.ast.literal.*
 import frontend.ast.statement.*
 import frontend.ast.type.*
-import frontend.errors.SemanticErrorHandler
 
 
 
@@ -95,8 +94,8 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
     override fun visitStatIf(ctx: WACCParser.StatIfContext): ASTNode {
         return IfAST(ctx,
             visit(ctx.expr()) as ExprAST,
-            mutableListOf(visit(ctx.stat(0)) as StatMultiAST) ,
-            mutableListOf(visit(ctx.stat(1)) as StatMultiAST)
+            mutableListOf(visit(ctx.stat(0)) as StatAST) ,
+            mutableListOf(visit(ctx.stat(1)) as StatAST)
         )
     }
 
@@ -250,5 +249,18 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
 
     override fun visitIdent(ctx: WACCParser.IdentContext): ASTNode {
         return IdentAST(ctx, ctx.text)
+    }
+
+    override fun visitStatBegin(ctx: WACCParser.StatBeginContext): ASTNode {
+        val ctxStat = visit(ctx.stat()) as StatAST
+        return if (ctxStat is StatMultiAST) {
+            BeginAST (ctx,
+                ctxStat.stats
+            )
+        } else {
+            BeginAST (ctx,
+                mutableListOf(ctxStat)
+            )
+        }
     }
 }

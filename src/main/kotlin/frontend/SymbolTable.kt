@@ -5,7 +5,7 @@ import frontend.ast.type.TypeAST
 
 open class SymbolTable {
     var symbolTable = HashMap<String, ASTNode>()
-    lateinit var parent: SymbolTable
+    var parent: SymbolTable? = null
 
     fun get(name: String): ASTNode? {
         return symbolTable[name]
@@ -21,38 +21,42 @@ open class SymbolTable {
 
     fun lookupAll(name: String): ASTNode? {
         var st = this
-        while (st != null) {
-            var ast = st.get(name)
+        while (true) {
+            val ast = st.get(name)
             if (ast != null) {
                 return ast
             }
-            st = st.parent
+            if (st.parent == null) {
+                return null
+            }
+            st = st.parent!!
         }
-        return null
     }
 
     fun identLookUp(name: String): ASTNode? {
         var st = this
-        while (st != null) {
-            var ast = st.get(name)
+        while (true) {
+            val ast = st.get(name)
             if (ast != null) {
                 return ast
             }
             if (st is FuncSymbolTable) {
-                break
+                return null
             }
-            st = st.parent
+            if (st.parent == null) {
+                return null
+            }
+            st = st.parent!!
         }
-        return null
     }
 
     fun funcTypeLookUp(): TypeAST? {
         var st = this
         while (this !is FuncSymbolTable) {
-            st = st.parent
-            if (st == null) {
+            if (st.parent == null) {
                 return null
             }
+            st = st.parent!!
         }
         return (st as FuncSymbolTable).type
 
