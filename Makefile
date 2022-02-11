@@ -35,9 +35,13 @@ all:
 test:
 	mvn test
 
+specific_tests:
+	mvn test -Dtest="LexerTest, ParserTest, InvalidSyntaxTest, InvalidSemanticTest, ValidFileTest"
+
+
 # clean up all of the compiled files
 clean:
 # 	$(RM) $(OUTPUT_DIR) $(ANTLR_SOURCE_DIR)
 	mvn clean
 
-.PHONY: all test clean
+.PHONY: all test specific_tests clean
