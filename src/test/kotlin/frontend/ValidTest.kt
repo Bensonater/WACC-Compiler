@@ -11,13 +11,16 @@ import frontend.visitor.SyntaxChecker
 import org.antlr.v4.runtime.CharStreams
 import kotlin.test.assertTrue
 
-class InvalidSemanticTest : TestUtils {
+class ValidTest : TestUtils {
     @Test
-    fun invalidFilesReturnSemanticError() {
+    fun validFileReturnsNoErrors() {
         var newErrorCount = 0
+        var totalTests = 0
         var failingTests = 0
-        doForEachFile(File("wacc_examples/invalid/semanticErr")){ file ->
+        doForEachFile(File("wacc_examples/valid/")){ file ->
+            var failedTest = false
             println("TESTING " + file.name)
+            totalTests++
             val errorListener = SyntaxErrorListener()
             val input = CharStreams.fromStream(file.inputStream())
             val lexer = WACCLexer(input)
@@ -37,25 +40,36 @@ class InvalidSemanticTest : TestUtils {
 
             if(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0){
                 println("- SYNTAX ERROR - " + file.name)
-                failingTests++
+                failedTest = true
             }
 
             val buildASTVisitor = BuildAST()
 
             val ast = buildASTVisitor.visit(tree)
 
-            ast.check(SymbolTable())
+            try{
+                ast.check(SymbolTable())
+            } catch (exception: Exception){
+                println("- CODE ERROR - " + file.name)
+                failedTest = true
+            }
+
+
 
             val oldErrorCount = newErrorCount
             newErrorCount = semanticErrorHandler.errorCount()
 
-            if(newErrorCount - oldErrorCount == 0){
-                println("- NO SEMANTIC ERROR - " + file.name)
+            if(newErrorCount - oldErrorCount > 0){
+                println("- SEMANTIC ERROR - " + file.name)
+                failedTest = true
+            }
+
+            if (failedTest) {
                 failingTests++
             }
 
         }
-        println("$failingTests FAILING TESTS")
+        println("FAILING $failingTests / $totalTests")
         assertTrue(failingTests == 0)
     }
 }
