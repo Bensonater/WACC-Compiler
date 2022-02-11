@@ -25,7 +25,7 @@ class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<Ex
                 return false
             }
             val argType = args[i].getType(symbolTable)
-            if (argType !== function.paramList[i].type) {
+            if (argType != function.paramList[i].type) {
                 semanticErrorHandler.invalidArgType(ctx, i, function.paramList[i].type.toString())
                 return false
             }
