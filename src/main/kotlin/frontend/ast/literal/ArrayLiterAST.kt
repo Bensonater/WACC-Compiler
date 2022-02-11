@@ -3,6 +3,7 @@ package frontend.ast.literal
 import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.type.ArrayTypeAST
+import frontend.ast.type.NullablePairOfPairTypeAST
 import frontend.ast.type.TypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
@@ -29,7 +30,7 @@ class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : TypeA
 
     override fun getType(symbolTable: SymbolTable): TypeAST {
         return if (vals.isEmpty()) {
-            ArrayTypeAST(ctx, EmptyArrayAST(ctx), 1)
+            ArrayTypeAST(ctx, NullablePairOfPairTypeAST(ctx), 1)
         } else {
             val exprType = vals[0].getType(symbolTable)
             if (exprType is ArrayTypeAST) {
@@ -39,8 +40,4 @@ class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : TypeA
             }
         }
     }
-}
-
-class EmptyArrayAST(val ctx: ParserRuleContext) : TypeAST(ctx) {
-
 }
