@@ -20,7 +20,7 @@ class FuncAST(
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable.setParentTable(symbolTable)
         paramList.forEach {
-            symbolTable.put(it.ident.name, it)
+            this.symbolTable.put(it.ident.name, it)
         }
 
         stats.forEach {
