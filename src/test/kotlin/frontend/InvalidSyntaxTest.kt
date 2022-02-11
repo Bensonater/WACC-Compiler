@@ -10,7 +10,7 @@ import frontend.errors.SyntaxErrorListener
 import frontend.visitor.SyntaxChecker
 import kotlin.test.assertTrue
 
-class InvalidSyntaxTest {
+class InvalidSyntaxTest : TestUtils {
     @Test
     fun invalidFilesReturnSyntaxError() {
         doForEachFile(File("wacc_examples/invalid/syntaxErr")){ file ->
@@ -36,15 +36,5 @@ class InvalidSyntaxTest {
         }
 
 
-    fun <T> doForEachFile(file: File, operation: (File) -> T): List<T>{
-        val operatedList = emptyList<T>().toMutableList()
-        if(file.isDirectory){
-            for (subFile in file.listFiles()!!){
-                operatedList += doForEachFile(subFile, operation)
-            }
-        } else {
-            operatedList += operation(file)
-        }
-        return operatedList
-    }
+
 }

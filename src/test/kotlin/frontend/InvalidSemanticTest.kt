@@ -12,7 +12,7 @@ import org.antlr.v4.runtime.CharStreams
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class InvalidSemanticTest {
+class InvalidSemanticTest : TestUtils {
     @Test
     fun invalidFilesReturnSemanticError() {
         doForEachFile(File("wacc_examples/invalid/semanticErr")){ file ->
@@ -43,18 +43,5 @@ class InvalidSemanticTest {
 
             assertTrue(semanticErrorHandler.hasErrors())
         }
-    }
-
-
-    fun <T> doForEachFile(file: File, operation: (File) -> T): List<T>{
-        val operatedList = emptyList<T>().toMutableList()
-        if(file.isDirectory){
-            for (subFile in file.listFiles()!!){
-                operatedList += doForEachFile(subFile, operation)
-            }
-        } else {
-            operatedList += operation(file)
-        }
-        return operatedList
     }
 }
