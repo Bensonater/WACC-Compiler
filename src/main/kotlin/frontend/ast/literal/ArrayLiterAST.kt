@@ -10,18 +10,25 @@ import org.antlr.v4.runtime.ParserRuleContext
 class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : TypeAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
-        for (value in vals) {
-            if (!value.check(symbolTable)) {
+        for (elem in vals) {
+            if (!elem.check(symbolTable)) {
                 return false
+            }
+        }
+        if (vals.isNotEmpty()) {
+            val elemType = vals[0].getType(symbolTable)
+            for (elem in vals) {
+                if (elem.getType(symbolTable) != elemType) {
+                    semanticErrorHandler.inconsistentArrayElem(ctx)
+                    return false
+                }
             }
         }
         return true
     }
 
-    lateinit var arrayType: TypeAST
-
-    override fun getType(symbolTable: SymbolTable): TypeAST? {
-        arrayType = if (vals.isEmpty()) {
+    override fun getType(symbolTable: SymbolTable): TypeAST {
+        return if (vals.isEmpty()) {
             ArrayTypeAST(ctx, EmptyArrayAST(ctx), 1)
         } else {
             val exprType = vals[0].getType(symbolTable)
@@ -31,13 +38,6 @@ class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : TypeA
                 ArrayTypeAST(ctx, exprType!!, 1)
             }
         }
-        for (elem in vals) {
-            if (elem.getType(symbolTable) != arrayType) {
-                semanticErrorHandler.inconsistentArrayElem(ctx)
-                return null
-            }
-        }
-        return arrayType
     }
 }
 
