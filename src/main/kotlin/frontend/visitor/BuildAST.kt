@@ -250,4 +250,17 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
     override fun visitIdent(ctx: WACCParser.IdentContext): ASTNode {
         return IdentAST(ctx, ctx.text)
     }
+
+    override fun visitStatBegin(ctx: WACCParser.StatBeginContext): ASTNode {
+        val ctxStat = visit(ctx.stat()) as StatAST
+        return if (ctxStat is StatMultiAST) {
+            BeginAST (ctx,
+                ctxStat.stats
+            )
+        } else {
+            BeginAST (ctx,
+                mutableListOf(ctxStat)
+            )
+        }
+    }
 }
