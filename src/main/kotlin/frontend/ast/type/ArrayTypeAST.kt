@@ -16,7 +16,7 @@ class ArrayTypeAST(ctx: ParserRuleContext, val type: TypeAST, val dimension: Int
 
         other as ArrayTypeAST
 
-        if (type is NullablePairOfPairTypeAST || other.type is NullablePairOfPairTypeAST) return true
+        if (other.type is NullablePairOfPairTypeAST) return true
         if (type != other.type) return false
         if (dimension != other.dimension) return false
 
