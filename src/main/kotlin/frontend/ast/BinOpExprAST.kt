@@ -40,53 +40,41 @@ class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: Expr
         }
         val expr1Type = expr1.getType(symbolTable)
         val expr2Type = expr2.getType(symbolTable)
-        if (expr1Type !is BaseTypeAST || expr2Type !is BaseTypeAST || expr1Type != expr2Type) {
+        if (expr1Type != expr2Type) {
             semanticErrorHandler.typeMismatch(ctx, expr1Type.toString(), expr2Type.toString())
             return false
         }
 
         return when (binOp) {
-            is IntBinOp -> checkInt(expr1Type, expr2Type)
-            is CmpBinOp -> checkCmp(expr1Type, expr2Type)
-            is BoolBinOp -> checkBool(expr1Type, expr2Type)
-            else -> {
-                false
-            }
+            is IntBinOp -> checkInt(expr1Type)
+            is CmpBinOp -> checkCmp(expr1Type)
+            is BoolBinOp -> checkBool(expr1Type)
+            else -> {true}
         }
 
     }
 
-    private fun checkInt(type1: BaseTypeAST, type2: BaseTypeAST): Boolean {
-        if (type1.type != BaseType.INT) {
-            semanticErrorHandler.typeMismatch(ctx, BaseType.INT.toString(), type1.type.toString())
-            return false
-        }
-        if (type2.type != BaseType.INT) {
-            semanticErrorHandler.typeMismatch(ctx, BaseType.INT.toString(), type2.type.toString())
+    private fun checkInt(type1: TypeAST?): Boolean {
+        if (type1 !is BaseTypeAST || type1.type != BaseType.INT) {
+            semanticErrorHandler.typeMismatch(ctx, BaseType.INT.toString(), type1.toString())
             return false
         }
         return true
     }
 
-    private fun checkCmp(type1: BaseTypeAST, type2: BaseTypeAST): Boolean {
+    private fun checkCmp(type1: TypeAST?): Boolean {
         if (binOp == CmpBinOp.LT || binOp == CmpBinOp.GT || binOp == CmpBinOp.LTE || binOp == CmpBinOp.GTE) {
-            if (!(type1.type == BaseType.INT && type2.type == BaseType.INT ||
-                type1.type == BaseType.CHAR && type2.type == BaseType.CHAR)) {
-                semanticErrorHandler.typeMismatch(ctx,
-                    "both INT or both CHAR", "comparing ${type1.type} and ${type2.type}")
+            if (type1 !is BaseTypeAST || type1.type != BaseType.INT  && type1.type != BaseType.CHAR) {
+                semanticErrorHandler.typeMismatch(ctx, "INT or CHAR", type1.toString())
                 return false
             }
         }
         return true
     }
 
-    private fun checkBool(type1: BaseTypeAST, type2: BaseTypeAST): Boolean {
-        if (type1.type != BaseType.BOOL) {
-            semanticErrorHandler.typeMismatch(ctx, BaseType.BOOL.toString(), type1.type.toString())
-            return false
-        }
-        if (type2.type != BaseType.BOOL) {
-            semanticErrorHandler.typeMismatch(ctx, BaseType.BOOL.toString(), type2.type.toString())
+    private fun checkBool(type1: TypeAST?): Boolean {
+        if (type1 !is BaseTypeAST || type1.type != BaseType.BOOL) {
+            semanticErrorHandler.typeMismatch(ctx, BaseType.BOOL.toString(), type1.toString())
             return false
         }
         return true

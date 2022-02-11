@@ -9,15 +9,18 @@ import frontend.errors.SyntaxErrorListener
 import frontend.visitor.BuildAST
 import frontend.visitor.SyntaxChecker
 import org.antlr.v4.runtime.CharStreams
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class InvalidSemanticTest : TestUtils {
     @Test
     fun invalidFilesReturnSemanticError() {
         var newErrorCount = 0
+        var totalTests = 0
+        var failingTests = 0
         doForEachFile(File("wacc_examples/invalid/semanticErr")){ file ->
-            println(file.name)
+            var failedTest = false
+            totalTests++
+
             val errorListener = SyntaxErrorListener()
             val input = CharStreams.fromStream(file.inputStream())
             val lexer = WACCLexer(input)
@@ -35,19 +38,32 @@ class InvalidSemanticTest : TestUtils {
             val checkSyntaxVisitor = SyntaxChecker(syntaxErrorHandler)
             checkSyntaxVisitor.visit(tree)
 
-            assertFalse(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
+            if(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0){
+                println("- SYNTAX ERROR - ")
+                failedTest = true
+            } else {
+                val buildASTVisitor = BuildAST()
 
-            val buildASTVisitor = BuildAST()
+                val ast = buildASTVisitor.visit(tree)
 
-            val ast = buildASTVisitor.visit(tree)
+                ast.check(SymbolTable())
 
-            ast.check(SymbolTable())
+                val oldErrorCount = newErrorCount
+                newErrorCount = semanticErrorHandler.errorCount()
 
-            val oldErrorCount = newErrorCount
-            newErrorCount = semanticErrorHandler.errorCount()
-
-            assertTrue(newErrorCount - oldErrorCount > 0)
-
+                if(newErrorCount - oldErrorCount == 0){
+                    println("- NO SEMANTIC ERROR - ")
+                    failedTest = true
+                }
+            }
+            if (failedTest) {
+                println("TEST " + file.name + " FAILED")
+                failingTests++
+            } else {
+                println("TEST " + file.name + " PASSED")
+            }
         }
+        println("PASSING " + (totalTests - failingTests) + "/" + totalTests)
+        assertTrue(failingTests == 0)
     }
 }

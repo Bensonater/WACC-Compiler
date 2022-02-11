@@ -19,16 +19,16 @@ class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val st
 
     override fun check(symbolTable: SymbolTable): Boolean {
         for (func in funcList) {
-            if (symbolTable.get(func.ident.name) != null) {
+            if (this.symbolTable.get(func.ident.name) != null) {
                 semanticErrorHandler.alreadyDefined(ctx, func.ident.name)
                 return false
             }
-            symbolTable.put(func.ident.name, func)
+            this.symbolTable.put(func.ident.name, func)
         }
         for (func in funcList) {
-            func.check(symbolTable)
+            func.check(this.symbolTable)
         }
-        stat.check(symbolTable)
+        stat.check(this.symbolTable)
         return true
     }
 

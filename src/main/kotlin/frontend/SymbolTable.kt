@@ -52,14 +52,13 @@ open class SymbolTable {
 
     fun funcTypeLookUp(): TypeAST? {
         var st = this
-        while (this !is FuncSymbolTable) {
+        while (st !is FuncSymbolTable) {
             if (st.parent == null) {
                 return null
             }
             st = st.parent!!
         }
-        return (st as FuncSymbolTable).type
-
+        return st.type
     }
 
 
