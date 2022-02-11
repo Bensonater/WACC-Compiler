@@ -13,12 +13,18 @@ import java.io.File
 import kotlin.test.assertTrue
 
 class ValidFileTest : TestUtils {
+    val root = "wacc_examples/valid/"
+
+    /**
+     * Tests all the valid WACC example files, ensuring that no error codes are returned
+     * when compiling them
+     */
     @Test
     fun validFilesReturnNoErrors() {
         var newErrorCount = semanticErrorHandler.errorCount()
         var totalTests = 0
         var failingTests = 0
-        doForEachFile(File("wacc_examples/valid/")) { file ->
+        doForEachFile(File(root)) { file ->
             var failedTest = false
             println("- TESTING: " + file.name)
             totalTests++

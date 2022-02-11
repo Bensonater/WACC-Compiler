@@ -32,12 +32,13 @@ all:
 # 	$(KOTLINC) $(FLAGS) $(FRONTEND_SOURCE_DIR)/*.kt
 	mvn compile
 
+# run all tests
 test:
 	mvn test
 
+# run only the tests specified in the script
 specific_tests:
 	mvn test -Dtest="LexerTest, ParserTest, InvalidSyntaxTest, InvalidSemanticTest, ValidFileTest"
-
 
 # clean up all of the compiled files
 clean:
