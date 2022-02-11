@@ -15,7 +15,9 @@ import kotlin.test.assertTrue
 class InvalidSemanticTest : TestUtils {
     @Test
     fun invalidFilesReturnSemanticError() {
+        var newErrorCount = 0
         doForEachFile(File("wacc_examples/invalid/semanticErr")){ file ->
+            println(file.name)
             val errorListener = SyntaxErrorListener()
             val input = CharStreams.fromStream(file.inputStream())
             val lexer = WACCLexer(input)
@@ -41,7 +43,11 @@ class InvalidSemanticTest : TestUtils {
 
             ast.check(SymbolTable())
 
-            assertTrue(semanticErrorHandler.hasErrors())
+            val oldErrorCount = newErrorCount
+            newErrorCount = semanticErrorHandler.errorCount()
+
+            assertTrue(newErrorCount - oldErrorCount > 0)
+
         }
     }
 }
