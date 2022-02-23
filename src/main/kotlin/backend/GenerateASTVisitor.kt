@@ -1,18 +1,44 @@
 package backend
 
-import backend.instruction.Instruction
+import backend.instruction.*
 import frontend.ast.*
 import frontend.ast.literal.*
 import frontend.ast.statement.*
+import java.util.stream.Collectors
 
 class GenerateASTVisitor {
 
-    fun visit(ast: ASTNode) {
-        //return ast.accept(this)
+    fun visit(ast: ASTNode) : List<Instruction>? {
+        return ast.accept(this)
     }
 
     fun visitProgramAST(ast: ProgramAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+
+        instructions.add(DirectiveInstruction("text"))
+        instructions.add(DirectiveInstruction("global main"))
+
+        val functionsInstructions = ast.funcList.stream().map { GenerateASTVisitor().visit(it)}.collect(Collectors.toList())
+
+        for (i in functionsInstructions) {
+            instructions.addAll(i!!)
+        }
+
+        instructions.add (GeneralLabel("main"))
+
+        instructions.add(PushInstruction(Register.LR))
+//        instructions.add(LoadInstruction(Condition.AL, null, ImmediateIntMode(0), Register.R0))
+        instructions.add(EndInstruction())
+        instructions.add(DirectiveInstruction("ltorg"))
+
+        /** Translates all string labels, c library functions and runtime
+         * errors that have been recursively found and added */
+//        val data = codeGenerator.dataDirective.translate()
+//        val cLib = codeGenerator.cLib.translate()
+//        val runtime = codeGenerator.runtimeErrors.translate()
+
+//        return data + instructions + runtime + cLib
+        return instructions
     }
 
     fun visitFuncAST(ast: FuncAST): List<Instruction> {
