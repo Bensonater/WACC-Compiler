@@ -1,4 +1,7 @@
 package backend
 
-class BackendMain {
+import frontend.ast.ASTNode
+
+fun main(ast: ASTNode) {
+
 }
