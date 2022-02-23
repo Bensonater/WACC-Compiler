@@ -1,4 +1,5 @@
 package backend.instruction
 
-abstract class Instruction {
+interface Instruction {
+    override fun toString(): String
 }
