@@ -1,6 +1,7 @@
 package frontend
 
 import antlr.*
+import frontend.ast.ASTNode
 import frontend.errors.*
 import frontend.visitor.BuildAST
 import frontend.visitor.SyntaxChecker
@@ -13,7 +14,7 @@ val semanticErrorHandler = SemanticErrorHandler()
 object FrontendMain {
 
 
-    fun main(input: CharStream) : Int {
+    fun main(input: CharStream) : Pair<Int, ASTNode?> {
 
         val errorListener = SyntaxErrorListener()
 
@@ -29,7 +30,7 @@ object FrontendMain {
 
         if (parser.numberOfSyntaxErrors > 0) {
             println("There were ${parser.numberOfSyntaxErrors} syntax errors in the program.")
-            return SYNTAX_ERROR_CODE
+            return SYNTAX_ERROR_CODE to null
         }
 
         val syntaxErrorHandler = SyntaxErrorHandler()
@@ -39,7 +40,7 @@ object FrontendMain {
 
         if (syntaxErrorHandler.hasErrors()) {
             syntaxErrorHandler.printErrors()
-            return SYNTAX_ERROR_CODE
+            return SYNTAX_ERROR_CODE to null
         }
 
 
@@ -51,9 +52,9 @@ object FrontendMain {
 
         if (semanticErrorHandler.hasErrors()) {
             semanticErrorHandler.printErrors()
-            return SEMANTIC_ERROR_CODE
+            return SEMANTIC_ERROR_CODE to null
         }
 
-        return SUCCESS_CODE
+        return SUCCESS_CODE to ast
     }
 }

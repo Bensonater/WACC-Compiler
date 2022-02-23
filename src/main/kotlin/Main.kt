@@ -1,3 +1,4 @@
+import backend.BackendMain
 import org.antlr.v4.runtime.CharStreams
 import frontend.FrontendMain
 import kotlin.system.exitProcess
@@ -15,6 +16,13 @@ fun main(args: Array<String>) {
     }
     val input = CharStreams.fromFileName(args[0])
 
-    val exitStatus = FrontendMain.main(input)
-    exitProcess(exitStatus)
+    val astStatusPair = FrontendMain.main(input)
+    if (astStatusPair.first != SUCCESS_CODE) {
+        exitProcess(astStatusPair.first)
+    }
+
+    val ast = astStatusPair.second
+
+
+    exitProcess(SUCCESS_CODE)
 }
