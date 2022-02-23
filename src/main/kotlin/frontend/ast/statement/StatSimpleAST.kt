@@ -1,5 +1,7 @@
 package frontend.ast.statement
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.type.ArrayTypeAST
@@ -44,5 +46,9 @@ class StatSimpleAST(val ctx: ParserRuleContext, val command: Command, val expr: 
             }
         }
         return true
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitStatSimpleAST(this)
     }
 }

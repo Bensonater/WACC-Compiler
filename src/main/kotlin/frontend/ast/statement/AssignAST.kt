@@ -1,5 +1,7 @@
 package frontend.ast.statement
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.*
 import frontend.semanticErrorHandler
@@ -30,5 +32,9 @@ class AssignAST(val ctx: ParserRuleContext, val assignLhs: ASTNode, val assignRh
             return false
         }
         return true
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitAssignAST(this)
     }
 }

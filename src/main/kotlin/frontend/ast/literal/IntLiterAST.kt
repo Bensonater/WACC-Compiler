@@ -1,5 +1,7 @@
 package frontend.ast.literal
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.type.BaseType
@@ -16,5 +18,9 @@ class IntLiterAST(val ctx: ParserRuleContext, val value: Int) : ExprAST(ctx) {
 
     override fun getType(symbolTable: SymbolTable): TypeAST {
         return BaseTypeAST(ctx, BaseType.INT)
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitIntLiterAST(this)
     }
 }

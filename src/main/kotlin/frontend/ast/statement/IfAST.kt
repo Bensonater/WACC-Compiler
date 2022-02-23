@@ -1,5 +1,7 @@
 package frontend.ast.statement
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.type.BaseType
@@ -40,5 +42,9 @@ class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<St
             }
         }
         return true
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitIfAST(this)
     }
 }

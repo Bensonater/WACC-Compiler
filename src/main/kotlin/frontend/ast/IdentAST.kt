@@ -1,5 +1,7 @@
 package frontend.ast
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import org.antlr.v4.runtime.ParserRuleContext
 import frontend.SymbolTable
 import frontend.ast.statement.DeclareAST
@@ -31,5 +33,9 @@ class IdentAST(val ctx: ParserRuleContext, val name: String) : ExprAST(ctx) {
                 is PairTypeAST -> type
                 else -> throw RuntimeException("Unknown type")
         }
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitIdentAST(this)
     }
 }

@@ -1,5 +1,7 @@
 package frontend.ast.statement
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.ASTNode
 import frontend.ast.type.BaseType
@@ -23,5 +25,9 @@ class ReadAST(val ctx: ParserRuleContext, val assignLhs: ASTNode) : StatAST(ctx)
             return false
         }
         return true
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitReadAST(this)
     }
 }

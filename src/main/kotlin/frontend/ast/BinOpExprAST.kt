@@ -1,5 +1,7 @@
 package frontend.ast
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
@@ -90,6 +92,10 @@ class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: Expr
             BaseTypeAST(ctx, BaseType.INT)
         else
             BaseTypeAST(ctx, BaseType.BOOL)
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitBinOpExprAST(this)
     }
 
 }

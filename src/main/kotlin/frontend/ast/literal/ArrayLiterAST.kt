@@ -1,5 +1,7 @@
 package frontend.ast.literal
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.ASTNode
 import frontend.ast.ExprAST
@@ -45,5 +47,9 @@ class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : ASTNo
                 ArrayTypeAST(ctx, exprType!!, 1)
             }
         }
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitArrayLiterAST(this)
     }
 }

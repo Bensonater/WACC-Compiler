@@ -1,5 +1,7 @@
 package frontend.ast
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import org.antlr.v4.runtime.ParserRuleContext
 import frontend.SymbolTable
 import frontend.ast.type.PairTypeAST
@@ -16,5 +18,9 @@ class NewPairAST (val ctx: ParserRuleContext, val fst: ExprAST, val snd: ExprAST
 
     override fun getType(symbolTable: SymbolTable): TypeAST {
         return PairTypeAST(ctx, fst.getType(symbolTable)!!, snd.getType(symbolTable)!!)
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitNewPairAST(this)
     }
 }

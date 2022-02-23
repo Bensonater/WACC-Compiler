@@ -1,5 +1,7 @@
 package frontend.ast
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.statement.StatAST
 import frontend.ast.type.BaseType
@@ -36,4 +38,7 @@ class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val st
         return true
     }
 
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitProgramAST(this)
+    }
 }

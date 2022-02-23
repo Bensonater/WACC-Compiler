@@ -1,5 +1,7 @@
 package frontend.ast.statement
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import org.antlr.v4.runtime.ParserRuleContext
 
 /**
@@ -7,4 +9,7 @@ import org.antlr.v4.runtime.ParserRuleContext
  */
 class SkipAST(ctx: ParserRuleContext) : StatAST(ctx) {
 
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitSkipAST(this)
+    }
 }
