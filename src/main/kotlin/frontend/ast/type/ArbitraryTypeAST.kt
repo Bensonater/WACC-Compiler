@@ -7,6 +7,8 @@ import org.antlr.v4.runtime.ParserRuleContext
  * It can either represent null, Pair (pair, pair) or the type of the empty array.
  */
 class ArbitraryTypeAST(ctx: ParserRuleContext) : TypeAST(ctx)  {
+    override val size = 4
+
     override fun equals(other: Any?): Boolean {
         return other is PairTypeAST || other is ArbitraryTypeAST
     }

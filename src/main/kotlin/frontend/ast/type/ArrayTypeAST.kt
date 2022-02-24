@@ -9,6 +9,8 @@ import java.util.*
  * are passed into the constructor. For example, int[][] will have type int and dimension 2.
  */
 class ArrayTypeAST(ctx: ParserRuleContext, val type: TypeAST, val dimension: Int) : TypeAST(ctx) {
+    override val size = 4
+
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
         return type.check(symbolTable)
