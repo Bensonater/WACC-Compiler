@@ -6,9 +6,9 @@ abstract class LabelInstruction (private val labelName : String) : Instruction {
     }
 }
 
-data class GeneralLabel(private val labelName: String) : LabelInstruction(labelName)
+class GeneralLabel(private val labelName: String) : LabelInstruction(labelName)
 
-data class FunctionLabel(private val functionName: String) : LabelInstruction("f_$functionName")
+class FunctionLabel(private val functionName: String) : LabelInstruction("f_$functionName")
 
 data class MessageLabel(val index: Int, val msg: String) : LabelInstruction(msg) {
     override fun toString(): String {

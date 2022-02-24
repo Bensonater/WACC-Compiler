@@ -1,5 +1,6 @@
 package backend
 
+import backend.addressingmodes.ImmediateInt
 import backend.enums.Register
 import backend.addressingmodes.ImmediateIntOperand
 import backend.instruction.*
@@ -9,7 +10,7 @@ import frontend.ast.literal.*
 import frontend.ast.statement.*
 import java.util.stream.Collectors
 
-class GenerateASTVisitor {
+class GenerateASTVisitor (val programState: ProgramState) {
 
     private val MAX_STACK_OFFSET = 1024
 
@@ -58,7 +59,8 @@ class GenerateASTVisitor {
         instructions.add(DirectiveInstruction("text"))
         instructions.add(DirectiveInstruction("global main"))
 
-        val functionsInstructions = ast.funcList.stream().map { GenerateASTVisitor().visit(it)}.collect(Collectors.toList())
+        val functionsInstructions = ast.funcList.stream().map { GenerateASTVisitor(programState).visit(it)}
+            .collect(Collectors.toList())
 
         for (i in functionsInstructions) {
             instructions.addAll(i!!)
@@ -67,24 +69,21 @@ class GenerateASTVisitor {
         instructions.add (GeneralLabel("main"))
 
         instructions.add(PushInstruction(Register.LR))
-//        translateScoped(ast.symTable, instrs, ast.stats)
         val stackOffset = allocateStack (ast.symbolTable, instructions)
-
+        for (stat in ast.stats) {
+            instructions.addAll(visit(stat)!!)
+        }
         deallocateStack(stackOffset, instructions)
 
 
-//        instructions.add(LoadInstruction(Condition.AL, null, ImmediateIntMode(0), Register.R0))
+        instructions.add(LoadInstruction(ImmediateInt(0), Register.R0))
         instructions.add(EndInstruction())
         instructions.add(DirectiveInstruction("ltorg"))
 
-        /** Translates all string labels, c library functions and runtime
-         * errors that have been recursively found and added */
-//        val data = codeGenerator.dataDirective.translate()
-//        val cLib = codeGenerator.cLib.translate()
-//        val runtime = codeGenerator.runtimeErrors.translate()
+        val data = ProgramState.dataDirective.translate()
+//        val cLib = ProgramState.cLib.translate()
 
-//        return data + instructions + runtime + cLib
-        return instructions
+        return data + instructions // + cLib
     }
 
     fun visitFuncAST(ast: FuncAST): List<Instruction> {
