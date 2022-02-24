@@ -1,8 +1,15 @@
 package backend
 
+import backend.global.DataDirective
 import java.util.*
 
 class ProgramState {
+
+    companion object GlobalVals {
+        val dataDirective = DataDirective()
+
+    }
+
     var resultRegs: MutableList<Register> = mutableListOf(Register.R0, Register.R1)
     var argumentRegs: MutableList<Register> = mutableListOf(Register.R2, Register.R3)
     var freeCalleeSavedRegs: ArrayDeque<Register> = ArrayDeque<Register>(listOf(Register.R4, Register.R5,
