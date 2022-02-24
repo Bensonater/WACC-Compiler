@@ -2,11 +2,11 @@ package backend.enums
 
 enum class Condition {
     EQ,
-    NEQ,
+    NE,
     GT,
-    GTE,
+    GE,
     LT,
-    LTE,
+    LE,
     AL;
 
     override fun toString(): String {
