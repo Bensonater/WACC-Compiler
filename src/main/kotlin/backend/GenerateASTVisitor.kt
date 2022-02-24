@@ -45,8 +45,12 @@ class GenerateASTVisitor {
         return mutableListOf()
     }
 
+
+    /**
+     * No code generation is required to translate ParamAST.
+     */
     fun visitParamAST(ast: ParamAST): List<Instruction> {
-        return mutableListOf()
+        return emptyList()
     }
 
     fun visitBinOpExprAST(ast: BinOpExprAST): List<Instruction> {
@@ -97,12 +101,20 @@ class GenerateASTVisitor {
         return mutableListOf()
     }
 
+    /**
+     * No code generation is required to translate SkipAST.
+     */
     fun visitSkipAST(ast: SkipAST): List<Instruction> {
-        return mutableListOf()
+        return emptyList()
     }
 
+    /**
+     * Translates multiple statements between BEGIN and END commands.
+     */
     fun visitStatMultiAST(ast: StatMultiAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        ast.stats.forEach{ instructions.addAll(visit(it)!!)}
+        return instructions
     }
 
     fun visitStatSimpleAST(ast: StatSimpleAST): List<Instruction> {
