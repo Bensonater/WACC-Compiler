@@ -21,7 +21,12 @@ fun main(args: Array<String>) {
 
     val ast = astStatusPair.second!!
 
-    backend.main(ast, args[0].split(".wacc")[0])
+    val code = backend.main(ast)
+
+    // Creates an assembly file and write the instructions
+    val fileName = args[0].split(".wacc")[0].split("/").last()
+    val file = File("$fileName.s")
+    file.writeText(code)
 
     exitProcess(SUCCESS_CODE)
 }
