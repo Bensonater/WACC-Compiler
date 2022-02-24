@@ -1,5 +1,6 @@
 package backend
 
+import backend.enums.Register
 import backend.instruction.*
 import frontend.ast.*
 import frontend.ast.literal.*

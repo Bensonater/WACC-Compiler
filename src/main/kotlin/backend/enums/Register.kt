@@ -1,4 +1,4 @@
-package backend
+package backend.enums
 
 
 enum class Register {
