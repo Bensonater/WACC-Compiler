@@ -44,5 +44,6 @@ specific_tests:
 clean:
 # 	$(RM) $(OUTPUT_DIR) $(ANTLR_SOURCE_DIR)
 	mvn clean
+	$(RM) *.s
 
 .PHONY: all test specific_tests clean
