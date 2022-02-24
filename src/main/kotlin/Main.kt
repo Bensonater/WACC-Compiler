@@ -24,7 +24,7 @@ fun main(args: Array<String>) {
     val code = backend.main(ast)
 
     // Creates an assembly file and write the instructions
-    val fileName = args[0].split(".wacc")[0]
+    val fileName = args[0].split(".wacc")[0].split("/").last()
     val file = File("$fileName.s")
     file.writeText(code)
 
