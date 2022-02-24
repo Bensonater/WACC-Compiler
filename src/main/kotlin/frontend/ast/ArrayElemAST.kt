@@ -1,5 +1,7 @@
 package frontend.ast
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.type.ArrayTypeAST
 import frontend.ast.type.TypeAST
@@ -42,5 +44,9 @@ class ArrayElemAST(val ctx: ParserRuleContext, val ident: IdentAST, val listOfIn
         } else {
             typeAST.type
         }
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitArrayElemAST(this)
     }
 }

@@ -1,5 +1,4 @@
 import org.antlr.v4.runtime.CharStreams
-import frontend.FrontendMain
 import kotlin.system.exitProcess
 import frontend.errors.*
 import java.io.File
@@ -15,6 +14,14 @@ fun main(args: Array<String>) {
     }
     val input = CharStreams.fromFileName(args[0])
 
-    val exitStatus = FrontendMain.main(input)
-    exitProcess(exitStatus)
+    val astStatusPair = frontend.main(input)
+    if (astStatusPair.first != SUCCESS_CODE) {
+        exitProcess(astStatusPair.first)
+    }
+
+    val ast = astStatusPair.second!!
+
+    backend.main(ast, args[0].split(".wacc")[0])
+
+    exitProcess(SUCCESS_CODE)
 }

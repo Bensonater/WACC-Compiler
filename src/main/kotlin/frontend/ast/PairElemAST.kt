@@ -1,5 +1,7 @@
 package frontend.ast
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.literal.NullPairLiterAST
 import frontend.ast.type.PairTypeAST
@@ -44,6 +46,10 @@ class PairElemAST (val ctx: ParserRuleContext, val index: PairIndex, val expr: E
             semanticErrorHandler.typeMismatch(ctx, "PAIR", elemType.toString())
             null
         }
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitPairElemAST(this)
     }
 }
 

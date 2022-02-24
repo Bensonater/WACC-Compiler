@@ -1,5 +1,7 @@
 package frontend.ast.literal
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.type.BaseType
@@ -14,5 +16,9 @@ import org.antlr.v4.runtime.ParserRuleContext
 class CharLiterAST(val ctx: ParserRuleContext, val value: Char) : ExprAST(ctx) {
     override fun getType(symbolTable: SymbolTable): TypeAST {
         return BaseTypeAST(ctx, BaseType.CHAR)
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitCharLiterAST(this)
     }
 }

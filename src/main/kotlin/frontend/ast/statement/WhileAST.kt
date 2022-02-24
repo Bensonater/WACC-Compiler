@@ -1,5 +1,7 @@
 package frontend.ast.statement
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.ASTNode
 import frontend.ast.ExprAST
@@ -33,5 +35,9 @@ class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<AS
             }
         }
         return true
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitWhileAST(this)
     }
 }

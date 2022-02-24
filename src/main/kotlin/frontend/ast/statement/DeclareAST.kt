@@ -1,5 +1,7 @@
 package frontend.ast.statement
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.ASTNode
 import frontend.ast.FuncAST
@@ -31,5 +33,9 @@ class DeclareAST(val ctx: ParserRuleContext, val type: TypeAST, val ident: Ident
         }
         symbolTable.put(ident.name, this)
         return true
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitDeclareAST(this)
     }
 }

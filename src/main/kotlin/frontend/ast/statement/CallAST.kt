@@ -1,5 +1,7 @@
 package frontend.ast.statement
 
+import backend.GenerateASTVisitor
+import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.FuncAST
@@ -41,5 +43,9 @@ class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<Ex
 
     override fun getType(symbolTable: SymbolTable): TypeAST {
         return ident.getType(symbolTable)
+    }
+
+    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+        return visitor.visitCallAST(this)
     }
 }
