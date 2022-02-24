@@ -1,6 +1,6 @@
 package backend.instruction
 
-import backend.Register
+import backend.enums.Register
 
 class EndInstruction : Instruction {
 

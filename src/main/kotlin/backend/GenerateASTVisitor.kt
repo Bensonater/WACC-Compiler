@@ -1,5 +1,6 @@
 package backend
 
+import backend.enums.Register
 import backend.addressingmodes.ImmediateIntOperand
 import backend.instruction.*
 import frontend.SymbolTable
