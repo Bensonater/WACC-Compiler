@@ -8,6 +8,8 @@ import org.antlr.v4.runtime.ParserRuleContext
  * typeFst and typeSnd are the types of the first and second element, i.e. int and bool.
  */
 class PairTypeAST(ctx: ParserRuleContext, val typeFst: TypeAST, val typeSnd: TypeAST) : TypeAST(ctx) {
+    override val size = 4
+
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
         return typeFst.check(symbolTable) && typeSnd.check(symbolTable)
