@@ -20,7 +20,8 @@ fun main(args: Array<String>) {
     }
 
     val ast = astStatusPair.second!!
-    backend.main(ast)
+
+    backend.main(ast, args[0].split(".wacc")[0])
 
     exitProcess(SUCCESS_CODE)
 }
