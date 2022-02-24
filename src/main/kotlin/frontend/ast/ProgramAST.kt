@@ -13,7 +13,7 @@ import org.antlr.v4.runtime.ParserRuleContext
  * AST node representing the entire program with a function list and body statement.
  * Checks each function is not already defined and records in the symbol table.
  */
-class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val stat: StatAST) : ASTNode(ctx) {
+class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val stats: List<StatAST>) : ASTNode(ctx) {
     /* Inserts all base type into Symbol Table */
     init {
         this.symbolTable = SymbolTable()
@@ -32,9 +32,15 @@ class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val st
             this.symbolTable.put(func.ident.name, func)
         }
         for (func in funcList) {
-            func.check(this.symbolTable)
+            if (!func.check(this.symbolTable)) {
+                return false
+            }
         }
-        stat.check(this.symbolTable)
+        for (stat in stats) {
+            if (!stat.check(this.symbolTable)) {
+                return false
+            }
+        }
         return true
     }
 
