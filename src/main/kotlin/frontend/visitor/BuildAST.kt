@@ -18,7 +18,7 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
             funcList.add(visit(func) as FuncAST)
         }
         val stat = visit(ctx.stat()) as StatAST
-        return ProgramAST(ctx, funcList, stat)
+        return ProgramAST(ctx, funcList, listOf(stat))
     }
 
     override fun visitFunc(ctx: WACCParser.FuncContext): ASTNode {

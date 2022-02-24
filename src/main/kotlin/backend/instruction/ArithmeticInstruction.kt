@@ -1,6 +1,6 @@
 package backend.instruction
 
-import backend.Register
+import backend.enums.Register
 import backend.addressingmodes.AddressingMode
 
 enum class ArithmeticInstrType {
