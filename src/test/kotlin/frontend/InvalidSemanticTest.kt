@@ -26,7 +26,6 @@ class InvalidSemanticTest : TestUtils {
         var failingTests = 0
         doForEachFile(File(root)) { file ->
             var failedTest = false
-            println("- TESTING: " + file.name)
             totalTests++
 
             val errorListener = SyntaxErrorListener()
@@ -47,7 +46,6 @@ class InvalidSemanticTest : TestUtils {
             checkSyntaxVisitor.visit(tree)
 
             if (syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0) {
-                println("X SYNTAX ERROR X")
                 failedTest = true
             } else {
                 val buildASTVisitor = BuildAST()
@@ -60,15 +58,11 @@ class InvalidSemanticTest : TestUtils {
                 newErrorCount = semanticErrorHandler.errorCount()
 
                 if (newErrorCount - oldErrorCount == 0) {
-                    println("X NO SEMANTIC ERROR X")
                     failedTest = true
                 }
             }
             if (failedTest) {
-                println("   TEST " + file.name + " FAILED")
                 failingTests++
-            } else {
-                println("   TEST " + file.name + " PASSED")
             }
         }
         println("PASSING " + (totalTests - failingTests) + "/" + totalTests)

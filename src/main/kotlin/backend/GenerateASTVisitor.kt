@@ -3,6 +3,8 @@ package backend
 import backend.addressingmodes.ImmediateInt
 import backend.enums.Register
 import backend.addressingmodes.ImmediateIntOperand
+import backend.addressingmodes.RegisterOperand
+import backend.enums.Condition
 import backend.instruction.*
 import frontend.SymbolTable
 import frontend.ast.*
@@ -12,45 +14,8 @@ import java.util.stream.Collectors
 
 class GenerateASTVisitor (val programState: ProgramState) {
 
-    private val MAX_STACK_OFFSET = 1024
-
     fun visit(ast: ASTNode) : List<Instruction>? {
         return ast.accept(this)
-    }
-
-    private fun getStackOffset(symbolTable : SymbolTable) : Int {
-        var offset = 0
-        for (astNode in symbolTable.symbolTable.values) {
-            if (astNode is DeclareAST) {
-                offset += astNode.type.size
-            }
-        }
-        return offset
-    }
-
-    private fun allocateStack (symbolTable: SymbolTable, instructions: MutableList<Instruction>) : Int {
-        val stackOffset = getStackOffset(symbolTable)
-//            symbolTable.startingOffset = stackOffset
-        moveStackPointer(ArithmeticInstrType.SUB, stackOffset, instructions)
-        return stackOffset
-    }
-
-    private fun deallocateStack (stackOffset: Int, instructions: MutableList<Instruction>) {
-        moveStackPointer(ArithmeticInstrType.ADD, stackOffset, instructions)
-    }
-
-    private fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
-                                  instructions: MutableList<Instruction>) {
-        if (stackOffset > 0) {
-            var stackOffsetLeft = stackOffset
-            while (stackOffsetLeft > MAX_STACK_OFFSET) {
-                instructions.add(ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
-                    ImmediateIntOperand(MAX_STACK_OFFSET)))
-                stackOffsetLeft -= MAX_STACK_OFFSET
-            }
-            instructions.add(ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
-                ImmediateIntOperand(stackOffsetLeft)))
-        }
     }
 
     fun visitProgramAST(ast: ProgramAST): List<Instruction> {
@@ -76,7 +41,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         deallocateStack(stackOffset, instructions)
 
 
-        instructions.add(LoadInstruction(ImmediateInt(0), Register.R0))
+        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(0), Register.R0))
         instructions.add(EndInstruction())
         instructions.add(DirectiveInstruction("ltorg"))
 
@@ -87,7 +52,29 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitFuncAST(ast: FuncAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        instructions.add(FunctionLabel(ast.ident.name))
+        instructions.add(PushInstruction(Register.LR))
+        val offset = getStackOffset(ast.symbolTable)
+
+        if (offset > 0) {
+            instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB,
+                Register.SP, Register.SP, ImmediateIntOperand(offset)))
+        }
+
+        for (stat in ast.stats) {
+            instructions.addAll(visit(stat)!!)
+        }
+
+//        if (ast.stats.last() is IfAST) )
+        TODO("Check the last stat is exit or return")
+        if (offset > 0) {
+            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(offset)))
+        }
+        instructions.add(PopInstruction(Register.PC))
+        instructions.add(DirectiveInstruction("ltorg"))
+        programState.freeAllCalleeRegs()
+        return instructions
     }
 
 
@@ -99,6 +86,43 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitBinOpExprAST(ast: BinOpExprAST): List<Instruction> {
+        val instructions = mutableListOf<Instruction>()
+
+        instructions.addAll(visit(ast.expr1)!!)
+        var reg1 = programState.recentlyUsedCalleeReg()
+        instructions.addAll(visit(ast.expr2)!!)
+        var reg2 = programState.recentlyUsedCalleeReg()
+
+        var accumUsed = false
+        if (reg1 == Register.NONE || reg1 == Register.R11) {
+            accumUsed = true
+            reg1 = Register.R11
+            reg2 = Register.R12
+        }
+        when (ast.binOp) {
+            IntBinOp.PLUS -> {
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg1, reg2, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg1, reg2, RegisterOperand(reg1)))
+                }
+            }
+            IntBinOp.MINUS -> {
+
+            }
+            IntBinOp.MULT -> {
+
+            }
+            IntBinOp.DIV -> {
+
+            }
+            IntBinOp.MOD -> {
+
+            }
+
+        }
+
         return mutableListOf()
     }
 
@@ -127,7 +151,13 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitBeginAST(ast: BeginAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        val stackOffset = allocateStack (ast.symbolTable, instructions)
+        for (stat in ast.stats) {
+            instructions.addAll(visit(stat)!!)
+        }
+        deallocateStack(stackOffset, instructions)
+        return instructions
     }
 
     fun visitCallAST(ast: CallAST): List<Instruction> {
