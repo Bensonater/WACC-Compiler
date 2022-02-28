@@ -7,6 +7,15 @@ import backend.instruction.MessageLabel
 class DataDirective {
     val dataLabels = mutableListOf<String>()
 
+    fun addStringLabel(stringLabel: String) : String {
+        return if(dataLabels.contains(stringLabel)) {
+            "msg_${dataLabels.indexOf(stringLabel)}"
+        } else {
+            dataLabels.add(stringLabel)
+            "msg_${dataLabels.size - 1}"
+        }
+    }
+
     fun translate() : List<Instruction> {
         if (dataLabels.isEmpty()) {
             return emptyList()
