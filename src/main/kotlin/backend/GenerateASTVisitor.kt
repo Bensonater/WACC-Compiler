@@ -3,6 +3,7 @@ package backend
 import backend.addressingmodes.ImmediateInt
 import backend.enums.Register
 import backend.addressingmodes.ImmediateIntOperand
+import backend.addressingmodes.RegisterOperand
 import backend.instruction.*
 import frontend.SymbolTable
 import frontend.ast.*
@@ -121,6 +122,43 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitBinOpExprAST(ast: BinOpExprAST): List<Instruction> {
+        val instructions = mutableListOf<Instruction>()
+
+        instructions.addAll(visit(ast.expr1)!!)
+        var reg1 = programState.recentlyUsedCalleeReg()
+        instructions.addAll(visit(ast.expr2)!!)
+        var reg2 = programState.recentlyUsedCalleeReg()
+
+        var accumUsed = false
+        if (reg1 == Register.NONE || reg1 == Register.R11) {
+            accumUsed = true
+            reg1 = Register.R11
+            reg2 = Register.R12
+        }
+        when (ast.binOp) {
+            IntBinOp.PLUS -> {
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg1, reg2, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg1, reg2, RegisterOperand(reg1)))
+                }
+            }
+            IntBinOp.MINUS -> {
+
+            }
+            IntBinOp.MULT -> {
+
+            }
+            IntBinOp.DIV -> {
+
+            }
+            IntBinOp.MOD -> {
+
+            }
+
+        }
+
         return mutableListOf()
     }
 
