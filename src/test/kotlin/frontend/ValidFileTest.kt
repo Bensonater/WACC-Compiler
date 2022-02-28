@@ -26,7 +26,6 @@ class ValidFileTest : TestUtils {
         var failingTests = 0
         doForEachFile(File(root)) { file ->
             var failedTest = false
-            println("- TESTING: " + file.name)
             totalTests++
 
             val errorListener = SyntaxErrorListener()
@@ -71,10 +70,7 @@ class ValidFileTest : TestUtils {
             }
 
             if (failedTest) {
-                println("   TEST " + file.name + " FAILED")
                 failingTests++
-            } else {
-                println("   TEST " + file.name + " PASSED")
             }
         }
         println("PASSING " + (totalTests - failingTests) + "/" + totalTests)

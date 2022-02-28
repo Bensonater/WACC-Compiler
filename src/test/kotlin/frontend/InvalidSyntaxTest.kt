@@ -23,7 +23,6 @@ class InvalidSyntaxTest : TestUtils {
         var totalTests = 0
         var failingTests = 0
         doForEachFile(File(root)) { file ->
-            println("- TESTING: " + file.name)
             totalTests++
 
             val errorListener = SyntaxErrorListener()
@@ -43,11 +42,7 @@ class InvalidSyntaxTest : TestUtils {
             val checkSyntaxVisitor = SyntaxChecker(syntaxErrorHandler)
             checkSyntaxVisitor.visit(tree)
 
-            if (syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0) {
-                println("   TEST " + file.name + " PASSED")
-            } else {
-                println("X NO SYNTAX ERROR X")
-                println("   TEST " + file.name + " FAILED")
+            if (!(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)) {
                 failingTests++
             }
         }
