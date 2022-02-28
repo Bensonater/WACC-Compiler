@@ -87,7 +87,29 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitFuncAST(ast: FuncAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        instructions.add(FunctionLabel(ast.ident.name))
+        instructions.add(PushInstruction(Register.LR))
+        val offset = getStackOffset(ast.symbolTable)
+
+        if (offset > 0) {
+            instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB,
+                Register.SP, Register.SP, ImmediateIntOperand(offset)))
+        }
+
+        for (stat in ast.stats) {
+            instructions.addAll(visit(stat)!!)
+        }
+
+//        if (ast.stats.last() is IfAST) )
+        TODO("Check the last stat is exit or return")
+        if (offset > 0) {
+            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(offset)))
+        }
+        instructions.add(PopInstruction(Register.PC))
+        instructions.add(DirectiveInstruction("ltorg"))
+        programState.freeAllCalleeRegs()
+        return instructions
     }
 
 
