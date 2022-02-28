@@ -4,6 +4,7 @@ import backend.addressingmodes.ImmediateInt
 import backend.enums.Register
 import backend.addressingmodes.ImmediateIntOperand
 import backend.addressingmodes.RegisterOperand
+import backend.enums.Condition
 import backend.instruction.*
 import frontend.SymbolTable
 import frontend.ast.*
@@ -40,7 +41,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         deallocateStack(stackOffset, instructions)
 
 
-        instructions.add(LoadInstruction(ImmediateInt(0), Register.R0))
+        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(0), Register.R0))
         instructions.add(EndInstruction())
         instructions.add(DirectiveInstruction("ltorg"))
 
