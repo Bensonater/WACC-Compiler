@@ -28,15 +28,15 @@ class BasicGenerationTest {
         val file = File("$fileName.s")
         file.writeText(code)
 
-        val process = ProcessBuilder(
-            "arm-linux-gnueabi-gcc -o exitBasic -mcpu=arm1176jzf-s -mtune=arm1176jzf-s exitBasic.s",
-            "qemu-arm -L /usr/arm-linux-gnueabi exitBasic"
-        ).start()
-        process.inputStream.reader(Charsets.UTF_8).use {
-            println(it.readText())
-        }
-        process.waitFor(5, TimeUnit.SECONDS)
-        println(process.exitValue())
+//        val process = ProcessBuilder(
+//            "arm-linux-gnueabi-gcc -o exitBasic -mcpu=arm1176jzf-s -mtune=arm1176jzf-s exitBasic.s",
+//            "qemu-arm -L /usr/arm-linux-gnueabi exitBasic"
+//        ).start()
+//        process.inputStream.reader(Charsets.UTF_8).use {
+//            println(it.readText())
+//        }
+//        process.waitFor(5, TimeUnit.SECONDS)
+//        println(process.exitValue())
     }
 
 }
