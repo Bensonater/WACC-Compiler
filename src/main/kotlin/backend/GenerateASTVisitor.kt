@@ -149,7 +149,13 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitBeginAST(ast: BeginAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        val stackOffset = allocateStack (ast.symbolTable, instructions)
+        for (stat in ast.stats) {
+            instructions.addAll(visit(stat)!!)
+        }
+        deallocateStack(stackOffset, instructions)
+        return instructions
     }
 
     fun visitCallAST(ast: CallAST): List<Instruction> {
