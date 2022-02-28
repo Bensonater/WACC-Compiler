@@ -5,7 +5,7 @@ import backend.instruction.Instruction
 import backend.instruction.MessageLabel
 
 class DataDirective {
-    val dataLabels = emptyList<String>()
+    val dataLabels = mutableListOf<String>()
 
     fun translate() : List<Instruction> {
         if (dataLabels.isEmpty()) {
