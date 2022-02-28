@@ -14,45 +14,8 @@ import java.util.stream.Collectors
 
 class GenerateASTVisitor (val programState: ProgramState) {
 
-    private val MAX_STACK_OFFSET = 1024
-
     fun visit(ast: ASTNode) : List<Instruction>? {
         return ast.accept(this)
-    }
-
-    private fun getStackOffset(symbolTable : SymbolTable) : Int {
-        var offset = 0
-        for (astNode in symbolTable.symbolTable.values) {
-            if (astNode is DeclareAST) {
-                offset += astNode.type.size
-            }
-        }
-        return offset
-    }
-
-    private fun allocateStack (symbolTable: SymbolTable, instructions: MutableList<Instruction>) : Int {
-        val stackOffset = getStackOffset(symbolTable)
-//            symbolTable.startingOffset = stackOffset
-        moveStackPointer(ArithmeticInstrType.SUB, stackOffset, instructions)
-        return stackOffset
-    }
-
-    private fun deallocateStack (stackOffset: Int, instructions: MutableList<Instruction>) {
-        moveStackPointer(ArithmeticInstrType.ADD, stackOffset, instructions)
-    }
-
-    private fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
-                                  instructions: MutableList<Instruction>) {
-        if (stackOffset > 0) {
-            var stackOffsetLeft = stackOffset
-            while (stackOffsetLeft > MAX_STACK_OFFSET) {
-                instructions.add(ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
-                    ImmediateIntOperand(MAX_STACK_OFFSET)))
-                stackOffsetLeft -= MAX_STACK_OFFSET
-            }
-            instructions.add(ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
-                ImmediateIntOperand(stackOffsetLeft)))
-        }
     }
 
     fun visitProgramAST(ast: ProgramAST): List<Instruction> {
@@ -188,7 +151,13 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitBeginAST(ast: BeginAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        val stackOffset = allocateStack (ast.symbolTable, instructions)
+        for (stat in ast.stats) {
+            instructions.addAll(visit(stat)!!)
+        }
+        deallocateStack(stackOffset, instructions)
+        return instructions
     }
 
     fun visitCallAST(ast: CallAST): List<Instruction> {
