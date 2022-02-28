@@ -2,6 +2,7 @@ package backend
 
 import backend.enums.Register
 import backend.global.DataDirective
+import backend.global.Library
 import backend.global.RuntimeErrors
 import java.util.*
 
@@ -9,7 +10,8 @@ class ProgramState {
 
     companion object GlobalVals {
         val dataDirective = DataDirective()
-        val runtimeErrors = RuntimeErrors()
+        val runtimeErrors = RuntimeErrors(this)
+        val library = Library(this)
     }
 
     var resultRegs: MutableList<Register> = mutableListOf(Register.R0, Register.R1)
