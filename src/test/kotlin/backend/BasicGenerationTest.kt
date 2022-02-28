@@ -10,19 +10,19 @@ import kotlin.system.exitProcess
 class BasicGenerationTest {
     val root = "wacc_examples/valid/basic/exit/exitBasic.wacc"
 
-//    @Test
-//    fun assemblyIsFunctionallyCorrect() {
-//        val input = CharStreams.fromFileName(root)
-//
-//        val astStatusPair = frontend.main(input)
-//        if (astStatusPair.first != SUCCESS_CODE) {
-//            exitProcess(astStatusPair.first)
-//        }
-//
-//        val ast = astStatusPair.second!!
-//
-//        val code = main(ast)
-//
+    @Test
+    fun assemblyIsFunctionallyCorrect() {
+        val input = CharStreams.fromFileName(root)
+
+        val astStatusPair = frontend.main(input)
+        if (astStatusPair.first != SUCCESS_CODE) {
+            exitProcess(astStatusPair.first)
+        }
+
+        val ast = astStatusPair.second!!
+
+        val code = main(ast)
+
 //        // Creates an assembly file and write the instructions
 //        val fileName = root.split(".wacc")[0].split("/").last()
 //        val file = File("$fileName.s")
@@ -35,6 +35,6 @@ class BasicGenerationTest {
 //        }
 //        process2.waitFor(5, TimeUnit.SECONDS)
 //        println(process2.exitValue())
-//    }
+    }
 
 }
