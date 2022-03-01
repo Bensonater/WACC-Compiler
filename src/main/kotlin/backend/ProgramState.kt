@@ -47,4 +47,16 @@ class ProgramState {
             inUseCalleeSavedRegs.peek()
         }
     }
+
+    fun getFreeCalleeReg() : Register {
+        return if (freeCalleeSavedRegs.isEmpty()) {
+            accumulatorUsed = true
+            Register.NONE
+        } else {
+            val reg = freeCalleeSavedRegs.pop()
+            inUseCalleeSavedRegs.push(reg)
+            reg
+        }
+
+    }
 }
