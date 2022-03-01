@@ -1,6 +1,7 @@
 package frontend
 
 import frontend.ast.ASTNode
+import frontend.ast.FuncAST
 import frontend.ast.type.TypeAST
 
 open class SymbolTable {
@@ -8,8 +9,19 @@ open class SymbolTable {
      * The Hashmap is used to represent the symbol table
      * The parent points to the outer scope
      */
-    var symbolTable = HashMap<String, ASTNode>()
+    val symbolTable = HashMap<String, ASTNode>()
     var parent: SymbolTable? = null
+
+    /**
+     * Stack offset variables used in backend code generation to keep track of stack position
+     */
+    // Size of current scope offset in stack on allocation
+    var startingOffset = 0
+
+    // Initial offset equal to sum of all offsets in table
+    // Accounts for negative stack pointer values when setting up parameters
+    var callOffset = 0
+
 
     fun get(name: String): ASTNode? {
         return symbolTable[name]
@@ -67,8 +79,8 @@ open class SymbolTable {
             }
             st = st.parent!!
         }
-        return st.type
+        return st.funcAST.type
     }
 }
 
-class FuncSymbolTable(val type: TypeAST) : SymbolTable()
+class FuncSymbolTable(val funcAST: FuncAST) : SymbolTable()
