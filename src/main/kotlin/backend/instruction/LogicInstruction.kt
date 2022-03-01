@@ -1,12 +1,12 @@
 package backend.instruction
 
 import backend.addressingmodes.AddressingMode
-import backend.enums.Condition
 import backend.enums.Register
 
 enum class LogicOperation {
     AND,
-    OR
+    OR,
+    EOR
 }
 
 class LogicInstruction(val op: LogicOperation, val reg1: Register, val reg2: Register,
