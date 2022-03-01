@@ -79,8 +79,8 @@ open class SymbolTable {
             }
             st = st.parent!!
         }
-        return st.type
+        return st.funcAST.type
     }
 }
 
-class FuncSymbolTable(val type: TypeAST) : SymbolTable()
+class FuncSymbolTable(val funcAST: FuncAST) : SymbolTable()

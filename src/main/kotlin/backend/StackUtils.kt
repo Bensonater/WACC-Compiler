@@ -10,7 +10,7 @@ import frontend.SymbolTable
 import frontend.ast.ParamAST
 import frontend.ast.statement.DeclareAST
 
-private const val MAX_STACK_OFFSET = 1024
+//private const val MAX_STACK_OFFSET = 1024
 
 fun calculateStackOffset(symbolTable : SymbolTable) : Int {
     var offset = 0
@@ -97,11 +97,11 @@ private fun findParamInFuncOffset(symbolTable: SymbolTable, ident: String, inner
     val identAst = symbolTable.get(ident)
     if (symbolTable is FuncSymbolTable && identAst is ParamAST) {
         // Parameter offset only needed when there are variables declared in the current scope or any inner scope
-//        if ((symbolTable.symbolTable.size > symbolTable.funcAST.paramList.size) || innerScopeHaveVar) {
-//            // Sum offset of all variables that's not a parameter
-//            val offset = symbolTable.symbolTable.values.sumOf { if (it !is ParamAST) it.size else 0 }
-//            return offset + offsetCount
-//        }
+        if ((symbolTable.symbolTable.size > symbolTable.funcAST.paramList.size) || innerScopeHaveVar) {
+            // Sum offset of all variables that's not a parameter
+            val offset = symbolTable.symbolTable.values.sumOf { if (it !is ParamAST) it.size else 0 }
+            return offset + offsetCount
+        }
         return 0
     }
     // Keeps checking the parent symbol table until the identifier is found
