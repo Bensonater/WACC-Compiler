@@ -11,6 +11,7 @@ import frontend.ast.literal.*
 import frontend.ast.statement.*
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
+import frontend.ast.type.PairTypeAST
 import java.util.stream.Collectors
 
 class GenerateASTVisitor (val programState: ProgramState) {
@@ -306,7 +307,43 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitDeclareAST(ast: DeclareAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        instructions.addAll(visit(ast.assignRhs)!!)
+
+        if (ast.assignRhs is StrLiterAST) {
+            ast.label = ProgramState.dataDirective.toStringLabel(ast.assignRhs.value)
+        }
+        decreaseOffset(ast.symbolTable, ast.ident, ast.assignRhs.getType(ast.symbolTable)!!)
+        var memory: Memory? = null
+        when (ast.type) {
+            is BaseTypeAST -> {
+                if ((ast.type.type == BaseType.BOOL) || (ast.type.type == BaseType.CHAR)) {
+                    memory = Memory.B
+                }
+            }
+            is PairTypeAST -> {
+                if (ast.assignRhs !is NewPairAST && ast.assignRhs !is ArrayElemAST && ast.assignRhs !is IdentAST &&
+                    ast.assignRhs !is NullPairLiterAST && ast.assignRhs !is CallAST && ast.assignRhs !is PairElemAST) {
+                    instructions.add(LoadInstruction(Condition.AL,
+                        RegisterMode(programState.recentlyUsedCalleeReg()), programState.recentlyUsedCalleeReg()))
+                }
+            }
+        }
+        when (ast.assignRhs) {
+            is PairElemAST -> {
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(programState.recentlyUsedCalleeReg()),
+                    programState.recentlyUsedCalleeReg(), memory))
+            }
+            is ArrayElemAST -> {
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(programState.recentlyUsedCalleeReg()),
+                    programState.recentlyUsedCalleeReg()))
+            }
+        }
+        instructions.add(StoreInstruction(RegisterModeWithOffset(Register.SP, ast.symbolTable.currOffset),
+            programState.recentlyUsedCalleeReg(), memory))
+        programState.freeCalleeReg()
+
+        return instructions
     }
 
     fun visitIfAST(ast: IfAST): List<Instruction> {
