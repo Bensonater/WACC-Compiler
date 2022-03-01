@@ -8,5 +8,5 @@ import org.antlr.v4.runtime.ParserRuleContext
  * This allows for easier checking of class when checking semantics.
  */
 abstract class TypeAST (ctx: ParserRuleContext) : ASTNode(ctx) {
-    override val size = 0
+    open val size = 0
 }

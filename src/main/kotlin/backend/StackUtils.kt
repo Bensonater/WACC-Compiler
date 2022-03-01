@@ -13,13 +13,13 @@ import frontend.ast.ParamAST
 import frontend.ast.statement.DeclareAST
 import frontend.ast.type.TypeAST
 
-private const val MAX_STACK_OFFSET = 1024
+//private const val MAX_STACK_OFFSET = 1024
 
 fun calculateStackOffset(symbolTable : SymbolTable) : Int {
     var offset = 0
     for (astNode in symbolTable.symbolTable.values) {
         if (astNode is DeclareAST) {
-            offset += astNode.size // Potential optimisation to store offset in symbol table
+            offset += astNode.size() // Potential optimisation to store offset in symbol table
         }
     }
     symbolTable.currOffset = offset
@@ -40,18 +40,17 @@ fun deallocateStack (stackOffset: Int, instructions: MutableList<Instruction>) {
 fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
                               instructions: MutableList<Instruction>) {
     if (stackOffset > 0) {
-        var stackOffsetLeft = stackOffset
-        while (stackOffsetLeft > MAX_STACK_OFFSET) { // Why?
-            instructions.add(
-                ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
-                ImmediateIntOperand(MAX_STACK_OFFSET)
-                )
-            )
-            stackOffsetLeft -= MAX_STACK_OFFSET
-        }
+//        while (stackOffsetLeft > MAX_STACK_OFFSET) { // Why?
+//            instructions.add(
+//                ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
+//                ImmediateIntOperand(MAX_STACK_OFFSET)
+//                )
+//            )
+//            stackOffsetLeft -= MAX_STACK_OFFSET
+//        }
         instructions.add(
             ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
-            ImmediateIntOperand(stackOffsetLeft)
+            ImmediateIntOperand(stackOffset)
             )
         )
     }
@@ -66,18 +65,18 @@ fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
  * Potential optimisation to store offset in symbol table
  */
 fun findIdentOffset(symbolTable: SymbolTable, ident: String): Int {
-    var totalOffset = symbolTable.symbolTable.values.sumOf { it.size }
+    var totalOffset = symbolTable.symbolTable.values.sumOf { it.size() }
     val pointerOffset = 4
     var paramOffset = 0
     for ((key, node) in symbolTable.symbolTable) {
         if (key == ident && node is ParamAST) {
             return paramOffset + pointerOffset
         }
-        totalOffset -= node.size
+        totalOffset -= node.size()
         if (key == ident) {
             return totalOffset
         }
-        paramOffset += node.size
+        paramOffset += node.size()
     }
     if (symbolTable.parent != null) {
         /** Searches parent symbol table when not found in current scope.
@@ -104,7 +103,7 @@ private fun findParamInFuncOffset(symbolTable: SymbolTable, ident: String, inner
         // Parameter offset only needed when there are variables declared in the current scope or any inner scope
         if ((symbolTable.symbolTable.size > symbolTable.funcAST.paramList.size) || innerScopeHaveVar) {
             // Sum offset of all variables that's not a parameter
-            val offset = symbolTable.symbolTable.values.sumOf { if (it !is ParamAST) it.size else 0 }
+            val offset = symbolTable.symbolTable.values.sumOf { if (it !is ParamAST) it.size() else 0 }
             return offset + offsetCount
         }
         return 0

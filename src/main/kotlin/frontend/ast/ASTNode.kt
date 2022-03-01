@@ -25,10 +25,12 @@ abstract class ASTNode(ctx: ParserRuleContext) {
         return null
     }
 
-    open val size = when (this) {
-        is DeclareAST -> this.type.size
-        is FuncAST -> this.type.size
-        else -> 0
+    fun size(): Int {
+        return when (this) {
+            is DeclareAST -> this.type.size
+            is FuncAST -> this.type.size
+            else -> 0
+        }
     }
 
 }
