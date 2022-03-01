@@ -122,7 +122,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
             IntBinOp.MULT -> {
                 val shiftAmount = 31
                 if (accumUsed) {
-                    instructions.add(PopInstruction(Register.R11))
+                    instructions.add(PopInstruction(Register.R12))
                     instructions.add(MultiplyInstruction(Condition.AL, reg1, reg2, reg2, reg1))
                 } else {
                     instructions.add(MultiplyInstruction(Condition.AL, reg1, reg2, reg1, reg2))
@@ -132,15 +132,114 @@ class GenerateASTVisitor (val programState: ProgramState) {
                 ProgramState.runtimeErrors.addOverflowError()
             }
             IntBinOp.DIV -> {
-
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg2)))
+                    instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg1)))
+                    instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(reg2)))
+                }
+                instructions.add(BranchInstruction(Condition.AL, RuntimeErrors.divideZeroCheckLabel, true))
+                ProgramState.runtimeErrors.addDivideByZeroCheck()
+                instructions.add(BranchInstruction(Condition.AL, GeneralLabel("__aeabi_idiv"), true))
+                instructions.add(MoveInstruction(Condition.AL, reg1, RegisterOperand(Register.R0)))
             }
             IntBinOp.MOD -> {
-
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg2)))
+                    instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg1)))
+                    instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(reg2)))
+                }
+                instructions.add(BranchInstruction(Condition.AL, RuntimeErrors.divideZeroCheckLabel, true))
+                ProgramState.runtimeErrors.addDivideByZeroCheck()
+                instructions.add(BranchInstruction(Condition.AL, GeneralLabel("__aeabi_idivmod"), true))
+                instructions.add(MoveInstruction(Condition.AL, reg1, RegisterOperand(Register.R1)))
             }
-
+            CmpBinOp.EQ -> {
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(CompareInstruction(reg2, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(CompareInstruction(reg1, RegisterOperand(reg2)))
+                }
+                instructions.add(MoveInstruction(Condition.EQ, reg1, ImmediateBoolOperand(true)))
+                instructions.add(MoveInstruction(Condition.NE, reg1, ImmediateBoolOperand(false)))
+            }
+            CmpBinOp.GT -> {
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(CompareInstruction(reg2, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(CompareInstruction(reg1, RegisterOperand(reg2)))
+                }
+                instructions.add(MoveInstruction(Condition.GT, reg1, ImmediateBoolOperand(true)))
+                instructions.add(MoveInstruction(Condition.LE, reg1, ImmediateBoolOperand(false)))
+            }
+            CmpBinOp.LT -> {
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(CompareInstruction(reg2, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(CompareInstruction(reg1, RegisterOperand(reg2)))
+                }
+                instructions.add(MoveInstruction(Condition.LT, reg1, ImmediateBoolOperand(true)))
+                instructions.add(MoveInstruction(Condition.GE, reg1, ImmediateBoolOperand(false)))
+            }
+            CmpBinOp.GTE -> {
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(CompareInstruction(reg2, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(CompareInstruction(reg1, RegisterOperand(reg2)))
+                }
+                instructions.add(MoveInstruction(Condition.GE, reg1, ImmediateBoolOperand(true)))
+                instructions.add(MoveInstruction(Condition.LT, reg1, ImmediateBoolOperand(false)))
+            }
+            CmpBinOp.LTE -> {
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(CompareInstruction(reg2, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(CompareInstruction(reg1, RegisterOperand(reg2)))
+                }
+                instructions.add(MoveInstruction(Condition.LE, reg1, ImmediateBoolOperand(true)))
+                instructions.add(MoveInstruction(Condition.GT, reg1, ImmediateBoolOperand(false)))
+            }
+            CmpBinOp.NEQ -> {
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(CompareInstruction(reg2, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(CompareInstruction(reg1, RegisterOperand(reg2)))
+                }
+                instructions.add(MoveInstruction(Condition.NE, reg1, ImmediateBoolOperand(true)))
+                instructions.add(MoveInstruction(Condition.EQ, reg1, ImmediateBoolOperand(false)))
+            }
+            BoolBinOp.AND -> {
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(LogicInstruction(LogicOperation.AND, reg1, reg1, RegisterOperand(reg2)))
+                } else {
+                    instructions.add(LogicInstruction(LogicOperation.AND, reg1, reg1, RegisterOperand(reg2)))
+                }
+            }
+            BoolBinOp.OR -> {
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(LogicInstruction(LogicOperation.OR, reg1, reg2, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(LogicInstruction(LogicOperation.OR, reg1, reg1, RegisterOperand(reg2)))
+                }
+            }
         }
-
-        return mutableListOf()
+        if (!accumUsed) {
+            programState.freeCalleeReg()
+        }
+        return instructions
     }
 
     fun visitUnOpExprAST(ast: UnOpExprAST): List<Instruction> {
