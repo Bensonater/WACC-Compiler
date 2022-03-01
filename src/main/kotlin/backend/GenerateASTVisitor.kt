@@ -1,10 +1,9 @@
 package backend
 
-import backend.addressingmodes.ImmediateInt
+import backend.addressingmodes.*
 import backend.enums.Register
-import backend.addressingmodes.ImmediateIntOperand
-import backend.addressingmodes.RegisterOperand
 import backend.enums.Condition
+import backend.global.RuntimeErrors
 import backend.instruction.*
 import frontend.SymbolTable
 import frontend.ast.*
@@ -105,14 +104,32 @@ class GenerateASTVisitor (val programState: ProgramState) {
                     instructions.add(PopInstruction(Register.R12))
                     instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg1, reg2, RegisterOperand(reg1)))
                 } else {
-                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg1, reg2, RegisterOperand(reg1)))
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg1, reg1, RegisterOperand(reg2)))
                 }
+                instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
+                ProgramState.runtimeErrors.addOverflowError()
             }
             IntBinOp.MINUS -> {
-
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R12))
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, reg1, reg2, RegisterOperand(reg1)))
+                } else {
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, reg1, reg1, RegisterOperand(reg2)))
+                }
+                instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
+                ProgramState.runtimeErrors.addOverflowError()
             }
             IntBinOp.MULT -> {
-
+                val shiftAmount = 31
+                if (accumUsed) {
+                    instructions.add(PopInstruction(Register.R11))
+                    instructions.add(MultiplyInstruction(Condition.AL, reg1, reg2, reg2, reg1))
+                } else {
+                    instructions.add(MultiplyInstruction(Condition.AL, reg1, reg2, reg1, reg2))
+                }
+                instructions.add(CompareInstruction(reg2, RegisterOperandWithShift(reg1, ShiftType.ASR, shiftAmount)))
+                instructions.add(BranchInstruction(Condition.NE, RuntimeErrors.throwOverflowErrorLabel, true))
+                ProgramState.runtimeErrors.addOverflowError()
             }
             IntBinOp.DIV -> {
 
