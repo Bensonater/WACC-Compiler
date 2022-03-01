@@ -17,6 +17,8 @@ import org.antlr.v4.runtime.ParserRuleContext
  * Records newly declared variable in local symbol table.
  */
 class DeclareAST(val ctx: ParserRuleContext, val type: TypeAST, val ident: IdentAST, val assignRhs: ASTNode) : StatAST(ctx) {
+    lateinit var label: String
+
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
         val identAST = symbolTable.get(ident.name)

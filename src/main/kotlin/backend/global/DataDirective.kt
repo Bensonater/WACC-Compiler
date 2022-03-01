@@ -16,6 +16,10 @@ class DataDirective {
         }
     }
 
+    fun toStringLabel(string: String): String {
+        return "msg_${dataLabels.indexOf(string)}"
+    }
+
     fun translate() : List<Instruction> {
         if (dataLabels.isEmpty()) {
             return emptyList()

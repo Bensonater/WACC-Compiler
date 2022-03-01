@@ -12,6 +12,8 @@ import org.antlr.v4.runtime.ParserRuleContext
  * Checks that type of left and right-hand side matches.
  */
 class AssignAST(val ctx: ParserRuleContext, val assignLhs: ASTNode, val assignRhs: ASTNode) : StatAST(ctx) {
+    lateinit var label: String
+
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
         if (!assignLhs.check(symbolTable) || !assignRhs.check(symbolTable)) {
