@@ -338,22 +338,58 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitBoolLiterAST(ast: BoolLiterAST): List<Instruction> {
-        return mutableListOf()
+        var reg = programState.getFreeCalleeReg()
+        val instructions = mutableListOf<Instruction>()
+        if (reg == Register.NONE) {
+            reg = Register.R11
+            instructions.add(PushInstruction(reg))
+        }
+        instructions.add(MoveInstruction(Condition.AL, reg, ImmediateBoolOperand(ast.value)))
+        return instructions
     }
 
     fun visitCharLiterAST(ast: CharLiterAST): List<Instruction> {
-        return mutableListOf()
+        var reg = programState.getFreeCalleeReg()
+        val instructions = mutableListOf<Instruction>()
+        if (reg == Register.NONE) {
+            reg = Register.R11
+            instructions.add(PushInstruction(reg))
+        }
+        instructions.add(MoveInstruction(Condition.AL, reg, ImmediateCharOperand(ast.value)))
+        return instructions
     }
 
     fun visitIntLiterAST(ast: IntLiterAST): List<Instruction> {
-        return mutableListOf()
+        var reg = programState.getFreeCalleeReg()
+        val instructions = mutableListOf<Instruction>()
+        if (reg == Register.NONE) {
+            reg = Register.R11
+            instructions.add(PushInstruction(reg))
+        }
+        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(ast.value), reg))
+        return instructions
     }
 
     fun visitNullPairLiterAST(ast: NullPairLiterAST): List<Instruction> {
-        return mutableListOf()
+        var reg = programState.getFreeCalleeReg()
+        val instructions = mutableListOf<Instruction>()
+        if (reg == Register.NONE) {
+            reg = Register.R11
+            instructions.add(PushInstruction(reg))
+        }
+        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(0), reg))
+        return instructions
     }
 
     fun visitStrLiterAST(ast: StrLiterAST): List<Instruction> {
-        return mutableListOf()
+        var reg = programState.getFreeCalleeReg()
+        val instructions = mutableListOf<Instruction>()
+        if (reg == Register.NONE) {
+            reg = Register.R11
+            instructions.add(PushInstruction(reg))
+        }
+        val strLabel = ProgramState.dataDirective.addStringLabel(ast.value)
+        instructions.add(LoadInstruction(Condition.AL, ImmediateLabel(strLabel), reg))
+        return instructions
     }
 }
