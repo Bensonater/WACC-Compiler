@@ -21,7 +21,7 @@ class FuncAST(
     val stats: List<StatAST>
 ) : ASTNode(ctx) {
     init {
-        symbolTable = FuncSymbolTable(this)
+        symbolTable = FuncSymbolTable(type)
     }
 
     override fun check(symbolTable: SymbolTable): Boolean {
