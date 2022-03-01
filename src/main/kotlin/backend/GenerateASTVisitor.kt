@@ -3,12 +3,14 @@ package backend
 import backend.addressingmodes.*
 import backend.enums.Register
 import backend.enums.Condition
+import backend.enums.Memory
 import backend.global.RuntimeErrors
 import backend.instruction.*
-import frontend.SymbolTable
 import frontend.ast.*
 import frontend.ast.literal.*
 import frontend.ast.statement.*
+import frontend.ast.type.BaseType
+import frontend.ast.type.BaseTypeAST
 import java.util.stream.Collectors
 
 class GenerateASTVisitor (val programState: ProgramState) {
@@ -54,8 +56,8 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val instructions = mutableListOf<Instruction>()
         instructions.add(FunctionLabel(ast.ident.name))
         instructions.add(PushInstruction(Register.LR))
-        val offset = getStackOffset(ast.symbolTable)
-
+        val offset = calculateStackOffset(ast.symbolTable)
+        ast.symbolTable.startingOffset = offset
         if (offset > 0) {
             instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB,
                 Register.SP, Register.SP, ImmediateIntOperand(offset)))
@@ -264,7 +266,13 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitIdentAST(ast: IdentAST): List<Instruction> {
-        return mutableListOf()
+        val offset = findIdentOffset(ast.symbolTable, ast.name) +
+                checkParamOffset(ast.symbolTable, ast.name) + ast.symbolTable.callOffset
+        val typeAST = ast.getType(ast.symbolTable)
+        val isBoolOrChar = typeAST is BaseTypeAST && (typeAST.type == BaseType.BOOL || typeAST.type == BaseType.CHAR)
+        val memoryType = if (isBoolOrChar) Memory.SB else null
+        return listOf(LoadInstruction(Condition.AL, RegisterModeWithOffset(Register.SP, offset),
+            programState.getFreeCalleeReg(), memoryType))
     }
 
     fun visitArrayElemAST(ast: ArrayElemAST): List<Instruction> {
