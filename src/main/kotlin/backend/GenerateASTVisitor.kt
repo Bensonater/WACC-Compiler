@@ -243,7 +243,24 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitUnOpExprAST(ast: UnOpExprAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        instructions.addAll(visit(ast.expr)!!)
+        val reg = programState.recentlyUsedCalleeReg()
+        when (ast.unOp) {
+            UnOp.NOT -> {
+                instructions.add(LogicInstruction(LogicOperation.EOR, reg, reg, ImmediateIntOperand(1)))
+            }
+            UnOp.MINUS -> {
+                instructions.add(ArithmeticInstruction(ArithmeticInstrType.RSB, reg, reg, ImmediateIntOperand(0)))
+                instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
+                ProgramState.runtimeErrors.addOverflowError()
+            }
+            UnOp.LEN -> {
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(Register.SP), reg))
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
+            }
+        }
+        return instructions
     }
 
     fun visitIdentAST(ast: IdentAST): List<Instruction> {
