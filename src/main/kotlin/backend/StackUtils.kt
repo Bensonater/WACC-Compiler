@@ -7,8 +7,11 @@ import backend.instruction.ArithmeticInstruction
 import backend.instruction.Instruction
 import frontend.FuncSymbolTable
 import frontend.SymbolTable
+import frontend.ast.ASTNode
+import frontend.ast.IdentAST
 import frontend.ast.ParamAST
 import frontend.ast.statement.DeclareAST
+import frontend.ast.type.TypeAST
 
 private const val MAX_STACK_OFFSET = 1024
 
@@ -19,6 +22,7 @@ fun calculateStackOffset(symbolTable : SymbolTable) : Int {
             offset += astNode.size // Potential optimisation to store offset in symbol table
         }
     }
+    symbolTable.currOffset = offset
     return offset
 }
 
@@ -122,4 +126,25 @@ private fun findParamInFuncOffset(symbolTable: SymbolTable, ident: String, inner
  */
 fun checkParamOffset(symbolTable: SymbolTable, ident: String): Int {
     return findParamInFuncOffset(symbolTable, ident, false, 0)
+}
+
+
+
+
+fun decreaseOffset(symbolTable: SymbolTable, lhs: ASTNode, rhsType: TypeAST) {
+    val size = rhsType.size
+    if (lhs is IdentAST) {
+        val ident = symbolTable.get(lhs.name)
+        if (ident == null) {
+            if (symbolTable.parent != null)
+                decreaseOffset(symbolTable.parent!!, lhs, rhsType)
+            return
+        }
+        if ((ident is DeclareAST) && (ident.type != rhsType)) {
+            if (symbolTable.parent != null)
+                decreaseOffset(symbolTable.parent!!, lhs, rhsType)
+            return
+        }
+    }
+    symbolTable.currOffset -= size
 }

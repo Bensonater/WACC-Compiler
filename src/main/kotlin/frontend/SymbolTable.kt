@@ -2,6 +2,8 @@ package frontend
 
 import frontend.ast.ASTNode
 import frontend.ast.FuncAST
+import frontend.ast.IdentAST
+import frontend.ast.statement.DeclareAST
 import frontend.ast.type.TypeAST
 
 open class SymbolTable {
@@ -21,6 +23,10 @@ open class SymbolTable {
     // Initial offset equal to sum of all offsets in table
     // Accounts for negative stack pointer values when setting up parameters
     var callOffset = 0
+
+
+    // Where the next variable in the current scope should be stored on the stack
+    var currOffset = 0
 
 
     fun get(name: String): ASTNode? {
