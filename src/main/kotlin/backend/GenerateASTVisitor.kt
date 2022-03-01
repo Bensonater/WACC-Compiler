@@ -46,9 +46,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         instructions.add(DirectiveInstruction("ltorg"))
 
         val data = ProgramState.dataDirective.translate()
-//        val cLib = ProgramState.cLib.translate()
+        val library = ProgramState.library.translate()
 
-        return data + instructions // + cLib
+        return data + instructions + library
     }
 
     fun visitFuncAST(ast: FuncAST): List<Instruction> {
