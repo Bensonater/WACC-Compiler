@@ -7,3 +7,17 @@ class RegisterOperand (val register : Register) : AddressingMode {
         return register.toString()
     }
 }
+
+class RegisterOperandWithShift (val register: Register, val shiftType: ShiftType, val offset: Int) : AddressingMode {
+    override fun toString(): String {
+        return "$register, $shiftType #$offset"
+    }
+}
+
+enum class ShiftType {
+    ASR,
+    LSL,
+    LSR,
+    ROR,
+    RRX
+}

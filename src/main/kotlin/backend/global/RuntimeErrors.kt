@@ -1,8 +1,13 @@
 package backend.global
 
 import backend.ProgramState
-import backend.instruction.GeneralLabel
-import backend.instruction.Instruction
+import backend.addressingmodes.ImmediateIntOperand
+import backend.addressingmodes.ImmediateLabel
+import backend.addressingmodes.RegisterMode
+import backend.addressingmodes.RegisterOperand
+import backend.enums.Condition
+import backend.enums.Register
+import backend.instruction.*
 
 class RuntimeErrors(val globalVals: ProgramState.GlobalVals) {
 
@@ -48,13 +53,75 @@ class RuntimeErrors(val globalVals: ProgramState.GlobalVals) {
         if (runtimeError == null) {
             runtimeError = listOf(
                 throwRuntimeErrorLabel,
-//                BranchInstr(Condition.AL, Label(CLibrary.Call.PRINT_STRING.toString()), true),
-//                MoveInstr(Condition.AL, Register.R0, ImmediateIntOperand(EXIT_CODE)),
-//                BranchInstr(Condition.AL, exitLabel, true)
+                BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(EXIT_CODE)),
+                BranchInstruction(Condition.AL, exitLabel, true)
             )
-//            globalVals.cLib.addCode(CLibrary.Call.PRINT_STRING)
-
+            globalVals.library.addCode(CallFunc.PRINT_STRING)
         }
     }
 
+    fun addOverflowError() {
+        if (overflowError == null) {
+            val errorMsg = globalVals.dataDirective.addStringLabel(ErrorType.OVERFLOW_ERROR.toString())
+            overflowError = listOf(
+                throwOverflowErrorLabel,
+                LoadInstruction(Condition.AL, ImmediateLabel(errorMsg), Register.R0),
+                BranchInstruction(Condition.AL, throwRuntimeErrorLabel, true),
+            )
+        }
+        addThrowRuntimeError()
+    }
+
+    fun addNullReferenceCheck() {
+        if (nullReferenceError == null) {
+            val errorMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.NULL_REFERENCE.toString())
+            nullReferenceError = listOf(
+                nullReferenceLabel,
+                PushInstruction(Register.LR),
+                CompareInstruction(Register.R0, ImmediateIntOperand(0)),
+                LoadInstruction(Condition.EQ, ImmediateLabel(errorMsgLabel), Register.R0),
+                BranchInstruction(Condition.EQ, throwRuntimeErrorLabel, true),
+                PopInstruction(Register.PC)
+            )
+        }
+        addThrowRuntimeError()
+    }
+
+    fun addDivideByZeroCheck() {
+        if (divideZeroError == null) {
+            val errorMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.DIVIDE_BY_ZERO.toString())
+            divideZeroError = listOf(
+                divideZeroCheckLabel,
+                PushInstruction(Register.LR),
+                CompareInstruction(Register.R1, ImmediateIntOperand(0)),
+                LoadInstruction(Condition.EQ, ImmediateLabel(errorMsgLabel), Register.R0),
+                BranchInstruction(Condition.EQ, throwRuntimeErrorLabel, true),
+                PopInstruction(Register.PC)
+            )
+        }
+        addThrowRuntimeError()
+    }
+
+
+    fun addArrayBoundsCheck() {
+        if (checkArrayBounds == null) {
+            val negativeMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.NEGATIVE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
+            val tooLargeMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.LARGE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
+
+            checkArrayBounds = listOf(
+                checkArrayBoundsLabel,
+                PushInstruction(Register.LR),
+                CompareInstruction(Register.R0, ImmediateIntOperand(0)),
+                LoadInstruction(Condition.LT, ImmediateLabel(negativeMsgLabel), Register.R0),
+                BranchInstruction(Condition.LT, throwRuntimeErrorLabel, true),
+                LoadInstruction(Condition.AL,  RegisterMode(Register.R1), Register.R1),
+                CompareInstruction(Register.R0, RegisterOperand(Register.R1)),
+                LoadInstruction(Condition.CS, ImmediateLabel(tooLargeMsgLabel), Register.R0),
+                BranchInstruction(Condition.CS, throwRuntimeErrorLabel, true),
+                PopInstruction(Register.PC)
+            )
+            addThrowRuntimeError()
+        }
+    }
 }
