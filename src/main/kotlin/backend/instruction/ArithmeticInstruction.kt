@@ -5,7 +5,8 @@ import backend.addressingmodes.AddressingMode
 
 enum class ArithmeticInstrType {
     ADD,
-    SUB
+    SUB,
+    RSB
 }
 
 
