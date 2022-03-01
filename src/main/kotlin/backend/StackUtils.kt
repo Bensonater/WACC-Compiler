@@ -5,6 +5,7 @@ import backend.enums.Register
 import backend.instruction.ArithmeticInstrType
 import backend.instruction.ArithmeticInstruction
 import backend.instruction.Instruction
+import frontend.FuncSymbolTable
 import frontend.SymbolTable
 import frontend.ast.ParamAST
 import frontend.ast.statement.DeclareAST
@@ -23,7 +24,7 @@ fun calculateStackOffset(symbolTable : SymbolTable) : Int {
 
 fun allocateStack (symbolTable: SymbolTable, instructions: MutableList<Instruction>) : Int {
     val stackOffset = calculateStackOffset(symbolTable)
-//            symbolTable.startingOffset = stackOffset
+    symbolTable.startingOffset = stackOffset
     moveStackPointer(ArithmeticInstrType.SUB, stackOffset, instructions)
     return stackOffset
 }
@@ -80,4 +81,45 @@ fun findIdentOffset(symbolTable: SymbolTable, ident: String): Int {
         return findIdentOffset(symbolTable.parent!!, ident) + paramOffset
     }
     return totalOffset
+}
+
+
+/**
+ * Recursive method to check if identifier is a parameter and returns offset on stack if so
+ *
+ * @param symbolTable Symbol Table of the current scope
+ * @param ident Identifier of the potential parameter
+ * @param innerScopeHaveVar Have variables been declared inside the function scope
+ * @param offsetCount Accumulative offset until parameter is found
+ * @return The offset of the parameter on the stack
+ */
+private fun findParamInFuncOffset(symbolTable: SymbolTable, ident: String, innerScopeHaveVar: Boolean,
+                                  offsetCount: Int): Int {
+    val identAst = symbolTable.get(ident)
+    if (symbolTable is FuncSymbolTable && identAst is ParamAST) {
+        // Parameter offset only needed when there are variables declared in the current scope or any inner scope
+        if ((symbolTable.symbolTable.size > symbolTable.funcAST.paramList.size) || innerScopeHaveVar) {
+            // Sum offset of all variables that's not a parameter
+            val offset = symbolTable.symbolTable.values.sumOf { if (it !is ParamAST) it.size else 0 }
+            return offset + offsetCount
+        }
+        return 0
+    }
+    // Keeps checking the parent symbol table until the identifier is found
+    if (symbolTable.parent != null) {
+        return findParamInFuncOffset(symbolTable.parent!!, ident, symbolTable.symbolTable.size > 0,
+            symbolTable.startingOffset)
+    }
+    return 0
+}
+
+/**
+ * Calls helper function findParamInFuncOffset to compute offset
+ *
+ * @param symbolTable Symbol Table of the current scope
+ * @param ident Identifier of the potential parameter
+ * @return The offset of the parameter on the stack
+ */
+fun checkParamOffset(symbolTable: SymbolTable, ident: String): Int {
+    return findParamInFuncOffset(symbolTable, ident, false, 0)
 }
