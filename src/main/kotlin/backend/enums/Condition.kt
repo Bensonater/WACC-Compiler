@@ -8,6 +8,7 @@ enum class Condition {
     LT,
     LE,
     CS,
+    VS,
     AL;
 
     override fun toString(): String {
