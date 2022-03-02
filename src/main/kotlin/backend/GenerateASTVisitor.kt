@@ -1,9 +1,9 @@
 package backend
 
 import backend.addressingmodes.*
-import backend.enums.Register
 import backend.enums.Condition
 import backend.enums.Memory
+import backend.enums.Register
 import backend.global.CallFunc
 import backend.global.Funcs
 import backend.global.RuntimeErrors
@@ -324,8 +324,33 @@ class GenerateASTVisitor (val programState: ProgramState) {
 
     fun visitCallAST(ast: CallAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
-        ast.args.forEach { instructions.addAll(visit(it)) }
-        programState.freeCalleeReg()
+
+        var totalBytes = 0
+        val argTypesReversed = ast.args.map { it.getType(ast.symbolTable) }.reversed()
+        val negativeCallStackOffset = -1
+        for ((index, arg) in ast.args.reversed().withIndex()) {
+            var memType: Memory? = null
+            instructions.addAll(visit(arg))
+            val reg = programState.recentlyUsedCalleeReg()
+            val argType = argTypesReversed[index]
+            val size = argType!!.size
+            totalBytes += size
+            ast.symbolTable.callOffset = totalBytes
+            if ((argType is BaseTypeAST) &&  ((argType.type == BaseType.BOOL) || (argType.type == BaseType.CHAR))) {
+                memType = Memory.B
+            }
+            if (arg is ArrayElemAST) {
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
+            }
+            instructions.add(StoreInstruction(RegisterModeWithOffset(Register.SP, negativeCallStackOffset * size, true), reg, memType))
+            programState.freeCalleeReg()
+        }
+        ast.symbolTable.callOffset = 0
+
+        val funcLabel = FunctionLabel(ast.ident.name)
+        instructions.add(BranchInstruction(Condition.AL, funcLabel, true))
+        instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(totalBytes)))
+        instructions.add(MoveInstruction(Condition.AL, programState.getFreeCalleeReg(), RegisterOperand(Register.R0)))
         return instructions
     }
 
@@ -436,12 +461,12 @@ class GenerateASTVisitor (val programState: ProgramState) {
         instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(Register.R4)))
 
         /** Adds specific calls to read library functions */
-        when ((ast.assignLhs as BaseTypeAST).type) {
-            BaseType.INT -> {
+        when (ast.assignLhs) {
+            is IntLiterAST -> {
                 instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.READ_INT.toString()), true))
                 ProgramState.library.addCode(CallFunc.READ_INT)
             }
-            BaseType.CHAR -> {
+            is CharLiterAST -> {
                 instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.READ_CHAR.toString()), true))
                 ProgramState.library.addCode(CallFunc.READ_CHAR)
             }
@@ -486,28 +511,23 @@ class GenerateASTVisitor (val programState: ProgramState) {
                 programState.freeAllCalleeRegs()
             }
             Command.PRINT, Command.PRINTLN -> {
-                /** Adds specific code for printing.*/
                 when (exprType) {
                     is BaseTypeAST -> {
                         instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
-
-                        when (exprType.type) {
-                            BaseType.INT -> {
-                                ProgramState.library.addCode(CallFunc.PRINT_INT)
-                                instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_INT.toString()), true))
-                            }
-                            BaseType.CHAR -> {
-                                instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.PUTCHAR.toString()), true))
-                            }
-                            BaseType.BOOL -> {
-                                ProgramState.library.addCode(CallFunc.PRINT_BOOL)
-                                instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_BOOL.toString()), true))
-                            }
-                            BaseType.STRING -> {
-                                ProgramState.library.addCode(CallFunc.PRINT_STRING)
-                                instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true))
-                            }
+                        val lookupPrintInstr = hashMapOf(
+                            Pair(BaseType.INT, CallFunc.PRINT_INT),
+                            Pair(BaseType.BOOL, CallFunc.PRINT_BOOL),
+                            Pair(BaseType.STRING, CallFunc.PRINT_STRING)
+                        )
+                        if (exprType.type == BaseType.CHAR){
+                            instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.PUTCHAR.toString()), true))
                         }
+                        else{
+                            val printInstr = lookupPrintInstr[exprType.type]!!
+                            ProgramState.library.addCode(printInstr)
+                            instructions.add(BranchInstruction(Condition.AL, GeneralLabel(printInstr.toString()), true))
+                        }
+
                     }
                     is ArrayTypeAST -> {
                         instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
