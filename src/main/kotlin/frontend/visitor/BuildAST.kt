@@ -248,7 +248,17 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitCharLiter(ctx: WACCParser.CharLiterContext): ASTNode {
-        return CharLiterAST(ctx, ctx.text.substring(1, ctx.text.length - 1)[0])
+        val str = ctx.text.substring(1, ctx.text.length - 1)
+            .replace("\\0", 0.toChar().toString())
+            .replace("\\b", "\b")
+            .replace("\\t", "\t")
+            .replace("\\n", "\n")
+            .replace("\\f", 12.toChar().toString())
+            .replace("\\r", "\r")
+            .replace("\\\"", "\"")
+            .replace("\\\'", "\'")
+            .replace("\\\\", "\\")
+        return CharLiterAST(ctx, str[0])
     }
 
     override fun visitIdent(ctx: WACCParser.IdentContext): ASTNode {
