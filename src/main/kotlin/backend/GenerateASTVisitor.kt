@@ -382,18 +382,30 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return mutableListOf()
     }
 
+    /**
+     * Translate a boolean literal AST.
+     */
     fun visitBoolLiterAST(ast: BoolLiterAST): List<Instruction> {
         return visitLiterHelper(ImmediateBoolOperand(ast.value), false)
     }
 
+    /**
+     * Translate a character literal AST.
+     */
     fun visitCharLiterAST(ast: CharLiterAST): List<Instruction> {
         return visitLiterHelper(ImmediateCharOperand(ast.value), false)
     }
 
+    /**
+     * Translate an integer literal AST.
+     */
     fun visitIntLiterAST(ast: IntLiterAST): List<Instruction> {
         return visitLiterHelper(ImmediateInt(ast.value), true)
     }
 
+    /**
+     * Translate a null pair literal AST.
+     */
     fun visitNullPairLiterAST(ast: NullPairLiterAST): List<Instruction> {
         return visitLiterHelper(ImmediateInt(0), true)
     }
@@ -406,6 +418,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     private fun visitLiterHelper(param : AddressingMode, load: Boolean) : List<Instruction> {
         var reg = programState.getFreeCalleeReg()
         val instructions = mutableListOf<Instruction>()
+        // Check if the registers are all full, then use accumulator
         if (reg == Register.NONE) {
             reg = Register.R11
             instructions.add(PushInstruction(reg))
