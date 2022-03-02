@@ -9,6 +9,7 @@ import backend.instruction.*
 import frontend.ast.*
 import frontend.ast.literal.*
 import frontend.ast.statement.*
+import frontend.ast.type.ArrayTypeAST
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
 import frontend.ast.type.PairTypeAST
@@ -215,10 +216,6 @@ class GenerateASTVisitor (val programState: ProgramState) {
             programState.getFreeCalleeReg(), memoryType))
     }
 
-    fun visitArrayElemAST(ast: ArrayElemAST): List<Instruction> {
-        return mutableListOf()
-    }
-
     fun visitPairElemAST(ast: PairElemAST): List<Instruction> {
         return mutableListOf()
     }
@@ -317,6 +314,45 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return mutableListOf()
     }
 
+
+    /**
+     * Translates an array element AST, e.g. a[3] where int x = a[3]
+     */
+    fun visitArrayElemAST(ast: ArrayElemAST): List<Instruction> {
+        val instructions = mutableListOf<Instruction>()
+        val stackReg = programState.getFreeCalleeReg()
+
+        /** Computes offset to push down the stack pointer */
+        var stackOffset = findIdentOffset(ast.symbolTable, ast.ident.name)
+        stackOffset += checkParamOffset(ast.symbolTable, ast.ident.name) + ast.symbolTable.callOffset
+        instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, Register.SP, ImmediateIntOperand(stackOffset)))
+
+        ast.listOfIndex.forEach {
+            instructions.addAll(visit(it)!!)
+
+            instructions.add(LoadInstruction(Condition.AL, RegisterMode(stackReg), stackReg))
+            instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(programState.recentlyUsedCalleeReg())))
+            instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(stackReg)))
+            instructions.add(BranchInstruction(Condition.AL, RuntimeErrors.checkArrayBoundsLabel, true))
+            ProgramState.runtimeErrors.addArrayBoundsCheck()
+
+            // Add pointer offset
+            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, ImmediateIntOperand(4)))
+
+            val identType = ast.ident.getType(ast.symbolTable)
+            if ((identType is ArrayTypeAST) && ((identType.type is BaseTypeAST && identType.type.type == BaseType.CHAR)
+                        || (identType.type is BaseTypeAST && identType.type.type == BaseType.BOOL))) {
+                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg,
+                    RegisterOperand(programState.recentlyUsedCalleeReg())))
+            } else {
+                val multiplyByFour = 2
+                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg,
+                    RegisterOperandWithShift(programState.recentlyUsedCalleeReg(), ShiftType.LSL, multiplyByFour)))
+            }
+            programState.freeCalleeReg()
+        }
+        return instructions
+    }
 
     /**
      * Translate an array literal AST, e.g. [19, 21, 3, a, 7] where a = 30
