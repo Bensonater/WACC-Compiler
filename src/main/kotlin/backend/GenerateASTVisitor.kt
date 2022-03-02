@@ -371,7 +371,33 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitIfAST(ast: IfAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        val elseLabel = programState.getNextLabel()
+        val finalLabel = programState.getNextLabel()
+
+        instructions.addAll(visit(ast.expr))
+        instructions.add(CompareInstruction(programState.recentlyUsedCalleeReg(), ImmediateIntOperand(0)))
+        instructions.add(BranchInstruction(Condition.EQ, elseLabel, false))
+        programState.freeCalleeReg()
+        var stackOffset = calculateStackOffset(ast.thenSymbolTable)
+        if (stackOffset > 0) {
+            instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, Register.SP,Register.SP, ImmediateIntOperand(stackOffset)))
+        }
+
+        ast.thenStat.forEach{
+            instructions.addAll(visit(it))
+        }
+
+        instructions.add(BranchInstruction(Condition.AL, finalLabel, false))
+        instructions.add(elseLabel)
+
+        ast.elseStat.forEach{
+            instructions.addAll(visit(it))
+        }
+
+        instructions.add(finalLabel)
+
+        return instructions
     }
 
     fun visitReadAST(ast: ReadAST): List<Instruction> {
