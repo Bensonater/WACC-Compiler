@@ -270,7 +270,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     fun visitAssignAST(ast: AssignAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
-        instructions.addAll(visit(ast.assignRhs)!!)
+        instructions.addAll(visit(ast.assignRhs))
         val calleeReg = programState.recentlyUsedCalleeReg()
         if (ast.assignRhs is StrLiterAST) {
             ast.label = ProgramState.dataDirective.toStringLabel(ast.assignRhs.value)
@@ -288,18 +288,18 @@ class GenerateASTVisitor (val programState: ProgramState) {
 
         when (ast.assignLhs) {
             is IdentAST -> {
-                var offset = findIdentOffset(ast.symbolTable, ast.assignLhs.name)
+                val offset = findIdentOffset(ast.symbolTable, ast.assignLhs.name)
 //                var (correctSTScope, offset) = ast.symbolTable.getSTWithIdentifier(ast.assignLhs.name, rhsType)
 //                offset += checkParamOffset(ast.symbolTable, ast.assignLhs.name)
                 instructions.add(StoreInstruction(RegisterModeWithOffset(Register.SP, offset), calleeReg, memtype))
             }
             is ArrayElemAST -> {
-                instructions.addAll(visit(ast.assignLhs)!!)
+                instructions.addAll(visit(ast.assignLhs))
                 instructions.add(StoreInstruction(RegisterMode(programState.recentlyUsedCalleeReg()), calleeReg, memtype))
                 programState.freeCalleeReg()
             }
             is PairElemAST -> {
-                instructions.addAll(visit(ast.assignLhs)!!)
+                instructions.addAll(visit(ast.assignLhs))
                 instructions.add(StoreInstruction(RegisterMode(programState.recentlyUsedCalleeReg()), calleeReg, memtype))
                 programState.freeCalleeReg()
             }
