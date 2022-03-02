@@ -610,7 +610,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
      */
     fun visitArrayLiterAST(ast: ArrayLiterAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
-        val elemSize = ast.getType(ast.symbolTable).size
+        val elemSize = (ast.getType(ast.symbolTable) as ArrayTypeAST).type.size
 
         val sizeOfInt = 4
         instructions.add(LoadInstruction(Condition.AL, ImmediateInt(elemSize * ast.vals.size + sizeOfInt), Register.R0))
