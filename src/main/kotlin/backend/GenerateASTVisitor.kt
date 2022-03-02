@@ -4,7 +4,9 @@ import backend.addressingmodes.*
 import backend.enums.Register
 import backend.enums.Condition
 import backend.enums.Memory
+import backend.global.CallFunc
 import backend.global.Funcs
+import backend.global.Library
 import backend.global.RuntimeErrors
 import backend.instruction.*
 import frontend.ast.*
@@ -370,7 +372,34 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitReadAST(ast: ReadAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        when (ast.assignLhs) {
+            is IdentAST -> {
+                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R4, Register.SP, ImmediateIntOperand(
+                    findIdentOffset(ast.symbolTable,ast.assignLhs.name)
+                ))) }
+            is ArrayElemAST -> {
+                // Intentionally Left Blank
+            }
+            is PairElemAST -> {
+                /** Translates the expression */
+                instructions.addAll(visit(ast.assignLhs))
+            }
+        }
+        instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(Register.R4)))
+
+        /** Adds specific calls to read library functions */
+        when ((ast.assignLhs as BaseTypeAST).type) {
+            BaseType.INT -> {
+                instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.READ_INT.toString()), true))
+                ProgramState.library.addCode(CallFunc.READ_INT)
+            }
+            BaseType.CHAR -> {
+                instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.READ_CHAR.toString()), true))
+                ProgramState.library.addCode(CallFunc.READ_CHAR)
+            }
+        }
+        return instructions
     }
 
     /**
