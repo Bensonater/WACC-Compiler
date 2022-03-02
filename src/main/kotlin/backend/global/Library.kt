@@ -30,8 +30,7 @@ enum class CallFunc {
     PRINT_REFERENCE,
     PRINT_LN,
     FREE_ARRAY,
-    FREE_PAIR,
-    FREE_STRUCT;
+    FREE_PAIR;
 
     override fun toString(): String {
         return "p_${super.toString().lowercase()}"
@@ -57,7 +56,6 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
             CallFunc.PRINT_LN -> generatePrintLnCall()
             CallFunc.FREE_PAIR -> generateFreePairCall()
             CallFunc.FREE_ARRAY -> generateFreeArrayCall()
-            CallFunc.FREE_STRUCT -> generateFreeStructCall()
         }
         instructions.add(callLabel)
         instructions.add(PushInstruction(Register.LR))
@@ -105,7 +103,7 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         return printCallHelper(stringTypeLabel)
     }
 
-    private fun printCallHelper(stringTypeLabel : String) :  List<Instruction>{
+    private fun printCallHelper(stringTypeLabel: String): List<Instruction> {
         return listOf(
             MoveInstruction(Condition.AL, Register.R1, RegisterOperand(Register.R0)),
             LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
@@ -152,7 +150,6 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
             BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
         )
     }
-
 
 
     private fun generatePrintLnCall(): List<Instruction> {
@@ -202,8 +199,5 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         return freeSingleMallocedObject()
     }
 
-    private fun generateFreeStructCall(): List<Instruction> {
-        return freeSingleMallocedObject()
-    }
 
 }
