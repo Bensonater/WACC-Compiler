@@ -248,17 +248,39 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitCharLiter(ctx: WACCParser.CharLiterContext): ASTNode {
-        val str = ctx.text.substring(1, ctx.text.length - 1)
-        str.replace("\\0", 0.toChar().toString())
-            .replace("\\b", "\b")
-            .replace("\\t", "\t")
-            .replace("\\n", "\n")
-            .replace("\\f", 12.toChar().toString())
-            .replace("\\r", "\r")
-            .replace("\\\"", "\"")
-            .replace("\\\'", "\'")
-            .replace("\\\\", "\\")
-        return CharLiterAST(ctx, str[0])
+        val escapeChar = when (ctx.text.substring(1, ctx.text.length - 1)) {
+            "\\0" -> {
+                0.toChar()
+            }
+            "\\b" -> {
+                '\b'
+            }
+            "\\t" -> {
+                '\t'
+            }
+            "\\n" -> {
+                '\n'
+            }
+            "\\f" -> {
+                12.toChar()
+            }
+            "\\r" -> {
+                '\r'
+            }
+            "\\\"" -> {
+                '\"'
+            }
+            "\\\'" -> {
+                '\''
+            }
+            "\\\\" -> {
+                '\\'
+            }
+            else -> {
+                throw RuntimeException("Unknown escape char")
+            }
+        }
+        return CharLiterAST(ctx, escapeChar)
     }
 
     override fun visitIdent(ctx: WACCParser.IdentContext): ASTNode {
