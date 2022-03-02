@@ -317,8 +317,37 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return mutableListOf()
     }
 
+
+    /**
+     * Translate an array literal AST, e.g. [19, 21, 3, a, 7] where a = 30
+     */
     fun visitArrayLiterAST(ast: ArrayLiterAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        val elemSize = ast.getType(ast.symbolTable).size
+
+        val sizeOfInt = 4
+        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(elemSize * ast.vals.size + sizeOfInt), Register.R0))
+        instructions.add(BranchInstruction(Condition.AL, GeneralLabel("malloc"), true))
+        val stackReg = programState.getFreeCalleeReg()
+        instructions.add(MoveInstruction(Condition.AL, stackReg, RegisterOperand(Register.R0)))
+
+        var memType: Memory? = null
+        for ((index, expr) in ast.vals.withIndex()) {
+//            if (expr is IdentAST) {
+//                expr.symbolTable = ast.symbolTable
+//            }
+            instructions.addAll(visit(expr)!!)
+            if ((expr is CharLiterAST) || (expr is BoolLiterAST)) {
+                memType = Memory.B
+            }
+            instructions.add(StoreInstruction(RegisterModeWithOffset(stackReg, sizeOfInt + (index * elemSize)), programState.recentlyUsedCalleeReg(), memType))
+            programState.freeCalleeReg()
+        }
+
+        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(ast.vals.size), programState.getFreeCalleeReg()))
+        instructions.add(StoreInstruction(RegisterMode(stackReg), programState.recentlyUsedCalleeReg()))
+        programState.freeCalleeReg()
+        return instructions
     }
 
     /**
@@ -349,6 +378,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return visitLiterHelper(ImmediateInt(0), true)
     }
 
+    /**
+     * Translate a string literal AST.
+     */
     fun visitStrLiterAST(ast: StrLiterAST): List<Instruction> {
         val strLabel = ProgramState.dataDirective.addStringLabel(ast.value)
         return visitLiterHelper(ImmediateLabel(strLabel), true)
