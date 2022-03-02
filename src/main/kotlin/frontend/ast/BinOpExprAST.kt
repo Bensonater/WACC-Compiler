@@ -1,6 +1,7 @@
 package frontend.ast
 
 import backend.GenerateASTVisitor
+import backend.enums.Condition
 import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.type.BaseType
@@ -19,13 +20,13 @@ enum class IntBinOp : BinOp {
     MOD
 }
 
-enum class CmpBinOp : BinOp {
-    GTE,
-    GT,
-    LTE,
-    LT,
-    EQ,
-    NEQ
+enum class CmpBinOp(val cond: Condition, val opposite: Condition) : BinOp {
+    GTE(Condition.GE, Condition.LT),
+    GT(Condition.GT, Condition.LE),
+    LTE(Condition.LE, Condition.GT),
+    LT(Condition.LT, Condition.GE),
+    EQ(Condition.EQ, Condition.NE),
+    NEQ(Condition.NE, Condition.EQ)
 }
 
 enum class BoolBinOp : BinOp {
