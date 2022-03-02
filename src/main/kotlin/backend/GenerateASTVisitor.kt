@@ -386,6 +386,10 @@ class GenerateASTVisitor (val programState: ProgramState) {
 
         instructions.add(BranchInstruction(Condition.AL, finalLabel, false))
         instructions.add(elseLabel)
+        stackOffset = calculateStackOffset(ast.elseSymbolTable)
+        if (stackOffset > 0) {
+            instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, Register.SP,Register.SP, ImmediateIntOperand(stackOffset)))
+        }
 
         ast.elseStat.forEach{
             instructions.addAll(visit(it))
