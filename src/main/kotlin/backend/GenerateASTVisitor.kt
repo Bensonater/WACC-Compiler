@@ -242,7 +242,10 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitCallAST(ast: CallAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        ast.args.forEach { instructions.addAll(visit(it)!!) }
+        programState.freeCalleeReg()
+        return instructions
     }
 
     fun visitDeclareAST(ast: DeclareAST): List<Instruction> {
