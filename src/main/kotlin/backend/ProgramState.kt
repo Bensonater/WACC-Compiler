@@ -4,6 +4,7 @@ import backend.enums.Register
 import backend.global.DataDirective
 import backend.global.Library
 import backend.global.RuntimeErrors
+import backend.instruction.GeneralLabel
 import java.util.*
 
 class ProgramState {
@@ -12,6 +13,7 @@ class ProgramState {
         val dataDirective = DataDirective()
         val runtimeErrors = RuntimeErrors(this)
         val library = Library(this)
+        var labelNum = 0
     }
 
     var resultRegs: MutableList<Register> = mutableListOf(Register.R0, Register.R1)
@@ -58,5 +60,10 @@ class ProgramState {
             reg
         }
 
+    }
+
+    /** Gets the next free label number using a global counter */
+    fun getNextLabel(): GeneralLabel {
+        return GeneralLabel("L${labelNum++}")
     }
 }
