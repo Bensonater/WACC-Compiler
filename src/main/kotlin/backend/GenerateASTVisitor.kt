@@ -324,8 +324,33 @@ class GenerateASTVisitor (val programState: ProgramState) {
 
     fun visitCallAST(ast: CallAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
-        ast.args.forEach { instructions.addAll(visit(it)) }
-        programState.freeCalleeReg()
+
+        var totalBytes = 0
+        val argTypesReversed = ast.args.map { it.getType(ast.symbolTable) }.reversed()
+        val negativeCallStackOffset = -1
+        for ((index, arg) in ast.args.reversed().withIndex()) {
+            var memType: Memory? = null
+            instructions.addAll(visit(arg))
+            val reg = programState.recentlyUsedCalleeReg()
+            val argType = argTypesReversed[index]
+            val size = argType!!.size
+            totalBytes += size
+            ast.symbolTable.callOffset = totalBytes
+            if ((argType is BaseTypeAST) &&  ((argType.type == BaseType.BOOL) || (argType.type == BaseType.CHAR))) {
+                memType = Memory.B
+            }
+            if (arg is ArrayElemAST) {
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
+            }
+            instructions.add(StoreInstruction(RegisterModeWithOffset(Register.SP, negativeCallStackOffset * size, true), reg, memType))
+            programState.freeCalleeReg()
+        }
+        ast.symbolTable.callOffset = 0
+
+        val funcLabel = FunctionLabel(ast.ident.name)
+        instructions.add(BranchInstruction(Condition.AL, funcLabel, true))
+        instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(totalBytes)))
+        instructions.add(MoveInstruction(Condition.AL, programState.getFreeCalleeReg(), RegisterOperand(Register.R0)))
         return instructions
     }
 
