@@ -383,58 +383,38 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitBoolLiterAST(ast: BoolLiterAST): List<Instruction> {
-        var reg = programState.getFreeCalleeReg()
-        val instructions = mutableListOf<Instruction>()
-        if (reg == Register.NONE) {
-            reg = Register.R11
-            instructions.add(PushInstruction(reg))
-        }
-        instructions.add(MoveInstruction(Condition.AL, reg, ImmediateBoolOperand(ast.value)))
-        return instructions
+        return visitLiterHelper(ImmediateBoolOperand(ast.value), false)
     }
 
     fun visitCharLiterAST(ast: CharLiterAST): List<Instruction> {
-        var reg = programState.getFreeCalleeReg()
-        val instructions = mutableListOf<Instruction>()
-        if (reg == Register.NONE) {
-            reg = Register.R11
-            instructions.add(PushInstruction(reg))
-        }
-        instructions.add(MoveInstruction(Condition.AL, reg, ImmediateCharOperand(ast.value)))
-        return instructions
+        return visitLiterHelper(ImmediateCharOperand(ast.value), false)
     }
 
     fun visitIntLiterAST(ast: IntLiterAST): List<Instruction> {
-        var reg = programState.getFreeCalleeReg()
-        val instructions = mutableListOf<Instruction>()
-        if (reg == Register.NONE) {
-            reg = Register.R11
-            instructions.add(PushInstruction(reg))
-        }
-        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(ast.value), reg))
-        return instructions
+        return visitLiterHelper(ImmediateInt(ast.value), true)
     }
 
     fun visitNullPairLiterAST(ast: NullPairLiterAST): List<Instruction> {
-        var reg = programState.getFreeCalleeReg()
-        val instructions = mutableListOf<Instruction>()
-        if (reg == Register.NONE) {
-            reg = Register.R11
-            instructions.add(PushInstruction(reg))
-        }
-        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(0), reg))
-        return instructions
+        return visitLiterHelper(ImmediateInt(0), true)
     }
 
     fun visitStrLiterAST(ast: StrLiterAST): List<Instruction> {
+        val strLabel = ProgramState.dataDirective.addStringLabel(ast.value)
+        return visitLiterHelper(ImmediateLabel(strLabel), true)
+    }
+
+    private fun visitLiterHelper(param : AddressingMode, load: Boolean) : List<Instruction> {
         var reg = programState.getFreeCalleeReg()
         val instructions = mutableListOf<Instruction>()
         if (reg == Register.NONE) {
             reg = Register.R11
             instructions.add(PushInstruction(reg))
         }
-        val strLabel = ProgramState.dataDirective.addStringLabel(ast.value)
-        instructions.add(LoadInstruction(Condition.AL, ImmediateLabel(strLabel), reg))
+        if (load) {
+            instructions.add(LoadInstruction(Condition.AL, param, reg))
+        } else {
+            instructions.add(MoveInstruction(Condition.AL, reg, param))
+        }
         return instructions
     }
 }
