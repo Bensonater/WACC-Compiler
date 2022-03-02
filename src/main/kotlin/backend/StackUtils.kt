@@ -127,7 +127,16 @@ fun checkParamOffset(symbolTable: SymbolTable, ident: String): Int {
     return findParamInFuncOffset(symbolTable, ident, false, 0)
 }
 
-
+fun checkFuncOffset(symbolTable: SymbolTable): Int{
+    if (symbolTable is FuncSymbolTable) {
+        return symbolTable.startingOffset
+    }
+    if (symbolTable.parent != null) {
+        val offset = symbolTable.symbolTable.values.sumOf { it.size() }
+        return checkFuncOffset(symbolTable.parent!!) + offset
+    }
+    return -1
+}
 
 
 fun decreaseOffset(symbolTable: SymbolTable, lhs: ASTNode, rhsType: TypeAST) {
