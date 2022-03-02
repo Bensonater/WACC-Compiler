@@ -68,13 +68,15 @@ class GenerateASTVisitor (val programState: ProgramState) {
         for (stat in ast.stats) {
             instructions.addAll(visit(stat))
         }
-
-//        if (ast.stats.last() is IfAST) )
-        TODO("Check the last stat is exit or return")
-        if (offset > 0) {
-            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(offset)))
+        val lastStat = ast.stats.last()
+        if (!(((lastStat is IfAST) && lastStat.thenReturns && lastStat.elseReturns)
+            || ((lastStat is StatSimpleAST) && lastStat.command == Command.EXIT))) {
+            if (offset > 0) {
+                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD,
+                    Register.SP, Register.SP, ImmediateIntOperand(offset)))
+            }
+            instructions.add(PopInstruction(Register.PC))
         }
-        instructions.add(PopInstruction(Register.PC))
         instructions.add(DirectiveInstruction("ltorg"))
         programState.freeAllCalleeRegs()
         return instructions
@@ -385,6 +387,14 @@ class GenerateASTVisitor (val programState: ProgramState) {
             instructions.addAll(visit(it))
         }
 
+        val lastThenStat = ast.thenStat.last()
+        val thenReturns = lastThenStat is StatSimpleAST &&
+                (lastThenStat.command == Command.RETURN || lastThenStat.command == Command.EXIT)
+        ast.thenReturns = thenReturns
+
+        if (stackOffset > 0) {
+            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(stackOffset)))
+        }
         instructions.add(BranchInstruction(Condition.AL, finalLabel, false))
         instructions.add(elseLabel)
         stackOffset = calculateStackOffset(ast.elseSymbolTable)
@@ -396,6 +406,13 @@ class GenerateASTVisitor (val programState: ProgramState) {
             instructions.addAll(visit(it))
         }
 
+        val lastElseStat = ast.elseStat.last()
+        val elseReturns = lastElseStat is StatSimpleAST &&
+                (lastElseStat.command == Command.RETURN || lastElseStat.command == Command.EXIT)
+        ast.elseReturns = elseReturns
+        if (stackOffset > 0) {
+            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(stackOffset)))
+        }
         instructions.add(finalLabel)
 
         return instructions
