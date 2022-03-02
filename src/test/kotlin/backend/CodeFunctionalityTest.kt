@@ -13,12 +13,14 @@ class CodeFunctionalityTest : TestUtils {
     fun assemblyIsFunctionallyCorrect() {
         doForEachFile(File(root)) { file ->
             val name = file.nameWithoutExtension
-            val path = file.path
+            val path = file.invariantSeparatorsPath
+            //  println(name)
+            //  println(path)
 
             Runtime.getRuntime().exec("./compile $path")
             Runtime.getRuntime()
-                .exec("arm-linux-gnueabi-gcc -o test -mcpu=arm1176jzf-s -mtune=arm1176jzf-s $name.s")
-            val process2 = Runtime.getRuntime().exec("qemu-arm -L /usr/arm-linux-gnueabi test")
+                .exec("arm-linux-gnueabi-gcc -o $name -mcpu=arm1176jzf-s -mtune=arm1176jzf-s $name.s")
+            val process2 = Runtime.getRuntime().exec("qemu-arm -L /usr/arm-linux-gnueabi $name")
             process2.inputStream.reader(Charsets.UTF_8).use {
                 println(it.readText())
             }
