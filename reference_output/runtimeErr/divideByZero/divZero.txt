@@ -1,0 +1,3 @@
+DivideByZeroError: divide or modulo by zero
+===========================================================
+255
