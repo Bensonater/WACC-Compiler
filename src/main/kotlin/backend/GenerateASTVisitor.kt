@@ -232,40 +232,43 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
-//    fun visitNewPairAST(ast: NewPairAST): List<Instruction> {
-//        val instrs = mutableListOf<Instruction>()
-//        var memoryType: Memory? = null
-//        val spaceForTwoPointers = 2 * 4
-//        /** Mallocs space for two pointers to the first and second elements */
-//        instrs.add(LoadInstruction(Condition.AL, ImmediateInt(spaceForTwoPointers), Register.R0))
-//        instrs.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.MALLOC.toString()), true))
-//        val stackReg = programState.getFreeCalleeReg()
-//        instrs.add(MoveInstruction(Condition.AL, stackReg, RegisterOperand(Register.R0)))
-//
-//        /** Malloc first element */
-//        instrs.addAll(visit(ast.fst))
-//        instrs.add(LoadInstruction(Condition.AL, ImmediateInt(ast.fst.getType(ast.symbolTable).size), Register.R0))
-//        instrs.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.MALLOC.toString()), true))
-//        if (ast.firstType.isBoolOrChar()) {
-//            memoryType = Memory.B
-//        }
-//        instrs.add(StoreInstruction(memoryType, RegisterMode(Register.R0), codeGenerator.seeLastUsedCalleeReg()))
-//        programState.freeCalleeReg()
-//        instrs.add(StoreInstruction(null, RegisterMode(stackReg), Register.R0))
-//
-//        /** Malloc second element */
-//        instrs.addAll(visit(ast.snd))
-//        instrs.add(LoadInstruction(Condition.AL, null, ImmediateIntMode(SymbolTable.getBytesOfType(ast.secondType)), Register.R0))
-//        instrs.add(BranchInstruction(Condition.AL, Label(CLibrary.LibraryFunctions.MALLOC.toString()), true))
-//        if (ast.secondType.isBoolOrChar()) {
-//            memoryType = Memory.B
-//        }
-//        instrs.add(StoreInstruction(memoryType, RegisterMode(Register.R0), programState.recentlyUsedCalleeReg()))
-//        codeGenerator.freeCalleeReg()
-//        instrs.add(StoreInstr(null, RegisterAddrWithOffsetMode(stackReg, pointerOffset, false), Register.R0))
-//
-//        return instrs
-//    }
+    fun visitNewPairAST(ast: NewPairAST): List<Instruction> {
+        val instructions = mutableListOf<Instruction>()
+        var memoryType: Memory? = null
+
+        // Malloc space for two pointers to the first and second elements
+        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(8), Register.R0))
+        instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.MALLOC.toString()), true))
+        val stackReg = programState.getFreeCalleeReg()
+        instructions.add(MoveInstruction(Condition.AL, stackReg, RegisterOperand(Register.R0)))
+
+        // Malloc first element
+        instructions.addAll(visit(ast.fst))
+        val fstType = ast.fst.getType(ast.symbolTable)!!
+        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(fstType.size), Register.R0))
+        instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.MALLOC.toString()), true))
+
+        if (fstType is BaseTypeAST && (fstType.type == BaseType.BOOL || fstType.type == BaseType.CHAR)) {
+            memoryType = Memory.B
+        }
+        instructions.add(StoreInstruction(RegisterMode(Register.R0), programState.recentlyUsedCalleeReg(), memoryType))
+        programState.freeCalleeReg()
+        instructions.add(StoreInstruction(RegisterMode(stackReg), Register.R0))
+
+        // Malloc second element
+        instructions.addAll(visit(ast.snd))
+        val sndType = ast.snd.getType(ast.symbolTable)!!
+        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(sndType.size), Register.R0))
+        instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.MALLOC.toString()), true))
+        if (sndType is BaseTypeAST && (sndType.type == BaseType.BOOL || sndType.type == BaseType.CHAR)) {
+            memoryType = Memory.B
+        }
+        instructions.add(StoreInstruction(RegisterMode(Register.R0), programState.recentlyUsedCalleeReg(), memoryType))
+        programState.freeCalleeReg()
+        instructions.add(StoreInstruction(RegisterModeWithOffset(stackReg, 4), Register.R0))
+
+        return instructions
+    }
 
     fun visitAssignAST(ast: AssignAST): List<Instruction> {
         return mutableListOf()
