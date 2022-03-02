@@ -29,10 +29,10 @@ class RuntimeErrors(val globalVals: ProgramState.GlobalVals) {
 
     enum class ErrorType(val msg: String) {
         NULL_REFERENCE("NullReferenceError: dereference a null reference\\n\\0"),
-        DIVIDE_BY_ZERO("DivideByZeroError: divide or modulo by zero\\n"),
+        DIVIDE_BY_ZERO("DivideByZeroError: divide or modulo by zero\\n\\0"),
         LARGE_ARRAY_INDEX_OUT_OF_BOUNDS("ArrayIndexOutOfBoundsError: index too large\\n\\0"),
         NEGATIVE_ARRAY_INDEX_OUT_OF_BOUNDS("ArrayIndexOutOfBoundsError: negative index\\n\\0"),
-        OVERFLOW_ERROR("OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n");
+        OVERFLOW_ERROR("OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n\\0");
 
         override fun toString(): String {
             return msg
