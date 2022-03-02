@@ -4,7 +4,9 @@ import backend.addressingmodes.*
 import backend.enums.Register
 import backend.enums.Condition
 import backend.enums.Memory
+import backend.global.CallFunc
 import backend.global.Funcs
+import backend.global.Library
 import backend.global.RuntimeErrors
 import backend.instruction.*
 import frontend.ast.*
@@ -271,7 +273,44 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitAssignAST(ast: AssignAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+
+        instructions.addAll(visit(ast.assignRhs))
+        val calleeReg = programState.recentlyUsedCalleeReg()
+        if (ast.assignRhs is StrLiterAST) {
+            ast.label = ProgramState.dataDirective.toStringLabel(ast.assignRhs.value)
+        }
+
+        val rhsType = ast.assignRhs.getType(ast.symbolTable)
+        var memtype: Memory? = null
+        if (rhsType is BaseTypeAST && ((rhsType.type == BaseType.CHAR) || (rhsType.type == BaseType.BOOL))) {
+            memtype = Memory.B
+        }
+
+        if (ast.assignRhs is PairElemAST) {
+            instructions.add(LoadInstruction(Condition.AL, RegisterMode(calleeReg), calleeReg))
+        }
+
+        when (ast.assignLhs) {
+            is IdentAST -> {
+                val offset = findIdentOffset(ast.symbolTable, ast.assignLhs.name)
+//                var (correctSTScope, offset) = ast.symbolTable.getSTWithIdentifier(ast.assignLhs.name, rhsType)
+//                offset += checkParamOffset(ast.symbolTable, ast.assignLhs.name)
+                instructions.add(StoreInstruction(RegisterModeWithOffset(Register.SP, offset), calleeReg, memtype))
+            }
+            is ArrayElemAST -> {
+                instructions.addAll(visit(ast.assignLhs))
+                instructions.add(StoreInstruction(RegisterMode(programState.recentlyUsedCalleeReg()), calleeReg, memtype))
+                programState.freeCalleeReg()
+            }
+            is PairElemAST -> {
+                instructions.addAll(visit(ast.assignLhs))
+                instructions.add(StoreInstruction(RegisterMode(programState.recentlyUsedCalleeReg()), calleeReg, memtype))
+                programState.freeCalleeReg()
+            }
+        }
+        programState.freeCalleeReg()
+        return instructions
     }
 
     fun visitBeginAST(ast: BeginAST): List<Instruction> {
@@ -336,7 +375,34 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitReadAST(ast: ReadAST): List<Instruction> {
-        return mutableListOf()
+        val instructions = mutableListOf<Instruction>()
+        when (ast.assignLhs) {
+            is IdentAST -> {
+                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R4, Register.SP, ImmediateIntOperand(
+                    findIdentOffset(ast.symbolTable,ast.assignLhs.name)
+                ))) }
+            is ArrayElemAST -> {
+                // Intentionally Left Blank
+            }
+            is PairElemAST -> {
+                /** Translates the expression */
+                instructions.addAll(visit(ast.assignLhs))
+            }
+        }
+        instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(Register.R4)))
+
+        /** Adds specific calls to read library functions */
+        when ((ast.assignLhs as BaseTypeAST).type) {
+            BaseType.INT -> {
+                instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.READ_INT.toString()), true))
+                ProgramState.library.addCode(CallFunc.READ_INT)
+            }
+            BaseType.CHAR -> {
+                instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.READ_CHAR.toString()), true))
+                ProgramState.library.addCode(CallFunc.READ_CHAR)
+            }
+        }
+        return instructions
     }
 
     /**
