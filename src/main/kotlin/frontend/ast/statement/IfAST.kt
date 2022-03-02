@@ -16,6 +16,8 @@ import org.antlr.v4.runtime.ParserRuleContext
  */
 class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<StatAST>, val elseStat: List<StatAST>) :
     StatAST(ctx) {
+    var thenReturns = false
+    var elseReturns = false
     val thenSymbolTable = SymbolTable()
     val elseSymbolTable = SymbolTable()
 
