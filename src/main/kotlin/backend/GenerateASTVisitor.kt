@@ -461,7 +461,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(Register.R4)))
 
         /** Adds specific calls to read library functions */
-        when ((ast.assignLhs as BaseTypeAST).type) {
+        when ((ast.assignLhs.getType(ast.symbolTable) as BaseTypeAST).type) {
             BaseType.INT -> {
                 instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.READ_INT.toString()), true))
                 ProgramState.library.addCode(CallFunc.READ_INT)
