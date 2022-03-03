@@ -29,6 +29,7 @@ abstract class ASTNode(ctx: ParserRuleContext) {
         return when (this) {
             is DeclareAST -> this.type.size
             is FuncAST -> this.type.size
+            is ParamAST -> this.type.size
             else -> 0
         }
     }
