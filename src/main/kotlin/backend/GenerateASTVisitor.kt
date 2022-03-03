@@ -108,18 +108,18 @@ class GenerateASTVisitor (val programState: ProgramState) {
         when (ast.binOp) {
             IntBinOp.PLUS -> {
                 if (accumUsed) {
-                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg1, reg2, RegisterOperand(reg1)))
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg1, reg2, RegisterOperand(reg1), true))
                 } else {
-                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg1, reg1, RegisterOperand(reg2)))
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg1, reg1, RegisterOperand(reg2), true))
                 }
                 instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
                 ProgramState.runtimeErrors.addOverflowError()
             }
             IntBinOp.MINUS -> {
                 if (accumUsed) {
-                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, reg1, reg2, RegisterOperand(reg1)))
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, reg1, reg2, RegisterOperand(reg1), true))
                 } else {
-                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, reg1, reg1, RegisterOperand(reg2)))
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, reg1, reg1, RegisterOperand(reg2), true))
                 }
                 instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
                 ProgramState.runtimeErrors.addOverflowError()
