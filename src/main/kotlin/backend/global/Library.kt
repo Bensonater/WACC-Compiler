@@ -80,7 +80,7 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
                 "%d\\0"
             }
             CallFunc.READ_CHAR -> {
-                "%c\\0"
+                " %c\\0"
             }
             else -> {
                 "UNKNOWN TYPE"
