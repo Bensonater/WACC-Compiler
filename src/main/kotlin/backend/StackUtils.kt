@@ -124,7 +124,8 @@ private fun findParamInFuncOffset(symbolTable: SymbolTable, ident: String, inner
  * @return The offset of the parameter on the stack
  */
 fun checkParamOffset(symbolTable: SymbolTable, ident: String): Int {
-    return findParamInFuncOffset(symbolTable, ident, false, 0)
+    return 0
+    //return findParamInFuncOffset(symbolTable, ident, false, 0)
 }
 
 fun checkFuncOffset(symbolTable: SymbolTable): Int{
