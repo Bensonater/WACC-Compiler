@@ -2,8 +2,6 @@ package frontend
 
 import frontend.ast.ASTNode
 import frontend.ast.FuncAST
-import frontend.ast.IdentAST
-import frontend.ast.statement.DeclareAST
 import frontend.ast.type.TypeAST
 
 open class SymbolTable {
@@ -17,13 +15,11 @@ open class SymbolTable {
     /**
      * Stack offset variables used in backend code generation to keep track of stack position
      */
-    // Size of current scope offset in stack on allocation
-    var startingOffset = 0
+    // Size of the total declared variables in current scope
+    var totalDeclaredSize = 0
 
-    // Initial offset equal to sum of all offsets in table
-    // Accounts for negative stack pointer values when setting up parameters
+    // Adjusts for stack offset when setting up call arguments
     var callOffset = 0
-
 
     // Where the next variable in the current scope should be stored on the stack
     var currOffset = 0

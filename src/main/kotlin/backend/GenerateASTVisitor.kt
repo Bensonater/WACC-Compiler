@@ -59,7 +59,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         instructions.add(FunctionLabel(ast.ident.name))
         instructions.add(PushInstruction(Register.LR))
         val offset = calculateStackOffset(ast.symbolTable)
-        ast.symbolTable.startingOffset = offset
+        ast.symbolTable.totalDeclaredSize = offset
         if (offset > 0) {
             instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB,
                 Register.SP, Register.SP, ImmediateIntOperand(offset)))
@@ -209,8 +209,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitIdentAST(ast: IdentAST): List<Instruction> {
-        val offset = findIdentOffset(ast.symbolTable, ast.name) +
-                checkParamOffset(ast.symbolTable, ast.name) + ast.symbolTable.callOffset
+        val offset = findIdentOffset(ast.symbolTable, ast.name) + ast.symbolTable.callOffset
         val typeAST = ast.getType(ast.symbolTable)
         val isBoolOrChar = typeAST is BaseTypeAST && (typeAST.type == BaseType.BOOL || typeAST.type == BaseType.CHAR)
         val memoryType = if (isBoolOrChar) Memory.SB else null
@@ -293,8 +292,6 @@ class GenerateASTVisitor (val programState: ProgramState) {
         when (ast.assignLhs) {
             is IdentAST -> {
                 val offset = findIdentOffset(ast.symbolTable, ast.assignLhs.name)
-//                var (correctSTScope, offset) = ast.symbolTable.getSTWithIdentifier(ast.assignLhs.name, rhsType)
-//                offset += checkParamOffset(ast.symbolTable, ast.assignLhs.name)
                 instructions.add(StoreInstruction(RegisterModeWithOffset(Register.SP, offset), calleeReg, memtype))
             }
             is ArrayElemAST -> {
@@ -583,7 +580,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
 
         instructions.add(bodyLabel)
         val stackOffset = calculateStackOffset(ast.bodySymbolTable)
-        ast.bodySymbolTable.startingOffset = stackOffset
+        ast.bodySymbolTable.totalDeclaredSize = stackOffset
         if (stackOffset > 0) {
             instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, Register.SP, Register.SP, ImmediateIntOperand(stackOffset)))
         }
@@ -612,8 +609,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val stackReg = programState.getFreeCalleeReg()
 
         /** Computes offset to push down the stack pointer */
-        var stackOffset = findIdentOffset(ast.symbolTable, ast.ident.name)
-        stackOffset += checkParamOffset(ast.symbolTable, ast.ident.name) + ast.symbolTable.callOffset
+        val stackOffset = findIdentOffset(ast.symbolTable, ast.ident.name) + ast.symbolTable.callOffset
         instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, Register.SP, ImmediateIntOperand(stackOffset)))
 
         ast.listOfIndex.forEach {
