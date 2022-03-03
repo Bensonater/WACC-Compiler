@@ -175,9 +175,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
             }
             BoolBinOp.OR -> {
                 if (accumUsed) {
-                    instructions.add(LogicInstruction(LogicOperation.OR, reg1, reg2, RegisterOperand(reg1)))
+                    instructions.add(LogicInstruction(LogicOperation.ORR, reg1, reg2, RegisterOperand(reg1)))
                 } else {
-                    instructions.add(LogicInstruction(LogicOperation.OR, reg1, reg1, RegisterOperand(reg2)))
+                    instructions.add(LogicInstruction(LogicOperation.ORR, reg1, reg1, RegisterOperand(reg2)))
                 }
             }
         }
