@@ -338,7 +338,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
 
         val funcLabel = FunctionLabel(ast.ident.name)
         instructions.add(BranchInstruction(Condition.AL, funcLabel, true))
-        instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(totalBytes)))
+        moveStackPointer(ArithmeticInstrType.ADD, totalBytes, instructions)
         instructions.add(MoveInstruction(Condition.AL, programState.getFreeCalleeReg(), RegisterOperand(Register.R0)))
         return instructions
     }
@@ -544,9 +544,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
             }
             Command.RETURN -> {
                 instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
-                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(
-                    checkFuncOffset(ast.symbolTable)
-                )))
+                moveStackPointer(ArithmeticInstrType.ADD, checkFuncOffset(ast.symbolTable), instructions)
                 instructions.add(PopInstruction(Register.PC))
                 programState.freeAllCalleeRegs()
             }
