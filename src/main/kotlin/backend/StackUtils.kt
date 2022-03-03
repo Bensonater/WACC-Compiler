@@ -74,7 +74,7 @@ fun findIdentOffset(symbolTable: SymbolTable, ident: String, accOffset: Int = 0)
             return offsetCount + pointerOffset
         }
         offsetCount += node.size()
-        if (key == ident && symbolTable.currOffset < totalOffset - offsetCount) {
+        if (key == ident && symbolTable.currOffset <= totalOffset - offsetCount) {
             return totalOffset - offsetCount
         }
     }
