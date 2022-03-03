@@ -102,12 +102,7 @@ fun decreaseOffset(symbolTable: SymbolTable, lhs: ASTNode, rhsType: TypeAST) {
     val size = rhsType.size
     if (lhs is IdentAST) {
         val ident = symbolTable.get(lhs.name)
-        if (ident == null) {
-            if (symbolTable.parent != null)
-                decreaseOffset(symbolTable.parent!!, lhs, rhsType)
-            return
-        }
-        if ((ident is DeclareAST) && (ident.type != rhsType)) {
+        if (ident == null || (ident is DeclareAST && ident.type != rhsType)) {
             if (symbolTable.parent != null)
                 decreaseOffset(symbolTable.parent!!, lhs, rhsType)
             return

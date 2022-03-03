@@ -58,12 +58,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val instructions = mutableListOf<Instruction>()
         instructions.add(FunctionLabel(ast.ident.name))
         instructions.add(PushInstruction(Register.LR))
-        val offset = calculateStackOffset(ast.symbolTable)
-        ast.symbolTable.totalDeclaredSize = offset
-        if (offset > 0) {
-            instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB,
-                Register.SP, Register.SP, ImmediateIntOperand(offset)))
-        }
+        val stackOffset = allocateStack (ast.symbolTable, instructions)
 
         for (stat in ast.stats) {
             instructions.addAll(visit(stat))
@@ -71,10 +66,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val lastStat = ast.stats.last()
         if (!(((lastStat is IfAST) && lastStat.thenReturns && lastStat.elseReturns)
             || ((lastStat is StatSimpleAST) && lastStat.command == Command.EXIT))) {
-            if (offset > 0) {
-                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD,
-                    Register.SP, Register.SP, ImmediateIntOperand(offset)))
-            }
+            deallocateStack(stackOffset, instructions)
             instructions.add(PopInstruction(Register.PC))
         }
         instructions.add(DirectiveInstruction("ltorg"))
@@ -400,10 +392,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         instructions.add(CompareInstruction(programState.recentlyUsedCalleeReg(), ImmediateIntOperand(0)))
         instructions.add(BranchInstruction(Condition.EQ, elseLabel, false))
         programState.freeCalleeReg()
-        var stackOffset = calculateStackOffset(ast.thenSymbolTable)
-        if (stackOffset > 0) {
-            instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, Register.SP,Register.SP, ImmediateIntOperand(stackOffset)))
-        }
+        var stackOffset = allocateStack (ast.thenSymbolTable, instructions)
 
         ast.thenStat.forEach{
             instructions.addAll(visit(it))
@@ -413,16 +402,11 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val thenReturns = lastThenStat is StatSimpleAST &&
                 (lastThenStat.command == Command.RETURN || lastThenStat.command == Command.EXIT)
         ast.thenReturns = thenReturns
+        deallocateStack(stackOffset, instructions)
 
-        if (stackOffset > 0) {
-            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(stackOffset)))
-        }
         instructions.add(BranchInstruction(Condition.AL, finalLabel, false))
         instructions.add(elseLabel)
-        stackOffset = calculateStackOffset(ast.elseSymbolTable)
-        if (stackOffset > 0) {
-            instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, Register.SP,Register.SP, ImmediateIntOperand(stackOffset)))
-        }
+        stackOffset = allocateStack (ast.elseSymbolTable, instructions)
 
         ast.elseStat.forEach{
             instructions.addAll(visit(it))
@@ -432,9 +416,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val elseReturns = lastElseStat is StatSimpleAST &&
                 (lastElseStat.command == Command.RETURN || lastElseStat.command == Command.EXIT)
         ast.elseReturns = elseReturns
-        if (stackOffset > 0) {
-            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(stackOffset)))
-        }
+        deallocateStack(stackOffset, instructions)
         instructions.add(finalLabel)
 
         return instructions
@@ -579,18 +561,12 @@ class GenerateASTVisitor (val programState: ProgramState) {
         instructions.add(BranchInstruction(Condition.AL, conditionLabel, false))
 
         instructions.add(bodyLabel)
-        val stackOffset = calculateStackOffset(ast.bodySymbolTable)
-        ast.bodySymbolTable.totalDeclaredSize = stackOffset
-        if (stackOffset > 0) {
-            instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, Register.SP, Register.SP, ImmediateIntOperand(stackOffset)))
-        }
+        val stackOffset = allocateStack (ast.bodySymbolTable, instructions)
         /** Translates all the statements within the while loop body */
         for (stat in ast.stats) {
             instructions.addAll(visit(stat))
         }
-        if (stackOffset > 0) {
-            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.SP, Register.SP, ImmediateIntOperand(stackOffset)))
-        }
+        deallocateStack(stackOffset, instructions)
         /** Translates the condition after the loop body.*/
         instructions.add(conditionLabel)
         instructions.addAll(visit(ast.expr))
