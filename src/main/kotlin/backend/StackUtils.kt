@@ -71,7 +71,7 @@ fun findIdentOffset(symbolTable: SymbolTable, ident: String, accOffset: Int = 0)
     var offsetCount = 0
     for ((key, node) in symbolTable.symbolTable) {
         if (key == ident && node is ParamAST) {
-            return offsetCount + pointerOffset
+            return accOffset + offsetCount + pointerOffset
         }
         offsetCount += node.size()
         if (key == ident && symbolTable.currOffset <= totalOffset - offsetCount) {
