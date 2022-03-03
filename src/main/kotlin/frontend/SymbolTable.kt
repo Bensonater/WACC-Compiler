@@ -11,7 +11,7 @@ open class SymbolTable {
      * The Hashmap is used to represent the symbol table
      * The parent points to the outer scope
      */
-    val symbolTable = HashMap<String, ASTNode>()
+    val symbolTable = LinkedHashMap<String, ASTNode>()
     var parent: SymbolTable? = null
 
     /**
