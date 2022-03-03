@@ -628,9 +628,6 @@ class GenerateASTVisitor (val programState: ProgramState) {
 
         var memType: Memory? = null
         for ((index, expr) in ast.vals.withIndex()) {
-//            if (expr is IdentAST) {
-//                expr.symbolTable = ast.symbolTable
-//            }
             instructions.addAll(visit(expr))
             if ((expr is CharLiterAST) || (expr is BoolLiterAST)) {
                 memType = Memory.B
