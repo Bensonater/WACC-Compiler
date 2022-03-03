@@ -350,7 +350,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         if (ast.assignRhs is StrLiterAST) {
             ast.label = ProgramState.dataDirective.toStringLabel(ast.assignRhs.value)
         }
-        decreaseOffset(ast.symbolTable, ast.ident, ast.assignRhs.getType(ast.symbolTable)!!)
+        ast.symbolTable.currOffset -= ast.type.size
         var memory: Memory? = null
         when (ast.type) {
             is BaseTypeAST -> {
