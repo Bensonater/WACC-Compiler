@@ -64,11 +64,11 @@ fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
  */
 fun findIdentOffset(symbolTable: SymbolTable, ident: String, accOffset: Int = 0): Int {
     val totalOffset = accOffset + symbolTable.symbolTable.values.sumOf { it.size() }
-    val pointerOffset = 4
+    val returnPointerSize = 4
     var offsetCount = 0
     for ((key, node) in symbolTable.symbolTable) {
         if (key == ident && node is ParamAST) {
-            return accOffset + symbolTable.totalDeclaredSize + offsetCount + pointerOffset
+            return accOffset + symbolTable.totalDeclaredSize + offsetCount + returnPointerSize
         }
         offsetCount += node.size()
         if (key == ident && symbolTable.currOffset <= totalOffset - offsetCount) {
