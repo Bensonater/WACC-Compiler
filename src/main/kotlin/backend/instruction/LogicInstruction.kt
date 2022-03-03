@@ -5,7 +5,7 @@ import backend.enums.Register
 
 enum class LogicOperation {
     AND,
-    OR,
+    ORR,
     EOR
 }
 
