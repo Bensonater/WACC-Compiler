@@ -13,7 +13,7 @@ import frontend.ast.ParamAST
 import frontend.ast.statement.DeclareAST
 import frontend.ast.type.TypeAST
 
-//private const val MAX_STACK_OFFSET = 1024
+private const val MAX_STACK_OFFSET = 1024
 
 fun calculateStackOffset(symbolTable : SymbolTable) : Int {
     var offset = 0
@@ -40,17 +40,18 @@ fun deallocateStack (stackOffset: Int, instructions: MutableList<Instruction>) {
 fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
                               instructions: MutableList<Instruction>) {
     if (stackOffset > 0) {
-//        while (stackOffsetLeft > MAX_STACK_OFFSET) { // Why?
-//            instructions.add(
-//                ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
-//                ImmediateIntOperand(MAX_STACK_OFFSET)
-//                )
-//            )
-//            stackOffsetLeft -= MAX_STACK_OFFSET
-//        }
+        var stackOffsetLeft = stackOffset
+        while (stackOffsetLeft > MAX_STACK_OFFSET) {
+            instructions.add(
+                ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
+                ImmediateIntOperand(MAX_STACK_OFFSET)
+                )
+            )
+            stackOffsetLeft -= MAX_STACK_OFFSET
+        }
         instructions.add(
             ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
-            ImmediateIntOperand(stackOffset)
+            ImmediateIntOperand(stackOffsetLeft)
             )
         )
     }
