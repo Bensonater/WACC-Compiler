@@ -42,7 +42,6 @@ class GenerateASTVisitor (val programState: ProgramState) {
         }
         deallocateStack(stackOffset, instructions)
 
-
         instructions.add(LoadInstruction(Condition.AL, ImmediateInt(0), Register.R0))
         instructions.add(EndInstruction())
         instructions.add(DirectiveInstruction("ltorg"))
