@@ -71,7 +71,7 @@ fun findIdentOffset(symbolTable: SymbolTable, ident: String, accOffset: Int = 0)
     var offsetCount = 0
     for ((key, node) in symbolTable.symbolTable) {
         if (key == ident && node is ParamAST) {
-            return accOffset + offsetCount + pointerOffset
+            return accOffset + symbolTable.startingOffset + offsetCount + pointerOffset
         }
         offsetCount += node.size()
         if (key == ident && symbolTable.currOffset <= totalOffset - offsetCount) {
@@ -98,21 +98,21 @@ fun findIdentOffset(symbolTable: SymbolTable, ident: String, accOffset: Int = 0)
  */
 fun checkParamOffset(symbolTable: SymbolTable, ident: String, innerScopeHaveVar: Boolean = false,
                                   offsetCount: Int = 0): Int {
-    val identAst = symbolTable.get(ident)
-    if (symbolTable is FuncSymbolTable && identAst is ParamAST) {
-        // Parameter offset only needed when there are variables declared in the current scope or any inner scope
-        if ((symbolTable.symbolTable.size > symbolTable.funcAST.paramList.size) || innerScopeHaveVar) {
-            // Sum offset of all variables that's not a parameter
-            val offset = symbolTable.symbolTable.values.sumOf { if (it !is ParamAST) it.size() else 0 }
-            return offset + offsetCount
-        }
-        return 0
-    }
-    // Keeps checking the parent symbol table until the identifier is found
-    if (symbolTable.parent != null) {
-        return checkParamOffset(symbolTable.parent!!, ident, symbolTable.symbolTable.size > 0,
-            symbolTable.startingOffset)
-    }
+//    val identAst = symbolTable.get(ident)
+//    if (symbolTable is FuncSymbolTable && identAst is ParamAST) {
+//        // Parameter offset only needed when there are variables declared in the current scope or any inner scope
+//        if ((symbolTable.symbolTable.size > symbolTable.funcAST.paramList.size) || innerScopeHaveVar) {
+//            // Sum offset of all variables that's not a parameter
+//            val offset = symbolTable.symbolTable.values.sumOf { if (it !is ParamAST) it.size() else 0 }
+//            return offset + offsetCount
+//        }
+//        return 0
+//    }
+//    // Keeps checking the parent symbol table until the identifier is found
+//    if (symbolTable.parent != null) {
+//        return checkParamOffset(symbolTable.parent!!, ident, symbolTable.symbolTable.size > 0,
+//            symbolTable.startingOffset)
+//    }
     return 0
 }
 
