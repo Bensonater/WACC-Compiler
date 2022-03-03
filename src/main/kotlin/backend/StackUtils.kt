@@ -96,8 +96,8 @@ fun findIdentOffset(symbolTable: SymbolTable, ident: String, accOffset: Int = 0)
  * @param offsetCount Accumulative offset until parameter is found
  * @return The offset of the parameter on the stack
  */
-private fun findParamInFuncOffset(symbolTable: SymbolTable, ident: String, innerScopeHaveVar: Boolean,
-                                  offsetCount: Int): Int {
+fun checkParamOffset(symbolTable: SymbolTable, ident: String, innerScopeHaveVar: Boolean = false,
+                                  offsetCount: Int = 0): Int {
     val identAst = symbolTable.get(ident)
     if (symbolTable is FuncSymbolTable && identAst is ParamAST) {
         // Parameter offset only needed when there are variables declared in the current scope or any inner scope
@@ -110,22 +110,10 @@ private fun findParamInFuncOffset(symbolTable: SymbolTable, ident: String, inner
     }
     // Keeps checking the parent symbol table until the identifier is found
     if (symbolTable.parent != null) {
-        return findParamInFuncOffset(symbolTable.parent!!, ident, symbolTable.symbolTable.size > 0,
+        return checkParamOffset(symbolTable.parent!!, ident, symbolTable.symbolTable.size > 0,
             symbolTable.startingOffset)
     }
     return 0
-}
-
-/**
- * Calls helper function findParamInFuncOffset to compute offset
- *
- * @param symbolTable Symbol Table of the current scope
- * @param ident Identifier of the potential parameter
- * @return The offset of the parameter on the stack
- */
-fun checkParamOffset(symbolTable: SymbolTable, ident: String): Int {
-    return 0
-    //return findParamInFuncOffset(symbolTable, ident, false, 0)
 }
 
 fun checkFuncOffset(symbolTable: SymbolTable): Int{
