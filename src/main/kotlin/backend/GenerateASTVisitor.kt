@@ -196,7 +196,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
                 instructions.add(LogicInstruction(LogicOperation.EOR, reg, reg, ImmediateIntOperand(1)))
             }
             UnOp.MINUS -> {
-                instructions.add(ArithmeticInstruction(ArithmeticInstrType.RSB, reg, reg, ImmediateIntOperand(0)))
+                instructions.add(ArithmeticInstruction(ArithmeticInstrType.RSB, reg, reg, ImmediateIntOperand(0), true))
                 instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
                 ProgramState.runtimeErrors.addOverflowError()
             }

@@ -65,24 +65,23 @@ fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
  *
  * Potential optimisation to store offset in symbol table
  */
-fun findIdentOffset(symbolTable: SymbolTable, ident: String): Int {
-    var totalOffset = symbolTable.symbolTable.values.sumOf { it.size() }
+fun findIdentOffset(symbolTable: SymbolTable, ident: String, accOffset: Int = 0): Int {
+    val totalOffset = accOffset + symbolTable.symbolTable.values.sumOf { it.size() }
     val pointerOffset = 4
-    var paramOffset = 0
+    var offsetCount = 0
     for ((key, node) in symbolTable.symbolTable) {
         if (key == ident && node is ParamAST) {
-            return paramOffset + pointerOffset
+            return accOffset + offsetCount + pointerOffset
         }
-        totalOffset -= node.size()
-        if (key == ident) {
-            return totalOffset
+        offsetCount += node.size()
+        if (key == ident && symbolTable.currOffset <= totalOffset - offsetCount) {
+            return totalOffset - offsetCount
         }
-        paramOffset += node.size()
     }
     if (symbolTable.parent != null) {
         /** Searches parent symbol table when not found in current scope.
          * Includes addition of totalOffset size of current scope */
-        return findIdentOffset(symbolTable.parent!!, ident) + paramOffset
+        return findIdentOffset(symbolTable.parent!!, ident, totalOffset)
     }
     return totalOffset
 }
