@@ -61,7 +61,7 @@ class CodeFunctionalityTest : TestUtils {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["wacc_examples/valid/"])
+    @ValueSource(strings = ["wacc_examples/valid/IO"])
     fun assemblyIsFunctionallyCorrect(root: String) {
         val map = mapOutputsAndErrorCodes()
         var testsPassed = 0
@@ -87,13 +87,11 @@ class CodeFunctionalityTest : TestUtils {
             process.waitFor()
             process = if (inputMap.containsKey(name)) {
                 ProcessBuilder(
-                    "echo",
-                    inputMap[name],
-                    "|",
                     "qemu-arm",
                     "-L",
                     "/usr/arm-linux-gnueabi",
-                    name
+                    name,
+                    inputMap[name]
                 ).start()
             } else {
                 ProcessBuilder("qemu-arm", "-L", "/usr/arm-linux-gnueabi", name).start()
