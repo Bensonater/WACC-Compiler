@@ -5,9 +5,5 @@ package backend.enums
  */
 enum class Memory {
     B,  // Unsigned Byte
-    BT, // Byte with User mode privilege
     SB, // Signed Byte
-    H,  // Unsigned Half Word
-    SH, // Signed Half Word
-    D   // Double Word
 }
