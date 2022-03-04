@@ -1,5 +1,6 @@
 package frontend
 
+import TestUtils
 import antlr.WACCLexer
 import antlr.WACCParser
 import frontend.errors.SyntaxErrorHandler
