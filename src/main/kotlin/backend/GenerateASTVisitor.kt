@@ -8,7 +8,6 @@ import backend.global.CallFunc
 import backend.global.Funcs
 import backend.global.RuntimeErrors
 import backend.instruction.*
-import frontend.FuncSymbolTable
 import frontend.ast.*
 import frontend.ast.literal.*
 import frontend.ast.statement.*
@@ -57,8 +56,6 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val instructions = mutableListOf<Instruction>()
         instructions.add(FunctionLabel(ast.ident.name))
         instructions.add(PushInstruction(Register.LR))
-        // Store function return stack position to symbol table
-        (ast.symbolTable as FuncSymbolTable).funcStackPos = ProgramState.stackPointer
         val stackOffset = allocateStack(ast.symbolTable, instructions)
 
         ast.stats.forEach { instructions.addAll(visit(it)) }
@@ -196,7 +193,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     fun visitIdentAST(ast: IdentAST): List<Instruction> {
-        val offset = findIdentOffset(ast.symbolTable, ast.name) // + ast.symbolTable.callOffset
+        val offset = findIdentOffset(ast.symbolTable, ast.name) + ast.symbolTable.callOffset
         val typeAST = ast.getType(ast.symbolTable)
         val isBoolOrChar = typeAST is BaseTypeAST && (typeAST.type == BaseType.BOOL || typeAST.type == BaseType.CHAR)
         val memoryType = if (isBoolOrChar) Memory.SB else null
@@ -307,7 +304,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
             val argType = argTypesReversed[index]
             val size = argType!!.size
             totalBytes += size
-            //ast.symbolTable.callOffset = totalBytes
+            ast.symbolTable.callOffset = totalBytes
             val isBoolOrChar =
                 argType is BaseTypeAST && (argType.type == BaseType.BOOL || argType.type == BaseType.CHAR)
             val memoryType = if (isBoolOrChar) Memory.B else null
@@ -321,13 +318,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
                     memoryType
                 )
             )
-            // Store pointer to parameter in symbol table
-            val funcAST = ast.symbolTable.lookupAll(ast.ident.name) as FuncAST
-            val params = funcAST.paramList.reversed()
-            funcAST.symbolTable.storeStackPos(params[index].ident.name, ProgramState.stackPointer)
             programState.freeCalleeReg()
         }
-//        ast.symbolTable.callOffset = 0
+        ast.symbolTable.callOffset = 0
 
         val funcLabel = FunctionLabel(ast.ident.name)
         instructions.add(BranchInstruction(Condition.AL, funcLabel, true))
@@ -366,8 +359,6 @@ class GenerateASTVisitor (val programState: ProgramState) {
                 memoryType
             )
         )
-        // Store pointer to variable in symbol table
-        ast.symbolTable.storeStackPos(ast.ident.name, ProgramState.stackPointer - ast.symbolTable.currOffset)
         programState.freeCalleeReg()
         return instructions
     }
@@ -562,7 +553,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val stackReg = programState.getFreeCalleeReg()
 
         /** Computes offset to push down the stack pointer */
-        val stackOffset = findIdentOffset(ast.symbolTable, ast.ident.name) //+ ast.symbolTable.callOffset
+        val stackOffset = findIdentOffset(ast.symbolTable, ast.ident.name) + ast.symbolTable.callOffset
         instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, Register.SP, ImmediateIntOperand(stackOffset)))
 
         ast.listOfIndex.forEach {
