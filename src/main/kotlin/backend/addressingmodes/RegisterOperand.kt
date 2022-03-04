@@ -16,8 +16,5 @@ class RegisterOperandWithShift (val register: Register, val shiftType: ShiftType
 
 enum class ShiftType {
     ASR,
-    LSL,
-    LSR,
-    ROR,
-    RRX
+    LSL
 }
