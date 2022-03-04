@@ -402,9 +402,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val instructions = mutableListOf<Instruction>()
         when (ast.assignLhs) {
             is IdentAST -> {
-                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R4, Register.SP, ImmediateIntOperand(
-                    findIdentOffset(ast.symbolTable,ast.assignLhs.name)
-                ))) }
+                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R4, Register.SP,
+                    ImmediateIntOperand(findIdentOffset(ast.symbolTable,ast.assignLhs.name))))
+            }
             is ArrayElemAST -> {
                 // Intentionally Left Blank
             }
@@ -453,11 +453,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val exprType = ast.expr.getType(ast.symbolTable)!!
 
         if (ast.expr is ArrayElemAST) {
-            var memType: Memory? = null
-            if ((exprType is BaseTypeAST) && ((exprType.type == BaseType.BOOL) || (exprType.type == BaseType.CHAR))) {
-                memType = Memory.SB
-            }
-            instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg, memType))
+            val isBoolOrChar = exprType is BaseTypeAST && (exprType.type == BaseType.BOOL || exprType.type == BaseType.CHAR)
+            val memoryType = if (isBoolOrChar) Memory.SB else null
+            instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg, memoryType))
         }
         when (ast.command) {
             Command.EXIT -> {
@@ -466,9 +464,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
                 programState.freeAllCalleeRegs()
             }
             Command.PRINT, Command.PRINTLN -> {
+                instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                 when (exprType) {
                     is BaseTypeAST -> {
-                        instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                         val lookupPrintInstr = hashMapOf(
                             Pair(BaseType.INT, CallFunc.PRINT_INT),
                             Pair(BaseType.BOOL, CallFunc.PRINT_BOOL),
@@ -482,10 +480,8 @@ class GenerateASTVisitor (val programState: ProgramState) {
                             ProgramState.library.addCode(printInstr)
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel(printInstr.toString()), true))
                         }
-
                     }
                     is ArrayTypeAST -> {
-                        instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                         if (exprType.type is BaseTypeAST && (exprType.type.type == BaseType.CHAR)) {
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true))
                             ProgramState.library.addCode(CallFunc.PRINT_STRING)
@@ -495,7 +491,6 @@ class GenerateASTVisitor (val programState: ProgramState) {
                         }
                     }
                     is PairTypeAST, is ArbitraryTypeAST -> {
-                        instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                         instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_REFERENCE.toString()), true))
                         ProgramState.library.addCode(CallFunc.PRINT_REFERENCE)
                     }
@@ -508,14 +503,14 @@ class GenerateASTVisitor (val programState: ProgramState) {
             }
             Command.FREE -> {
                 instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(programState.recentlyUsedCalleeReg())))
-                val methodName : CallFunc = if (exprType is ArrayTypeAST) {
+                val freeType = if (exprType is ArrayTypeAST) {
                     CallFunc.FREE_ARRAY
                 } else {
                     CallFunc.FREE_PAIR
                 }
 
-                instructions.add(BranchInstruction(Condition.AL, GeneralLabel(methodName.toString()), true))
-                ProgramState.library.addCode(methodName)
+                instructions.add(BranchInstruction(Condition.AL, GeneralLabel(freeType.toString()), true))
+                ProgramState.library.addCode(freeType)
                 programState.freeCalleeReg()
             }
             Command.RETURN -> {
@@ -550,7 +545,6 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
-
     /**
      * Translates an array element AST, e.g. a[3] where int x = a[3]
      */
@@ -564,7 +558,6 @@ class GenerateASTVisitor (val programState: ProgramState) {
 
         ast.listOfIndex.forEach {
             instructions.addAll(visit(it))
-
             instructions.add(LoadInstruction(Condition.AL, RegisterMode(stackReg), stackReg))
             instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(programState.recentlyUsedCalleeReg())))
             instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(stackReg)))
@@ -575,10 +568,10 @@ class GenerateASTVisitor (val programState: ProgramState) {
             instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, ImmediateIntOperand(SIZE_OF_POINTER)))
 
             val identType = ast.ident.getType(ast.symbolTable)
-            if ((identType is ArrayTypeAST) && ((identType.type is BaseTypeAST && identType.type.type == BaseType.CHAR)
-                        || (identType.type is BaseTypeAST && identType.type.type == BaseType.BOOL))) {
-                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg,
-                    RegisterOperand(programState.recentlyUsedCalleeReg())))
+
+            if ((identType is ArrayTypeAST) && (identType.type is BaseTypeAST &&
+                        (identType.type.type == BaseType.BOOL || identType.type.type == BaseType.CHAR))) {
+                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, RegisterOperand(programState.recentlyUsedCalleeReg())))
             } else {
                 val multiplyByFour = 2
                 instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg,
