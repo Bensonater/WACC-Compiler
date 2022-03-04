@@ -6,7 +6,6 @@ import frontend.errors.SyntaxErrorHandler
 import frontend.errors.SyntaxErrorListener
 import frontend.visitor.BuildAST
 import frontend.visitor.SyntaxChecker
-import getEachFile
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.junit.jupiter.params.ParameterizedTest
@@ -62,7 +61,7 @@ class InvalidSemanticTest {
         assertFalse(failedTest)
     }
 
-    companion object {
+    companion object : TestUtils {
         @JvmStatic
         fun testFiles(): List<File> {
             return getEachFile(File("wacc_examples/invalid/semanticErr"))

@@ -5,7 +5,6 @@ import antlr.WACCParser
 import frontend.errors.SyntaxErrorHandler
 import frontend.errors.SyntaxErrorListener
 import frontend.visitor.SyntaxChecker
-import getEachFile
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.junit.jupiter.params.ParameterizedTest
@@ -43,7 +42,7 @@ class InvalidSyntaxTest {
         assertTrue(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
     }
 
-    companion object {
+    companion object : TestUtils {
         @JvmStatic
         fun testFiles(): List<File> {
             return getEachFile(File("wacc_examples/invalid/syntaxErr"))
