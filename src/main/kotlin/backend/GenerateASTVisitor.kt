@@ -219,7 +219,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         if (ast.index == PairIndex.FST) {
             instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
         } else {
-            instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(reg, 4), reg))
+            instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(reg, SIZE_OF_POINTER), reg))
         }
         return instructions
     }
@@ -229,7 +229,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         var memoryType: Memory? = null
 
         // Malloc space for two pointers to the first and second elements
-        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(8), Register.R0))
+        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(2 * SIZE_OF_POINTER), Register.R0))
         instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.MALLOC.toString()), true))
         val stackReg = programState.getFreeCalleeReg()
         instructions.add(MoveInstruction(Condition.AL, stackReg, RegisterOperand(Register.R0)))
@@ -257,7 +257,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
         }
         instructions.add(StoreInstruction(RegisterMode(Register.R0), programState.recentlyUsedCalleeReg(), memoryType))
         programState.freeCalleeReg()
-        instructions.add(StoreInstruction(RegisterModeWithOffset(stackReg, 4), Register.R0))
+        instructions.add(StoreInstruction(RegisterModeWithOffset(stackReg, SIZE_OF_POINTER), Register.R0))
 
         return instructions
     }
@@ -596,7 +596,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
             ProgramState.runtimeErrors.addArrayBoundsCheck()
 
             // Add pointer offset
-            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, ImmediateIntOperand(4)))
+            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, ImmediateIntOperand(SIZE_OF_POINTER)))
 
             val identType = ast.ident.getType(ast.symbolTable)
             if ((identType is ArrayTypeAST) && ((identType.type is BaseTypeAST && identType.type.type == BaseType.CHAR)
@@ -628,9 +628,6 @@ class GenerateASTVisitor (val programState: ProgramState) {
 
         var memType: Memory? = null
         for ((index, expr) in ast.vals.withIndex()) {
-//            if (expr is IdentAST) {
-//                expr.symbolTable = ast.symbolTable
-//            }
             instructions.addAll(visit(expr))
             if ((expr is CharLiterAST) || (expr is BoolLiterAST)) {
                 memType = Memory.B

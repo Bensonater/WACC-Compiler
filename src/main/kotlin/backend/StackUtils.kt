@@ -10,6 +10,7 @@ import frontend.SymbolTable
 import frontend.ast.ParamAST
 import frontend.ast.statement.DeclareAST
 
+const val SIZE_OF_POINTER = 4
 private const val MAX_STACK_OFFSET = 1024
 
 fun calculateStackOffset(symbolTable : SymbolTable) : Int {
