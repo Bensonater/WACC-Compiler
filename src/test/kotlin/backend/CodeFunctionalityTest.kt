@@ -61,7 +61,13 @@ class CodeFunctionalityTest : TestUtils {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["wacc_examples/valid/IO"])
+    @ValueSource(
+        strings = ["wacc_examples/valid/array", "wacc_examples/valid/basic",
+            "wacc_examples/valid/expressions", "wacc_examples/valid/function",
+            "wacc_examples/valid/if", "wacc_examples/valid/IO", "wacc_examples/valid/pairs",
+            "wacc_examples/valid/runtimeErr", "wacc_examples/valid/scope", "wacc_examples/valid/sequence",
+            "wacc_examples/valid/variables", "wacc_examples/valid/while"]
+    )
     fun assemblyIsFunctionallyCorrect(root: String) {
         val map = mapOutputsAndErrorCodes()
         var testsPassed = 0
@@ -86,12 +92,14 @@ class CodeFunctionalityTest : TestUtils {
                 ).start()
             process.waitFor()
             process = if (inputMap.containsKey(name)) {
-                ProcessBuilder(
-                    "qemu-arm",
-                    "-L",
-                    "/usr/arm-linux-gnueabi",
-                    name,
-                    inputMap[name]
+                val fileName = path.split(".wacc")[0].split("wacc_examples/valid/").last()
+                val inputFile = File("reference_output/$fileName/input.txt")
+                val inputStream = inputFile.inputStream()
+                val input = inputStream.bufferedReader().use { it.readText() }
+                println(input)
+
+                ProcessBuilder("qemu-arm", "-L", "/usr/arm-linux-gnueabi", name).redirectInput(
+                    inputFile
                 ).start()
             } else {
                 ProcessBuilder("qemu-arm", "-L", "/usr/arm-linux-gnueabi", name).start()
