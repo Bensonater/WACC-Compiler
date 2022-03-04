@@ -57,7 +57,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     }
 
     /**
-     * Translate the function AST.
+     * Translate the function AST and allocate stack for new scope.
      */
     fun visitFuncAST(ast: FuncAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
@@ -215,6 +215,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Translate ident variable AST and find offset on stack for that variable
+     */
     fun visitIdentAST(ast: IdentAST): List<Instruction> {
         val offset = findIdentOffset(ast.symbolTable, ast.name) + ast.symbolTable.callOffset
         val typeAST = ast.getType(ast.symbolTable)
@@ -224,6 +227,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
             programState.getFreeCalleeReg(), memoryType))
     }
 
+    /**
+     * Translate Pair Element AST for indexing a pair
+     */
     fun visitPairElemAST(ast: PairElemAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast.expr))
@@ -239,6 +245,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Translate New Pair AST for declaring a new pair
+     */
     fun visitNewPairAST(ast: NewPairAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
@@ -278,6 +287,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for assign statements
+     */
     fun visitAssignAST(ast: AssignAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
@@ -310,6 +322,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for begin blocks and create a new scope.
+     */
     fun visitBeginAST(ast: BeginAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         val stackOffset = allocateStack(ast.symbolTable, instructions)
@@ -318,6 +333,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for call statements and store arguments on stack
+     */
     fun visitCallAST(ast: CallAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
@@ -355,6 +373,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for variable declarations and store value on stack
+     */
     fun visitDeclareAST(ast: DeclareAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast.assignRhs))
@@ -389,6 +410,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for if statements and check for return statements
+     */
     fun visitIfAST(ast: IfAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         val elseLabel = programState.getNextLabel()
@@ -424,6 +448,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for read statements and assign value to variable on stack
+     */
     fun visitReadAST(ast: ReadAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         when (ast.assignLhs) {
@@ -564,6 +591,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for while statements and create a new scope on stack
+     */
     fun visitWhileAST(ast: WhileAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         val conditionLabel = programState.getNextLabel()
