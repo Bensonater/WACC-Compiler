@@ -14,6 +14,7 @@ class ProgramState {
         val runtimeErrors = RuntimeErrors(this)
         val library = Library(this)
         var labelNum = 0
+        var stackPointer = 0
     }
 
 //    val resultRegs: MutableList<Register> = mutableListOf(Register.R0, Register.R1)

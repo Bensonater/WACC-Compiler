@@ -4,8 +4,11 @@ import backend.instruction.DirectiveInstruction
 import backend.instruction.Instruction
 import backend.instruction.MessageLabel
 
+/**
+ * Generate, store and translate all directives with labels for the .data directive.
+ */
 class DataDirective {
-    val dataLabels = mutableListOf<String>()
+    private val dataLabels = mutableListOf<String>()
 
     fun addStringLabel(stringLabel: String) : String {
         return if(dataLabels.contains(stringLabel)) {
