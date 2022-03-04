@@ -259,6 +259,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Helper function to malloc each pair elem
+     */
     private fun mallocPairAST(ast: ExprAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast))
@@ -432,13 +435,13 @@ class GenerateASTVisitor (val programState: ProgramState) {
                 // Intentionally Left Blank
             }
             is PairElemAST -> {
-                /** Translates the expression */
+                // Translates the expression
                 instructions.addAll(visit(ast.assignLhs))
             }
         }
         instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(Register.R4)))
 
-        /** Adds specific calls to read library functions */
+        // Reads library function
         when ((ast.assignLhs.getType(ast.symbolTable) as BaseTypeAST).type) {
             BaseType.INT -> {
                 instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.READ_INT.toString()), true))
@@ -464,10 +467,13 @@ class GenerateASTVisitor (val programState: ProgramState) {
      */
     fun visitStatMultiAST(ast: StatMultiAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
-        ast.stats.forEach{ instructions.addAll(visit(it))}
+        ast.stats.forEach { instructions.addAll(visit(it)) }
         return instructions
     }
 
+    /**
+     * Translates a single statement
+     */
     fun visitStatSimpleAST(ast: StatSimpleAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast.expr))
@@ -476,7 +482,8 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val exprType = ast.expr.getType(ast.symbolTable)!!
 
         if (ast.expr is ArrayElemAST) {
-            val isBoolOrChar = exprType is BaseTypeAST && (exprType.type == BaseType.BOOL || exprType.type == BaseType.CHAR)
+            val isBoolOrChar =
+                exprType is BaseTypeAST && (exprType.type == BaseType.BOOL || exprType.type == BaseType.CHAR)
             val memoryType = if (isBoolOrChar) Memory.SB else null
             instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg, memoryType))
         }
@@ -490,6 +497,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
                 instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                 when (exprType) {
                     is BaseTypeAST -> {
+                        // Stores base types and their respective function calls
                         val lookupPrintInstr = hashMapOf(
                             Pair(BaseType.INT, CallFunc.PRINT_INT),
                             Pair(BaseType.BOOL, CallFunc.PRINT_BOOL),
@@ -497,14 +505,15 @@ class GenerateASTVisitor (val programState: ProgramState) {
                         )
                         if (exprType.type == BaseType.CHAR){
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.PUTCHAR.toString()), true))
-                        }
-                        else{
+                        } else{
+                            // Looks up the type and adds the function call
                             val printInstr = lookupPrintInstr[exprType.type]!!
                             ProgramState.library.addCode(printInstr)
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel(printInstr.toString()), true))
                         }
                     }
                     is ArrayTypeAST -> {
+                        // Prints string if the array is made up of characters, otherwise print the references
                         if (exprType.type is BaseTypeAST && (exprType.type.type == BaseType.CHAR)) {
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true))
                             ProgramState.library.addCode(CallFunc.PRINT_STRING)
@@ -513,6 +522,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
                             ProgramState.library.addCode(CallFunc.PRINT_REFERENCE)
                         }
                     }
+                    // Print references for pairs and other types
                     is PairTypeAST, is ArbitraryTypeAST -> {
                         instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_REFERENCE.toString()), true))
                         ProgramState.library.addCode(CallFunc.PRINT_REFERENCE)
@@ -525,7 +535,15 @@ class GenerateASTVisitor (val programState: ProgramState) {
                 programState.freeCalleeReg()
             }
             Command.FREE -> {
-                instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(programState.recentlyUsedCalleeReg())))
+                instructions.add(
+                    MoveInstruction(
+                        Condition.AL,
+                        Register.R0,
+                        RegisterOperand(programState.recentlyUsedCalleeReg())
+                    )
+                )
+
+                // Determine which type of data structure to free
                 val freeType = if (exprType is ArrayTypeAST) {
                     CallFunc.FREE_ARRAY
                 } else {
