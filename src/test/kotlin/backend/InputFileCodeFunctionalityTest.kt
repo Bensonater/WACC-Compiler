@@ -1,27 +1,18 @@
 package backend
 
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
+import org.junit.Test
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 
-class GeneralCodeFunctionalityTest : TestUtils {
-
-    @ParameterizedTest
-    @ValueSource(
-        strings = ["wacc_examples/valid/array", "wacc_examples/valid/basic",
-            "wacc_examples/valid/expressions", "wacc_examples/valid/function",
-            "wacc_examples/valid/if", "wacc_examples/valid/print", "wacc_examples/valid/pairs",
-            "wacc_examples/valid/runtimeErr", "wacc_examples/valid/scope", "wacc_examples/valid/sequence",
-            "wacc_examples/valid/variables", "wacc_examples/valid/while"]
-    )
-    fun assemblyIsFunctionallyCorrect(root: String) {
+class InputFileCodeFunctionalityTest : TestUtils {
+    @Test
+    fun assemblyIsFunctionallyCorrect() {
         val map = mapOutputsAndErrorCodes()
         var testsPassed = 0
         var testsRan = 0
 
-        doForEachFile(File(root)) { file ->
+        doForEachFile(File("wacc_examples/valid/inputFiles")) { file ->
             val name = file.nameWithoutExtension
             val refOutput = map[name]!!.first
             val refError = map[name]!!.second
@@ -38,8 +29,11 @@ class GeneralCodeFunctionalityTest : TestUtils {
             ).start().waitFor(5, TimeUnit.SECONDS)
 
             var output: String
+            val inputFile = File("reference_output/$name/input.txt")
             val process =
-                ProcessBuilder("qemu-arm", "-L", "/usr/arm-linux-gnueabi", name).start()
+                ProcessBuilder("qemu-arm", "-L", "/usr/arm-linux-gnueabi", name).redirectInput(
+                    inputFile
+                ).start()
             process.waitFor(5, TimeUnit.SECONDS)
 
             process.inputStream.reader(Charsets.UTF_8).use {
