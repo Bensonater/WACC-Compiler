@@ -595,13 +595,13 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val stackReg = programState.getFreeCalleeReg()
         instructions.add(MoveInstruction(Condition.AL, stackReg, RegisterOperand(Register.R0)))
 
-        var memType: Memory? = null
+        var memoryType: Memory? = null
         for ((index, expr) in ast.vals.withIndex()) {
             instructions.addAll(visit(expr))
             if ((expr is CharLiterAST) || (expr is BoolLiterAST)) {
-                memType = Memory.B
+                memoryType = Memory.B
             }
-            instructions.add(StoreInstruction(RegisterModeWithOffset(stackReg, sizeOfInt + (index * elemSize)), programState.recentlyUsedCalleeReg(), memType))
+            instructions.add(StoreInstruction(RegisterModeWithOffset(stackReg, sizeOfInt + (index * elemSize)), programState.recentlyUsedCalleeReg(), memoryType))
             programState.freeCalleeReg()
         }
 
