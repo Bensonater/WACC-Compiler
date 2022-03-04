@@ -13,6 +13,9 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
 
     private val errors: HashMap<ErrorType, List<Instruction>> = LinkedHashMap()
 
+    /**
+     * Static objects used to generate the labels for error code blocks.
+     */
     companion object {
         val checkArrayBoundsLabel = GeneralLabel("p_check_array_bounds")
         val divideZeroCheckLabel = GeneralLabel("p_check_divide_by_zero")
@@ -22,6 +25,9 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
         val throwRuntimeErrorLabel = GeneralLabel("p_throw_runtime_error")
     }
 
+    /**
+     * Types of errors and the output message they return.
+     */
     enum class ErrorType(val msg: String) {
         RUNTIME_ERROR("RUNTIME ERROR"), // This should never be printed as a message
         ARRAY_OUT_OF_BOUNDS("ARRAY OUT OF BOUNDS ERROR"), // This should never be printed as a message
@@ -36,6 +42,9 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
         }
     }
 
+    /**
+     * Iterates through the hashmap and translates all errors that are in the hashmap.
+     */
     fun translate(): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         for (v in errors.values) {
@@ -44,6 +53,9 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
         return instructions
     }
 
+    /**
+     * Generate instructions for throwing runtime errors.
+     */
     fun addThrowRuntimeError() {
         if (!errors.containsKey(ErrorType.RUNTIME_ERROR)) {
              errors[ErrorType.RUNTIME_ERROR] = listOf(
@@ -57,6 +69,9 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
         }
     }
 
+    /**
+     * Generate instructions for throwing overflow errors.
+     */
     fun addOverflowError() {
         if (!errors.containsKey(ErrorType.OVERFLOW_ERROR)) {
             val errorMsg = globalVals.dataDirective.addStringLabel(ErrorType.OVERFLOW_ERROR.toString())
@@ -69,6 +84,9 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
         addThrowRuntimeError()
     }
 
+    /**
+     * Generate instructions for null reference errors.
+     */
     fun addNullReferenceCheck() {
         if (!errors.containsKey(ErrorType.NULL_REFERENCE)) {
             val errorMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.NULL_REFERENCE.toString())
@@ -84,6 +102,9 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
         addThrowRuntimeError()
     }
 
+    /**
+     * Generate instructions for divide by zero errors.
+     */
     fun addDivideByZeroCheck() {
         if (!errors.containsKey(ErrorType.DIVIDE_BY_ZERO)) {
             val errorMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.DIVIDE_BY_ZERO.toString())
@@ -100,6 +121,9 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
     }
 
 
+    /**
+     * Generate instructions for array bound errors.
+     */
     fun addArrayBoundsCheck() {
         if (!errors.containsKey(ErrorType.ARRAY_OUT_OF_BOUNDS)) {
             val negativeMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.NEGATIVE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
