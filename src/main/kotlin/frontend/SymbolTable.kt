@@ -15,11 +15,14 @@ open class SymbolTable {
     /**
      * Stack offset variables used in backend code generation to keep track of stack position
      */
-    // Size of the total declared variables in current scope
-    var totalDeclaredSize = 0
+//    // Size of the total declared variables in current scope
+//    var totalDeclaredSize = 0
+//
+//    // Adjusts for stack offset when setting up call arguments
+//    var callOffset = 0
 
-    // Adjusts for stack offset when setting up call arguments
-    var callOffset = 0
+    // Hashmap to keep track of stack position of each variable on the stack
+    val stackPosition = HashMap<String, Int>()
 
     // Where the next variable in the current scope should be stored on the stack
     var currOffset = 0
@@ -83,6 +86,14 @@ open class SymbolTable {
         }
         return st.funcAST.type
     }
+
+    fun getStackPos(ident: String): Int? {
+        return stackPosition[ident]
+    }
+
+    fun storeStackPos(ident: String, pos: Int) {
+        stackPosition[ident] = pos
+    }
 }
 
-class FuncSymbolTable(val funcAST: FuncAST) : SymbolTable()
+class FuncSymbolTable(val funcAST: FuncAST, var funcStackPos: Int = 0) : SymbolTable()

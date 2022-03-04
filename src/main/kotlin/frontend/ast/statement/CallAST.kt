@@ -17,7 +17,6 @@ import org.antlr.v4.runtime.ParserRuleContext
  * Checks each argument matches required type for each parameter.
  */
 class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<ExprAST>) : StatAST(ctx) {
-    lateinit var label: String
 
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
