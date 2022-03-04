@@ -1,8 +1,6 @@
 package backend
 
 import frontend.TestUtils
-import org.junit.Ignore
-import org.junit.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
@@ -10,7 +8,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 
 class CodeFunctionalityTest : TestUtils {
-    val invalid = listOf<String>(
+    private val invalid = listOf(
         "IOSequence.wacc",
         "IOLoop.wacc",
         "echoChar.wacc",
@@ -33,7 +31,8 @@ class CodeFunctionalityTest : TestUtils {
         val map = HashMap<String, Pair<String, Int>>()
 
         doForEachFile(File(root)) { file ->
-            val fileName = file.invariantSeparatorsPath.split(".wacc")[0].split("wacc_examples/valid/").last()
+            val fileName =
+                file.invariantSeparatorsPath.split(".wacc")[0].split("wacc_examples/valid/").last()
             val outputFile = File("reference_output/$fileName/output.txt")
             val errorFile = File("reference_output/$fileName/error.txt")
             val output = outputFile.inputStream().bufferedReader().use { it.readText() }
@@ -45,8 +44,8 @@ class CodeFunctionalityTest : TestUtils {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = [ "wacc_examples/valid/"])
-    fun assemblyIsFunctionallyCorrect(root:String) {
+    @ValueSource(strings = ["wacc_examples/valid/"])
+    fun assemblyIsFunctionallyCorrect(root: String) {
         val map = mapOutputsAndErrorCodes()
         var testsPassed = 0
         var testsRan = 0
@@ -69,17 +68,18 @@ class CodeFunctionalityTest : TestUtils {
                     "$name.s"
                 ).start()
             process.waitFor()
-            if (invalid.contains(file.name)) {
+            process = if (invalid.contains(file.name)) {
                 val fileName = path.split(".wacc")[0].split("wacc_examples/valid/").last()
                 val inputFile = File("reference_output/$fileName/input.txt")
                 val inputStream = inputFile.inputStream()
                 val input = inputStream.bufferedReader().use { it.readText() }
                 println(input)
 
-                process =
-                    ProcessBuilder("qemu-arm", "-L", "/usr/arm-linux-gnueabi", name).redirectInput(inputFile).start()
+                ProcessBuilder("qemu-arm", "-L", "/usr/arm-linux-gnueabi", name).redirectInput(
+                    inputFile
+                ).start()
             } else {
-                process = ProcessBuilder("qemu-arm", "-L", "/usr/arm-linux-gnueabi", name).start()
+                ProcessBuilder("qemu-arm", "-L", "/usr/arm-linux-gnueabi", name).start()
             }
 
             process.waitFor(5, TimeUnit.SECONDS)
@@ -89,7 +89,7 @@ class CodeFunctionalityTest : TestUtils {
                 output = it.readText()
             }
 
-            if ((refOutput.equals(output)) && (refError == process.exitValue())) {
+            if ((refOutput == output) && (refError == process.exitValue())) {
                 println("PASSED $name")
                 testsPassed++
             } else {
