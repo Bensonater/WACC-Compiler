@@ -7,7 +7,6 @@ enum class Register {
     SP, // Stack Pointer
     LR, // Link register
     PC, // Program Counter
-    CPSR, // Current Program Status Register
 
     NONE;
 

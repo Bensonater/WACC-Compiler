@@ -9,6 +9,9 @@ import java.util.*
 
 class ProgramState {
 
+    /**
+     * Static global variables.
+     */
     companion object GlobalVals {
         val dataDirective = DataDirective()
         val runtimeErrors = RuntimeErrors(this)
@@ -16,6 +19,9 @@ class ProgramState {
         var labelNum = 0
     }
 
+    /**
+     * Stacks storing the free and used callee saved registers.
+     */
     val freeCalleeSavedRegs: ArrayDeque<Register> = ArrayDeque<Register>(listOf(
         Register.R4, Register.R5,
         Register.R6, Register.R7, Register.R8, Register.R9, Register.R10, Register.R11))
@@ -23,6 +29,9 @@ class ProgramState {
 
     var accumulatorUsed = false
 
+    /**
+     * Free all the callee registers.
+     */
     fun freeAllCalleeRegs() {
         while (inUseCalleeSavedRegs.isNotEmpty()) {
             freeCalleeReg()
@@ -39,6 +48,10 @@ class ProgramState {
         freeCalleeSavedRegs.push(inUseCalleeSavedRegs.pop())
     }
 
+    /**
+     * Returns the register at the top of the used callee registers stack.
+     * If the accumulator is being used then
+     */
     fun recentlyUsedCalleeReg() : Register {
         return if (accumulatorUsed) {
             accumulatorUsed = false
@@ -48,6 +61,11 @@ class ProgramState {
         }
     }
 
+    /**
+     * Move register from being free to being in used and return this register.
+     * If there are no free callee saved registers then set the accumulator to being used and
+     * return a NONE register.
+     */
     fun getFreeCalleeReg() : Register {
         return if (freeCalleeSavedRegs.isEmpty()) {
             accumulatorUsed = true

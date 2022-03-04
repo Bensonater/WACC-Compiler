@@ -20,6 +20,10 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return ast.accept(this)!!
     }
 
+    /**
+     * Translate a program AST and sets the initial directives for main,
+     * adds data directive, runtime errors and the library functions.
+     */
     fun visitProgramAST(ast: ProgramAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
@@ -52,13 +56,20 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return data + instructions + runtimeErrors + library
     }
 
+    /**
+     * Translate the function AST and allocate stack for new scope.
+     */
     fun visitFuncAST(ast: FuncAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
+        // Create label with the function name (preceded with "f_")
         instructions.add(FunctionLabel(ast.ident.name))
         instructions.add(PushInstruction(Register.LR))
+        // Allocate space in the stack for the variables in the function.
         val stackOffset = allocateStack(ast.symbolTable, instructions)
-
+        // Translate all the statements in the function.
         ast.stats.forEach { instructions.addAll(visit(it)) }
+        // Check if the last statement is an if else statement and direct their return or exit commands to the
+        // appropriate locations.
         val lastStat = ast.stats.last()
         if (!(((lastStat is IfAST) && lastStat.thenReturns && lastStat.elseReturns)
                     || ((lastStat is StatSimpleAST) && lastStat.command == Command.EXIT))) {
@@ -77,14 +88,19 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return emptyList()
     }
 
+    /**
+     * Translate the binary operator expression AST.
+     */
     fun visitBinOpExprAST(ast: BinOpExprAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
+        // Visit both expressions
         instructions.addAll(visit(ast.expr1))
         var reg1 = programState.recentlyUsedCalleeReg()
         instructions.addAll(visit(ast.expr2))
         var reg2 = programState.recentlyUsedCalleeReg()
 
+        // Use the accumulator if there are no free registers.
         var accumUsed = false
         if (reg1 == Register.NONE || reg1 == Register.R11) {
             accumUsed = true
@@ -92,7 +108,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
             reg2 = Register.R12
             instructions.add(PopInstruction(Register.R12))
         }
-
+        // Add instructions based on the type of operation.
         when (ast.binOp) {
             IntBinOp.PLUS, IntBinOp.MINUS -> {
                 val instr = if (ast.binOp == IntBinOp.PLUS) {
@@ -171,10 +187,17 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+
+    /**
+     * Translate the unary operator AST.
+     */
     fun visitUnOpExprAST(ast: UnOpExprAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
+        // Visit the expression
         instructions.addAll(visit(ast.expr))
         val reg = programState.recentlyUsedCalleeReg()
+
+        // Add instructions based on the type of unary operator
         when (ast.unOp) {
             UnOp.NOT -> {
                 instructions.add(LogicInstruction(LogicOperation.EOR, reg, reg, ImmediateIntOperand(1)))
@@ -192,6 +215,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Translate ident variable AST and find offset on stack for that variable
+     */
     fun visitIdentAST(ast: IdentAST): List<Instruction> {
         val offset = findIdentOffset(ast.symbolTable, ast.name) + ast.symbolTable.callOffset
         val typeAST = ast.getType(ast.symbolTable)
@@ -201,6 +227,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
             programState.getFreeCalleeReg(), memoryType))
     }
 
+    /**
+     * Translate Pair Element AST for indexing a pair
+     */
     fun visitPairElemAST(ast: PairElemAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast.expr))
@@ -216,6 +245,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Translate New Pair AST for declaring a new pair
+     */
     fun visitNewPairAST(ast: NewPairAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
@@ -236,6 +268,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Helper function to malloc each pair elem
+     */
     private fun mallocPairAST(ast: ExprAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast))
@@ -252,6 +287,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for assign statements
+     */
     fun visitAssignAST(ast: AssignAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
@@ -284,6 +322,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for begin blocks and create a new scope.
+     */
     fun visitBeginAST(ast: BeginAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         val stackOffset = allocateStack(ast.symbolTable, instructions)
@@ -292,6 +333,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for call statements and store arguments on stack
+     */
     fun visitCallAST(ast: CallAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
@@ -329,6 +373,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for variable declarations and store value on stack
+     */
     fun visitDeclareAST(ast: DeclareAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast.assignRhs))
@@ -363,6 +410,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for if statements and check for return statements
+     */
     fun visitIfAST(ast: IfAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         val elseLabel = programState.getNextLabel()
@@ -398,6 +448,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for read statements and assign value to variable on stack
+     */
     fun visitReadAST(ast: ReadAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         when (ast.assignLhs) {
@@ -409,13 +462,13 @@ class GenerateASTVisitor (val programState: ProgramState) {
                 // Intentionally Left Blank
             }
             is PairElemAST -> {
-                /** Translates the expression */
+                // Translates the expression
                 instructions.addAll(visit(ast.assignLhs))
             }
         }
         instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(Register.R4)))
 
-        /** Adds specific calls to read library functions */
+        // Reads library function
         when ((ast.assignLhs.getType(ast.symbolTable) as BaseTypeAST).type) {
             BaseType.INT -> {
                 instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.READ_INT.toString()), true))
@@ -441,10 +494,13 @@ class GenerateASTVisitor (val programState: ProgramState) {
      */
     fun visitStatMultiAST(ast: StatMultiAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
-        ast.stats.forEach{ instructions.addAll(visit(it))}
+        ast.stats.forEach { instructions.addAll(visit(it)) }
         return instructions
     }
 
+    /**
+     * Translates a single statement
+     */
     fun visitStatSimpleAST(ast: StatSimpleAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast.expr))
@@ -453,7 +509,8 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val exprType = ast.expr.getType(ast.symbolTable)!!
 
         if (ast.expr is ArrayElemAST) {
-            val isBoolOrChar = exprType is BaseTypeAST && (exprType.type == BaseType.BOOL || exprType.type == BaseType.CHAR)
+            val isBoolOrChar =
+                exprType is BaseTypeAST && (exprType.type == BaseType.BOOL || exprType.type == BaseType.CHAR)
             val memoryType = if (isBoolOrChar) Memory.SB else null
             instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg, memoryType))
         }
@@ -467,6 +524,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
                 instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                 when (exprType) {
                     is BaseTypeAST -> {
+                        // Stores base types and their respective function calls
                         val lookupPrintInstr = hashMapOf(
                             Pair(BaseType.INT, CallFunc.PRINT_INT),
                             Pair(BaseType.BOOL, CallFunc.PRINT_BOOL),
@@ -474,14 +532,15 @@ class GenerateASTVisitor (val programState: ProgramState) {
                         )
                         if (exprType.type == BaseType.CHAR){
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.PUTCHAR.toString()), true))
-                        }
-                        else{
+                        } else{
+                            // Looks up the type and adds the function call
                             val printInstr = lookupPrintInstr[exprType.type]!!
                             ProgramState.library.addCode(printInstr)
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel(printInstr.toString()), true))
                         }
                     }
                     is ArrayTypeAST -> {
+                        // Prints string if the array is made up of characters, otherwise print the references
                         if (exprType.type is BaseTypeAST && (exprType.type.type == BaseType.CHAR)) {
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true))
                             ProgramState.library.addCode(CallFunc.PRINT_STRING)
@@ -490,6 +549,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
                             ProgramState.library.addCode(CallFunc.PRINT_REFERENCE)
                         }
                     }
+                    // Print references for pairs and other types
                     is PairTypeAST, is ArbitraryTypeAST -> {
                         instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_REFERENCE.toString()), true))
                         ProgramState.library.addCode(CallFunc.PRINT_REFERENCE)
@@ -502,7 +562,15 @@ class GenerateASTVisitor (val programState: ProgramState) {
                 programState.freeCalleeReg()
             }
             Command.FREE -> {
-                instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(programState.recentlyUsedCalleeReg())))
+                instructions.add(
+                    MoveInstruction(
+                        Condition.AL,
+                        Register.R0,
+                        RegisterOperand(programState.recentlyUsedCalleeReg())
+                    )
+                )
+
+                // Determine which type of data structure to free
                 val freeType = if (exprType is ArrayTypeAST) {
                     CallFunc.FREE_ARRAY
                 } else {
@@ -523,6 +591,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+    /**
+     * Generate code for while statements and create a new scope on stack
+     */
     fun visitWhileAST(ast: WhileAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         val conditionLabel = programState.getNextLabel()
