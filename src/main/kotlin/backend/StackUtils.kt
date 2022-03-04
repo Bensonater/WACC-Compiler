@@ -7,7 +7,6 @@ import backend.instruction.ArithmeticInstruction
 import backend.instruction.Instruction
 import frontend.FuncSymbolTable
 import frontend.SymbolTable
-import frontend.ast.ParamAST
 import frontend.ast.statement.DeclareAST
 
 const val SIZE_OF_POINTER = 4
@@ -17,7 +16,7 @@ fun calculateStackOffset(symbolTable : SymbolTable) : Int {
     var offset = 0
     for (astNode in symbolTable.symbolTable.values) {
         if (astNode is DeclareAST) {
-            offset += astNode.size() // Potential optimisation to store offset in symbol table
+            offset += astNode.size()
         }
     }
     symbolTable.currOffset = offset
@@ -26,7 +25,7 @@ fun calculateStackOffset(symbolTable : SymbolTable) : Int {
 
 fun allocateStack (symbolTable: SymbolTable, instructions: MutableList<Instruction>) : Int {
     val stackOffset = calculateStackOffset(symbolTable)
-    symbolTable.totalDeclaredSize = stackOffset
+    //symbolTable.totalDeclaredSize = stackOffset
     moveStackPointer(ArithmeticInstrType.SUB, stackOffset, instructions)
     return stackOffset
 }
@@ -52,6 +51,12 @@ fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
             ImmediateIntOperand(stackOffsetLeft)
             )
         )
+
+        if (addOrSubtract == ArithmeticInstrType.ADD) {
+            ProgramState.stackPointer -= stackOffset
+        } else if (addOrSubtract == ArithmeticInstrType.SUB) {
+            ProgramState.stackPointer += stackOffset
+        }
     }
 }
 
@@ -60,37 +65,17 @@ fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
  * @param symbolTable The symbolTable of the current scope
  * @param ident The name of the variable
  * @return The offset in the stack for the variable
- *
- * Potential optimisation to store offset in symbol table
  */
-fun findIdentOffset(symbolTable: SymbolTable, ident: String, accOffset: Int = 0): Int {
-    val totalOffset = accOffset + symbolTable.symbolTable.values.sumOf { it.size() }
-    val returnPointerSize = 4
-    var offsetCount = 0
-    for ((key, node) in symbolTable.symbolTable) {
-        if (key == ident && node is ParamAST) {
-            return accOffset + symbolTable.totalDeclaredSize + offsetCount + returnPointerSize
-        }
-        offsetCount += node.size()
-        if (key == ident && symbolTable.currOffset <= totalOffset - offsetCount) {
-            return totalOffset - offsetCount
-        }
+fun findIdentOffset(symbolTable: SymbolTable, ident: String): Int {
+    if (symbolTable.getStackPos(ident) != null) {
+        return ProgramState.stackPointer - symbolTable.getStackPos(ident)!!
     }
-    if (symbolTable.parent != null) {
-        /** Searches parent symbol table when not found in current scope.
-         * Includes addition of totalOffset size of current scope */
-        return findIdentOffset(symbolTable.parent!!, ident, totalOffset)
-    }
-    return totalOffset
+    return findIdentOffset(symbolTable, ident)
 }
 
 fun checkFuncOffset(symbolTable: SymbolTable): Int{
     if (symbolTable is FuncSymbolTable) {
-        return symbolTable.totalDeclaredSize
+        return ProgramState.stackPointer - symbolTable.funcStackPos
     }
-    if (symbolTable.parent != null) {
-        val offset = symbolTable.symbolTable.values.sumOf { it.size() }
-        return checkFuncOffset(symbolTable.parent!!) + offset
-    }
-    return -1
+    return checkFuncOffset(symbolTable.parent!!)
 }

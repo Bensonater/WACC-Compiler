@@ -321,8 +321,6 @@ class GenerateASTVisitor (val programState: ProgramState) {
                     memoryType
                 )
             )
-            // Adjust global stack pointer
-            ProgramState.stackPointer += size
             // Store pointer to parameter in symbol table
             val funcAST = ast.symbolTable.lookupAll(ast.ident.name) as FuncAST
             val params = funcAST.paramList.reversed()
