@@ -10,13 +10,14 @@ import frontend.SymbolTable
 import frontend.ast.ParamAST
 import frontend.ast.statement.DeclareAST
 
+const val SIZE_OF_POINTER = 4
 private const val MAX_STACK_OFFSET = 1024
 
 fun calculateStackOffset(symbolTable : SymbolTable) : Int {
     var offset = 0
     for (astNode in symbolTable.symbolTable.values) {
         if (astNode is DeclareAST) {
-            offset += astNode.size() // Potential optimisation to store offset in symbol table
+            offset += astNode.size()
         }
     }
     symbolTable.currOffset = offset
@@ -59,16 +60,14 @@ fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
  * @param symbolTable The symbolTable of the current scope
  * @param ident The name of the variable
  * @return The offset in the stack for the variable
- *
- * Potential optimisation to store offset in symbol table
  */
 fun findIdentOffset(symbolTable: SymbolTable, ident: String, accOffset: Int = 0): Int {
     val totalOffset = accOffset + symbolTable.symbolTable.values.sumOf { it.size() }
-    val pointerOffset = 4
+    val returnPointerSize = 4
     var offsetCount = 0
     for ((key, node) in symbolTable.symbolTable) {
         if (key == ident && node is ParamAST) {
-            return accOffset + symbolTable.totalDeclaredSize + offsetCount + pointerOffset
+            return accOffset + symbolTable.totalDeclaredSize + offsetCount + returnPointerSize
         }
         offsetCount += node.size()
         if (key == ident && symbolTable.currOffset <= totalOffset - offsetCount) {
@@ -87,9 +86,6 @@ fun checkFuncOffset(symbolTable: SymbolTable): Int{
     if (symbolTable is FuncSymbolTable) {
         return symbolTable.totalDeclaredSize
     }
-    if (symbolTable.parent != null) {
-        val offset = symbolTable.symbolTable.values.sumOf { it.size() }
-        return checkFuncOffset(symbolTable.parent!!) + offset
-    }
-    return -1
+    val offset = symbolTable.symbolTable.values.sumOf { it.size() }
+    return checkFuncOffset(symbolTable.parent!!) + offset
 }

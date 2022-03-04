@@ -7,6 +7,10 @@ import backend.enums.Register
 import backend.global.RuntimeErrors.Companion.throwRuntimeErrorLabel
 import backend.instruction.*
 
+
+/**
+ * Library functions that can be branched to from the assembly code.
+ */
 enum class Funcs {
     FREE,
     PRINTF,
@@ -21,6 +25,9 @@ enum class Funcs {
     }
 }
 
+/**
+ * The labels for the functions that set up and branch to library functions.
+ */
 enum class CallFunc {
     READ_INT,
     READ_CHAR,
@@ -41,12 +48,19 @@ enum class CallFunc {
 class Library(private val globalVals: ProgramState.GlobalVals) {
     private val calls: HashMap<CallFunc, List<Instruction>> = LinkedHashMap()
 
+
+    /**
+     * Add code for the specific callFunc into the 'calls' hashmap.
+     * We only generate the block of code once for each function.
+     */
     fun addCode(callFunc: CallFunc) {
         if (calls.containsKey(callFunc)) {
             return
         }
         val instructions = mutableListOf<Instruction>()
         val callLabel = GeneralLabel(callFunc.toString())
+        instructions.add(callLabel)
+        instructions.add(PushInstruction(Register.LR))
         val body = when (callFunc) {
             CallFunc.READ_INT, CallFunc.READ_CHAR -> generateReadCall(callFunc)
             CallFunc.PRINT_INT -> generatePrintIntCall()
@@ -57,13 +71,15 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
             CallFunc.FREE_PAIR -> generateFreePairCall()
             CallFunc.FREE_ARRAY -> generateFreeArrayCall()
         }
-        instructions.add(callLabel)
-        instructions.add(PushInstruction(Register.LR))
         instructions.addAll(body)
         instructions.add(PopInstruction(Register.PC))
         calls[callFunc] = instructions
     }
 
+    /**
+     * Translate the blocks of codes for the functions that had been added
+     * to the hashmap.
+     */
     fun translate(): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         for (v in calls.values) {
@@ -73,6 +89,9 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
     }
 
 
+    /**
+     * Generate instructions for the read call.
+     */
     private fun generateReadCall(call: CallFunc): List<Instruction> {
 
         val stringType: String = when (call) {
@@ -97,12 +116,18 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         )
     }
 
+    /**
+     * Generate instructions for print integer call.
+     */
     private fun generatePrintIntCall(): List<Instruction> {
         val stringTypeLabel = globalVals.dataDirective.addStringLabel("%d\\0")
 
         return printCallHelper(stringTypeLabel)
     }
 
+    /**
+     * Helper function for printing integers or references.
+     */
     private fun printCallHelper(stringTypeLabel: String): List<Instruction> {
         return listOf(
             MoveInstruction(Condition.AL, Register.R1, RegisterOperand(Register.R0)),
@@ -114,12 +139,18 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         )
     }
 
+    /**
+     * Generate instructions for printing reference call.
+     */
     private fun generatePrintReferenceCall(): List<Instruction> {
         val stringTypeLabel = globalVals.dataDirective.addStringLabel("%p\\0")
 
         return printCallHelper(stringTypeLabel)
     }
 
+    /**
+     * Generate instructions for printing a boolean call.
+     */
     private fun generatePrintBoolCall(): List<Instruction> {
         val trueString = "true\\0"
         val falseString = "false\\0"
@@ -137,6 +168,9 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         )
     }
 
+    /**
+     * Generate instructions for printing string call.
+     */
     private fun generatePrintStringCall(): List<Instruction> {
         val stringTypeLabel = globalVals.dataDirective.addStringLabel("%.*s\\0")
 
@@ -151,7 +185,9 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         )
     }
 
-
+    /**
+     * Generate instructions for printing a line call.
+     */
     private fun generatePrintLnCall(): List<Instruction> {
         val stringTypeLabel = globalVals.dataDirective.addStringLabel("\\0")
 
@@ -164,6 +200,9 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         )
     }
 
+    /**
+     * Generate instructions for free pair call.
+     */
     private fun generateFreePairCall(): List<Instruction> {
         val label = globalVals.dataDirective.addStringLabel(RuntimeErrors.ErrorType.NULL_REFERENCE.toString())
 
@@ -184,7 +223,10 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         return instructions
     }
 
-    private fun freeSingleMallocedObject(): List<Instruction> {
+    /**
+     * Generate instructions for free array call.
+     */
+    private fun generateFreeArrayCall(): List<Instruction> {
         val errorMessage = RuntimeErrors.ErrorType.NULL_REFERENCE.toString()
         val errorLabel = globalVals.dataDirective.addStringLabel(errorMessage)
 
@@ -193,10 +235,6 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
             LoadInstruction(Condition.EQ, ImmediateLabel(errorLabel), Register.R0),
             BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true)
         )
-    }
-
-    private fun generateFreeArrayCall(): List<Instruction> {
-        return freeSingleMallocedObject()
     }
 
 

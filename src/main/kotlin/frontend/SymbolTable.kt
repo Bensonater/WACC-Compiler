@@ -21,6 +21,9 @@ open class SymbolTable {
     // Adjusts for stack offset when setting up call arguments
     var callOffset = 0
 
+    // Hashmap to keep track of stack position of each variable on the stack
+//    val stackPosition = HashMap<String, Int>()
+
     // Where the next variable in the current scope should be stored on the stack
     var currOffset = 0
 
