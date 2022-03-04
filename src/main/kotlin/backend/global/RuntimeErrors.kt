@@ -9,14 +9,9 @@ import backend.enums.Condition
 import backend.enums.Register
 import backend.instruction.*
 
-class RuntimeErrors(val globalVals: ProgramState.GlobalVals) {
+class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
 
-    private val EXIT_CODE = -1
-    private var runtimeError: List<Instruction>? = null
-    private var nullReferenceError: List<Instruction>? = null
-    private var divideZeroError: List<Instruction>? = null
-    private var checkArrayBounds: List<Instruction>? = null
-    private var overflowError: List<Instruction>? = null
+    private val errors: HashMap<ErrorType, List<Instruction>> = LinkedHashMap()
 
     companion object {
         val checkArrayBoundsLabel = GeneralLabel("p_check_array_bounds")
@@ -28,6 +23,8 @@ class RuntimeErrors(val globalVals: ProgramState.GlobalVals) {
     }
 
     enum class ErrorType(val msg: String) {
+        RUNTIME_ERROR("RUNTIME ERROR"), // This should never be printed as a message
+        ARRAY_OUT_OF_BOUNDS("ARRAY OUT OF BOUNDS ERROR"), // This should never be printed as a message
         NULL_REFERENCE("NullReferenceError: dereference a null reference\\n\\0"),
         DIVIDE_BY_ZERO("DivideByZeroError: divide or modulo by zero\\n\\0"),
         LARGE_ARRAY_INDEX_OUT_OF_BOUNDS("ArrayIndexOutOfBoundsError: index too large\\n\\0"),
@@ -41,20 +38,19 @@ class RuntimeErrors(val globalVals: ProgramState.GlobalVals) {
 
     fun translate(): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
-        runtimeError?.let { instructions.addAll(it) }
-        nullReferenceError?.let { instructions.addAll(it) }
-        divideZeroError?.let { instructions.addAll(it) }
-        checkArrayBounds?.let { instructions.addAll(it) }
-        overflowError?.let { instructions.addAll(it) }
+        for (v in errors.values) {
+            instructions.addAll(v)
+        }
         return instructions
     }
 
     fun addThrowRuntimeError() {
-        if (runtimeError == null) {
-            runtimeError = listOf(
+        if (!errors.containsKey(ErrorType.RUNTIME_ERROR)) {
+             errors[ErrorType.RUNTIME_ERROR] = listOf(
                 throwRuntimeErrorLabel,
                 BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true),
-                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(EXIT_CODE)),
+                // Exit code is -1
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(-1)),
                 BranchInstruction(Condition.AL, exitLabel, true)
             )
             globalVals.library.addCode(CallFunc.PRINT_STRING)
@@ -62,9 +58,9 @@ class RuntimeErrors(val globalVals: ProgramState.GlobalVals) {
     }
 
     fun addOverflowError() {
-        if (overflowError == null) {
+        if (!errors.containsKey(ErrorType.OVERFLOW_ERROR)) {
             val errorMsg = globalVals.dataDirective.addStringLabel(ErrorType.OVERFLOW_ERROR.toString())
-            overflowError = listOf(
+            errors[ErrorType.OVERFLOW_ERROR] = listOf(
                 throwOverflowErrorLabel,
                 LoadInstruction(Condition.AL, ImmediateLabel(errorMsg), Register.R0),
                 BranchInstruction(Condition.AL, throwRuntimeErrorLabel, true),
@@ -74,9 +70,9 @@ class RuntimeErrors(val globalVals: ProgramState.GlobalVals) {
     }
 
     fun addNullReferenceCheck() {
-        if (nullReferenceError == null) {
+        if (!errors.containsKey(ErrorType.NULL_REFERENCE)) {
             val errorMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.NULL_REFERENCE.toString())
-            nullReferenceError = listOf(
+            errors[ErrorType.NULL_REFERENCE] = listOf(
                 nullReferenceLabel,
                 PushInstruction(Register.LR),
                 CompareInstruction(Register.R0, ImmediateIntOperand(0)),
@@ -89,9 +85,9 @@ class RuntimeErrors(val globalVals: ProgramState.GlobalVals) {
     }
 
     fun addDivideByZeroCheck() {
-        if (divideZeroError == null) {
+        if (!errors.containsKey(ErrorType.DIVIDE_BY_ZERO)) {
             val errorMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.DIVIDE_BY_ZERO.toString())
-            divideZeroError = listOf(
+            errors[ErrorType.DIVIDE_BY_ZERO] = listOf(
                 divideZeroCheckLabel,
                 PushInstruction(Register.LR),
                 CompareInstruction(Register.R1, ImmediateIntOperand(0)),
@@ -105,11 +101,11 @@ class RuntimeErrors(val globalVals: ProgramState.GlobalVals) {
 
 
     fun addArrayBoundsCheck() {
-        if (checkArrayBounds == null) {
+        if (!errors.containsKey(ErrorType.ARRAY_OUT_OF_BOUNDS)) {
             val negativeMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.NEGATIVE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
             val tooLargeMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.LARGE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
 
-            checkArrayBounds = listOf(
+            errors[ErrorType.DIVIDE_BY_ZERO] = listOf(
                 checkArrayBoundsLabel,
                 PushInstruction(Register.LR),
                 CompareInstruction(Register.R0, ImmediateIntOperand(0)),
