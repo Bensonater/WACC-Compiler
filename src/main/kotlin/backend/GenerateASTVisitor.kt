@@ -20,6 +20,10 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return ast.accept(this)!!
     }
 
+    /**
+     * Translate a program AST and sets the initial directives for main,
+     * adds data directive, runtime errors and the library functions.
+     */
     fun visitProgramAST(ast: ProgramAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
@@ -52,13 +56,20 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return data + instructions + runtimeErrors + library
     }
 
+    /**
+     * Translate the function AST.
+     */
     fun visitFuncAST(ast: FuncAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
+        // Create label with the function name (preceded with "f_")
         instructions.add(FunctionLabel(ast.ident.name))
         instructions.add(PushInstruction(Register.LR))
+        // Allocate space in the stack for the variables in the function.
         val stackOffset = allocateStack(ast.symbolTable, instructions)
-
+        // Translate all the statements in the function.
         ast.stats.forEach { instructions.addAll(visit(it)) }
+        // Check if the last statement is an if else statement and direct their return or exit commands to the
+        // appropriate locations.
         val lastStat = ast.stats.last()
         if (!(((lastStat is IfAST) && lastStat.thenReturns && lastStat.elseReturns)
                     || ((lastStat is StatSimpleAST) && lastStat.command == Command.EXIT))) {
@@ -77,14 +88,19 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return emptyList()
     }
 
+    /**
+     * Translate the binary operator expression AST.
+     */
     fun visitBinOpExprAST(ast: BinOpExprAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
+        // Visit both expressions
         instructions.addAll(visit(ast.expr1))
         var reg1 = programState.recentlyUsedCalleeReg()
         instructions.addAll(visit(ast.expr2))
         var reg2 = programState.recentlyUsedCalleeReg()
 
+        // Use the accumulator if there are no free registers.
         var accumUsed = false
         if (reg1 == Register.NONE || reg1 == Register.R11) {
             accumUsed = true
@@ -92,7 +108,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
             reg2 = Register.R12
             instructions.add(PopInstruction(Register.R12))
         }
-
+        // Add instructions based on the type of operation.
         when (ast.binOp) {
             IntBinOp.PLUS, IntBinOp.MINUS -> {
                 val instr = if (ast.binOp == IntBinOp.PLUS) {
@@ -171,10 +187,17 @@ class GenerateASTVisitor (val programState: ProgramState) {
         return instructions
     }
 
+
+    /**
+     * Translate the unary operator AST.
+     */
     fun visitUnOpExprAST(ast: UnOpExprAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
+        // Visit the expression
         instructions.addAll(visit(ast.expr))
         val reg = programState.recentlyUsedCalleeReg()
+
+        // Add instructions based on the type of unary operator
         when (ast.unOp) {
             UnOp.NOT -> {
                 instructions.add(LogicInstruction(LogicOperation.EOR, reg, reg, ImmediateIntOperand(1)))
