@@ -13,9 +13,20 @@ object ExampleFileOutputMap {
                     .last()
             val outputFile = File("reference_output/$fileName/output.txt")
             val errorFile = File("reference_output/$fileName/error.txt")
-            val output = outputFile.inputStream().bufferedReader().use { it.readText() }
-            val error = errorFile.inputStream().bufferedReader().use { it.readText() }.toInt()
-            map[file.nameWithoutExtension] = Pair(output, error)
+
+            val output =
+                if (outputFile.exists()) {
+                    outputFile.inputStream().bufferedReader().use { it.readText() }
+                } else {
+                    ""
+                }
+            val exitCode =
+                if (errorFile.exists()) {
+                    errorFile.inputStream().bufferedReader().use { it.readText() }.toInt()
+                } else {
+                    0
+                }
+            map[file.nameWithoutExtension] = Pair(output, exitCode)
         }
     }
 }
