@@ -256,34 +256,27 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val instructions = mutableListOf<Instruction>()
 
         instructions.addAll(visit(ast.assignRhs))
-        val calleeReg = programState.recentlyUsedCalleeReg()
+        val reg = programState.recentlyUsedCalleeReg()
         if (ast.assignRhs is StrLiterAST) {
             ast.label = ProgramState.dataDirective.toStringLabel(ast.assignRhs.value)
         }
 
         val rhsType = ast.assignRhs.getType(ast.symbolTable)
-        var memtype: Memory? = null
-        if (rhsType is BaseTypeAST && ((rhsType.type == BaseType.CHAR) || (rhsType.type == BaseType.BOOL))) {
-            memtype = Memory.B
-        }
+        val isBoolOrChar = rhsType is BaseTypeAST && (rhsType.type == BaseType.BOOL || rhsType.type == BaseType.CHAR)
+        val memoryType = if (isBoolOrChar) Memory.B else null
 
         if (ast.assignRhs is PairElemAST) {
-            instructions.add(LoadInstruction(Condition.AL, RegisterMode(calleeReg), calleeReg))
+            instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
         }
 
         when (ast.assignLhs) {
             is IdentAST -> {
                 val offset = findIdentOffset(ast.symbolTable, ast.assignLhs.name)
-                instructions.add(StoreInstruction(RegisterModeWithOffset(Register.SP, offset), calleeReg, memtype))
+                instructions.add(StoreInstruction(RegisterModeWithOffset(Register.SP, offset), reg, memoryType))
             }
-            is ArrayElemAST -> {
+            is ArrayElemAST, is PairElemAST -> {
                 instructions.addAll(visit(ast.assignLhs))
-                instructions.add(StoreInstruction(RegisterMode(programState.recentlyUsedCalleeReg()), calleeReg, memtype))
-                programState.freeCalleeReg()
-            }
-            is PairElemAST -> {
-                instructions.addAll(visit(ast.assignLhs))
-                instructions.add(StoreInstruction(RegisterMode(programState.recentlyUsedCalleeReg()), calleeReg, memtype))
+                instructions.add(StoreInstruction(RegisterMode(programState.recentlyUsedCalleeReg()), reg, memoryType))
                 programState.freeCalleeReg()
             }
         }
@@ -293,10 +286,8 @@ class GenerateASTVisitor (val programState: ProgramState) {
 
     fun visitBeginAST(ast: BeginAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
-        val stackOffset = allocateStack (ast.symbolTable, instructions)
-        for (stat in ast.stats) {
-            instructions.addAll(visit(stat))
-        }
+        val stackOffset = allocateStack(ast.symbolTable, instructions)
+        ast.stats.forEach { instructions.addAll(visit(it)) }
         deallocateStack(stackOffset, instructions)
         return instructions
     }
@@ -308,20 +299,25 @@ class GenerateASTVisitor (val programState: ProgramState) {
         val argTypesReversed = ast.args.map { it.getType(ast.symbolTable) }.reversed()
         val negativeCallStackOffset = -1
         for ((index, arg) in ast.args.reversed().withIndex()) {
-            var memType: Memory? = null
             instructions.addAll(visit(arg))
             val reg = programState.recentlyUsedCalleeReg()
             val argType = argTypesReversed[index]
             val size = argType!!.size
             totalBytes += size
             ast.symbolTable.callOffset = totalBytes
-            if ((argType is BaseTypeAST) &&  ((argType.type == BaseType.BOOL) || (argType.type == BaseType.CHAR))) {
-                memType = Memory.B
-            }
+            val isBoolOrChar =
+                argType is BaseTypeAST && (argType.type == BaseType.BOOL || argType.type == BaseType.CHAR)
+            val memoryType = if (isBoolOrChar) Memory.B else null
             if (arg is ArrayElemAST) {
                 instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
             }
-            instructions.add(StoreInstruction(RegisterModeWithOffset(Register.SP, negativeCallStackOffset * size, true), reg, memType))
+            instructions.add(
+                StoreInstruction(
+                    RegisterModeWithOffset(Register.SP, negativeCallStackOffset * size, true),
+                    reg,
+                    memoryType
+                )
+            )
             programState.freeCalleeReg()
         }
         ast.symbolTable.callOffset = 0
