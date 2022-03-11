@@ -1,7 +1,10 @@
+import backend.Language
 import org.antlr.v4.runtime.CharStreams
 import kotlin.system.exitProcess
 import frontend.errors.*
 import java.io.File
+
+val language = Language.ARM
 
 fun main(args: Array<String>) {
     if (args.size != 1) {
