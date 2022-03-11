@@ -1,15 +1,23 @@
 package backend.addressingmodes
 
+import backend.Language
 import backend.enums.Register
+import language
 
 class RegisterMode (val reg : Register) : AddressingMode {
     override fun toString(): String {
-        return "[$reg]"
+        return when (language) {
+            Language.ARM -> "[$reg]"
+            Language.X86_64 -> reg.toString()
+        }
     }
 }
 
 class RegisterModeWithOffset(val reg: Register, val offset : Int, val preIndex: Boolean = false) : AddressingMode {
     override fun toString(): String {
-        return "[$reg${if (offset != 0) ", #${offset}" else ""}]${if (preIndex) "!" else ""}"
+        return when (language) {
+            Language.ARM -> "[$reg${if (offset != 0) ", #${offset}" else ""}]${if (preIndex) "!" else ""}"
+            Language.X86_64 -> "-$offset($reg)"
+        }
     }
 }
