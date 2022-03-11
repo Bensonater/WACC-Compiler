@@ -1,5 +1,8 @@
 package backend.enums
 
+import backend.Language
+import language
+
 
 enum class Register {
 
@@ -11,6 +14,30 @@ enum class Register {
     NONE;
 
     override fun toString(): String {
-        return name.lowercase()
+        return when (language) {
+            Language.ARM -> name.lowercase()
+            Language.X86_64 -> {
+                "%" +
+                when (this) {
+                    R0 -> "rax"
+                    R1 -> "rdi"
+                    R2 -> "rsi"
+                    R3 -> "rdx"
+                    R4 -> "rdi"
+                    R5 -> "rsi"
+                    R6 -> "rdx"
+                    R7 -> "rcx"
+                    R8 -> "r8"
+                    R9 -> "r9"
+                    R10 -> "r12"
+                    R11 -> "r13"
+                    R12 -> "r14"
+                    SP -> "rsp"
+                    LR -> "rbp"
+                    PC -> "rbp"
+                    NONE -> ""
+                }
+            }
+        }
     }
 }
