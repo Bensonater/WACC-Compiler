@@ -12,6 +12,7 @@ import frontend.ast.*
 import frontend.ast.literal.*
 import frontend.ast.statement.*
 import frontend.ast.type.*
+import language
 import java.util.stream.Collectors
 
 class GenerateASTVisitor (val programState: ProgramState) {
@@ -47,7 +48,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
 
         instructions.add(LoadInstruction(Condition.AL, ImmediateInt(0), Register.R0))
         instructions.add(EndInstruction())
-        instructions.add(DirectiveInstruction("ltorg"))
+        if (language == Language.ARM) {
+            instructions.add(DirectiveInstruction("ltorg"))
+        }
 
         val data = ProgramState.dataDirective.translate()
         val runtimeErrors = ProgramState.runtimeErrors.translate()
@@ -76,7 +79,9 @@ class GenerateASTVisitor (val programState: ProgramState) {
             deallocateStack(stackOffset, instructions)
             instructions.add(PopInstruction(Register.PC))
         }
-        instructions.add(DirectiveInstruction("ltorg"))
+        if (language == Language.ARM) {
+            instructions.add(DirectiveInstruction("ltorg"))
+        }
         programState.freeAllCalleeRegs()
         return instructions
     }
