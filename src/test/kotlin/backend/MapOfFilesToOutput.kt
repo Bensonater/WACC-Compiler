@@ -3,16 +3,23 @@ package backend
 import getEachFile
 import java.io.File
 
+/**
+ * Singleton class storing a mapping of valid WACC example files to their corresponding
+ * outputs and exit codes (if any) when passed through the reference compiler, cached in the
+ * reference_output directory
+ */
 object MapOfFilesToOutput {
     private val map = HashMap<String, Pair<String, Int>>()
-    private const val root = "wacc_examples/valid/"
 
     init {
+        val root = "wacc_examples/valid/"
         for (file in getEachFile(File(root))) {
-            val fileName =
-                file.invariantSeparatorsPath.split(".wacc").first().split("wacc_examples/valid/").last()
-            val outputFile = File("reference_output/$fileName/output.txt")
-            val errorFile = File("reference_output/$fileName/error.txt")
+            val newFileRoot = "reference_output/" +
+                    file.invariantSeparatorsPath.split(".wacc").first()
+                        .split("wacc_examples/valid/")
+                        .last()
+            val outputFile = File("$newFileRoot/output.txt")
+            val errorFile = File("$newFileRoot/error.txt")
 
             val output =
                 if (outputFile.exists()) {

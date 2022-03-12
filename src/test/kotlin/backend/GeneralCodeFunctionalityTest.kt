@@ -10,12 +10,16 @@ import kotlin.test.assertTrue
 class GeneralCodeFunctionalityTest {
     private val map = MapOfFilesToOutput.getMap()
 
+    /**
+     * Tests the output of all valid WACC example files, comparing them to the output
+     * of the reference compiler (testing functional correctness)
+     */
     @ParameterizedTest
     @MethodSource("testFiles")
     fun assemblyIsFunctionallyCorrect(file: File) {
         val name = file.nameWithoutExtension
         val refOutput = map[name]!!.first
-        val refError = map[name]!!.second
+        val refExit = map[name]!!.second
 
         ProcessBuilder("./compile", file.invariantSeparatorsPath).start()
             .waitFor(5, TimeUnit.SECONDS)
@@ -44,7 +48,7 @@ class GeneralCodeFunctionalityTest {
             output = it.readText()
         }
 
-        val success = ((refOutput == output) && (refError == process.exitValue()))
+        val success = ((refOutput == output) && (refExit == process.exitValue()))
 
         if (success) {
             println("- PASSED $name")
@@ -55,8 +59,8 @@ class GeneralCodeFunctionalityTest {
             println("------OUR OUTPUT------")
             println(output)
             println("----------------------")
-            println("REFERENCE ERROR CODE: $refError")
-            println("OUR ERROR CODE: ${process.exitValue()}")
+            println("REFERENCE EXIT CODE: $refExit")
+            println("OUR EXIT CODE: ${process.exitValue()}")
             println("----------------------")
         }
         assertTrue(success)
