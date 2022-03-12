@@ -1,7 +1,6 @@
 package frontend.ast.statement
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.type.ArrayTypeAST
@@ -19,7 +18,8 @@ enum class Command {
  * AST node representing simple statements with one command and one expression.
  * Checks that the expression type is compatible with each command.
  */
-class StatSimpleAST(val ctx: ParserRuleContext, val command: Command, val expr: ExprAST) : StatAST(ctx) {
+class StatSimpleAST(val ctx: ParserRuleContext, val command: Command, val expr: ExprAST) :
+    StatAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
         if (!expr.check(symbolTable)) {
@@ -41,14 +41,18 @@ class StatSimpleAST(val ctx: ParserRuleContext, val command: Command, val expr: 
                 return false
             }
             if (exprType != parentFuncType) {
-                semanticErrorHandler.typeMismatch(ctx, parentFuncType.toString(), exprType.toString())
+                semanticErrorHandler.typeMismatch(
+                    ctx,
+                    parentFuncType.toString(),
+                    exprType.toString()
+                )
                 return false
             }
         }
         return true
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitStatSimpleAST(this)
     }
 }

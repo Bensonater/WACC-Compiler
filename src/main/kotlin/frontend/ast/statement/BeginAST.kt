@@ -1,7 +1,6 @@
 package frontend.ast.statement
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import org.antlr.v4.runtime.ParserRuleContext
 
@@ -21,7 +20,7 @@ class BeginAST(ctx: ParserRuleContext, val stats: List<StatAST>) : StatAST(ctx) 
         return true
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitBeginAST(this)
     }
 }

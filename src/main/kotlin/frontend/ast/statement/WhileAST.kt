@@ -1,7 +1,6 @@
 package frontend.ast.statement
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.ASTNode
 import frontend.ast.ExprAST
@@ -15,7 +14,8 @@ import org.antlr.v4.runtime.ParserRuleContext
  * Creates new scope by assigning new symbol table for the body block.
  * Checks condition expression is of type BOOL.
  */
-class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<ASTNode>) : StatAST(ctx) {
+class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<ASTNode>) :
+    StatAST(ctx) {
     val bodySymbolTable = SymbolTable()
 
     override fun check(symbolTable: SymbolTable): Boolean {
@@ -37,7 +37,7 @@ class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<AS
         return true
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitWhileAST(this)
     }
 }

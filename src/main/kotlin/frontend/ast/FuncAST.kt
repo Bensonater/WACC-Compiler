@@ -1,7 +1,6 @@
 package frontend.ast
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.FuncSymbolTable
 import frontend.SymbolTable
 import frontend.ast.statement.StatAST
@@ -38,7 +37,7 @@ class FuncAST(
         return ident.check(symbolTable)
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitFuncAST(this)
     }
 }

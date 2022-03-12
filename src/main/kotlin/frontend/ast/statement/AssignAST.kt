@@ -1,9 +1,10 @@
 package frontend.ast.statement
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
-import frontend.ast.*
+import frontend.ast.ASTNode
+import frontend.ast.FuncAST
+import frontend.ast.IdentAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
@@ -11,7 +12,8 @@ import org.antlr.v4.runtime.ParserRuleContext
  * AST node representing an assignment statement to an existing variable.
  * Checks that type of left and right-hand side matches.
  */
-class AssignAST(val ctx: ParserRuleContext, val assignLhs: ASTNode, val assignRhs: ASTNode) : StatAST(ctx) {
+class AssignAST(val ctx: ParserRuleContext, val assignLhs: ASTNode, val assignRhs: ASTNode) :
+    StatAST(ctx) {
     lateinit var label: String
 
     override fun check(symbolTable: SymbolTable): Boolean {
@@ -36,7 +38,7 @@ class AssignAST(val ctx: ParserRuleContext, val assignLhs: ASTNode, val assignRh
         return true
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitAssignAST(this)
     }
 }

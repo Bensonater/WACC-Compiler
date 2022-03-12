@@ -1,7 +1,6 @@
 package frontend.ast.statement
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.type.BaseType
@@ -14,7 +13,12 @@ import org.antlr.v4.runtime.ParserRuleContext
  * Creates new scope by assigning new symbol table for then and else block.
  * Checks if condition expression is of type BOOL.
  */
-class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<StatAST>, val elseStat: List<StatAST>) :
+class IfAST(
+    val ctx: ParserRuleContext,
+    val expr: ExprAST,
+    val thenStat: List<StatAST>,
+    val elseStat: List<StatAST>
+) :
     StatAST(ctx) {
     var thenReturns = false
     var elseReturns = false
@@ -46,7 +50,7 @@ class IfAST(val ctx: ParserRuleContext, val expr: ExprAST, val thenStat: List<St
         return true
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitIfAST(this)
     }
 }
