@@ -16,7 +16,7 @@ import org.antlr.v4.runtime.ParserRuleContext
  */
 class WhileAST(val ctx: ParserRuleContext, val expr: ExprAST, val stats: List<ASTNode>) :
     StatAST(ctx) {
-    val bodySymbolTable = SymbolTable()
+    var bodySymbolTable = SymbolTable()
 
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable

@@ -22,8 +22,8 @@ class IfAST(
     StatAST(ctx) {
     var thenReturns = false
     var elseReturns = false
-    val thenSymbolTable = SymbolTable()
-    val elseSymbolTable = SymbolTable()
+    var thenSymbolTable = SymbolTable()
+    var elseSymbolTable = SymbolTable()
 
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
