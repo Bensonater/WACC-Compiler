@@ -1,7 +1,6 @@
 package frontend.ast
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.type.ArrayTypeAST
 import frontend.ast.type.BaseType
@@ -30,7 +29,11 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
         }
         if (unOp == UnOp.LEN) {
             if (expr.getType(symbolTable) !is ArrayTypeAST) {
-                semanticErrorHandler.typeMismatch(ctx, "ARRAY", expr.getType(symbolTable).toString())
+                semanticErrorHandler.typeMismatch(
+                    ctx,
+                    "ARRAY",
+                    expr.getType(symbolTable).toString()
+                )
                 return false
             }
             return true
@@ -42,29 +45,47 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
         when (unOp) {
             UnOp.NOT -> {
                 if (exprType.type != BaseType.BOOL) {
-                    semanticErrorHandler.typeMismatch(ctx, BaseType.BOOL.toString(), exprType.toString())
+                    semanticErrorHandler.typeMismatch(
+                        ctx,
+                        BaseType.BOOL.toString(),
+                        exprType.toString()
+                    )
                     return false
                 }
             }
             UnOp.MINUS -> {
                 if (exprType.type != BaseType.INT) {
-                    semanticErrorHandler.typeMismatch(ctx, BaseType.INT.toString(), exprType.toString())
+                    semanticErrorHandler.typeMismatch(
+                        ctx,
+                        BaseType.INT.toString(),
+                        exprType.toString()
+                    )
                     return false
                 }
             }
             UnOp.ORD -> {
                 if (exprType.type != BaseType.CHAR) {
-                    semanticErrorHandler.typeMismatch(ctx, BaseType.CHAR.toString(), exprType.toString())
+                    semanticErrorHandler.typeMismatch(
+                        ctx,
+                        BaseType.CHAR.toString(),
+                        exprType.toString()
+                    )
                     return false
                 }
             }
             UnOp.CHR -> {
                 if (exprType.type != BaseType.INT) {
-                    semanticErrorHandler.typeMismatch(ctx, BaseType.INT.toString(), exprType.toString())
+                    semanticErrorHandler.typeMismatch(
+                        ctx,
+                        BaseType.INT.toString(),
+                        exprType.toString()
+                    )
                     return false
                 }
             }
-            else -> {return false}
+            else -> {
+                return false
+            }
         }
         return true
     }
@@ -77,7 +98,7 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
         }
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitUnOpExprAST(this)
     }
 }

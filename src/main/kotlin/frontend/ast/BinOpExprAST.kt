@@ -1,8 +1,7 @@
 package frontend.ast
 
-import backend.GenerateASTVisitor
+import backend.ASTVisitor
 import backend.enums.Condition
-import backend.instruction.Instruction
 import frontend.SymbolTable
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
@@ -39,7 +38,12 @@ enum class BoolBinOp : BinOp {
  * Checks the type of left and right-hand side expressions match.
  * Checks expression type is compatible with each operator.
  */
-class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: ExprAST, val expr2: ExprAST) :
+class BinOpExprAST(
+    val ctx: ParserRuleContext,
+    val binOp: BinOp,
+    val expr1: ExprAST,
+    val expr2: ExprAST
+) :
     ExprAST(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
@@ -57,7 +61,9 @@ class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: Expr
             is IntBinOp -> checkInt(expr1Type)
             is CmpBinOp -> checkCmp(expr1Type)
             is BoolBinOp -> checkBool(expr1Type)
-            else -> {true}
+            else -> {
+                true
+            }
         }
 
     }
@@ -72,7 +78,7 @@ class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: Expr
 
     private fun checkCmp(type1: TypeAST?): Boolean {
         if (binOp == CmpBinOp.LT || binOp == CmpBinOp.GT || binOp == CmpBinOp.LTE || binOp == CmpBinOp.GTE) {
-            if (type1 !is BaseTypeAST || type1.type != BaseType.INT  && type1.type != BaseType.CHAR) {
+            if (type1 !is BaseTypeAST || type1.type != BaseType.INT && type1.type != BaseType.CHAR) {
                 semanticErrorHandler.typeMismatch(ctx, "INT or CHAR", type1.toString())
                 return false
             }
@@ -95,7 +101,7 @@ class BinOpExprAST(val ctx: ParserRuleContext, val binOp: BinOp, val expr1: Expr
             BaseTypeAST(ctx, BaseType.BOOL)
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitBinOpExprAST(this)
     }
 

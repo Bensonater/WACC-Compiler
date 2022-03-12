@@ -1,7 +1,6 @@
 package frontend.ast.statement
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.ASTNode
 import frontend.ast.type.BaseType
@@ -20,14 +19,15 @@ class ReadAST(val ctx: ParserRuleContext, val assignLhs: ASTNode) : StatAST(ctx)
             return false
         }
         if (assignLhs.getType(symbolTable) != BaseTypeAST(ctx, BaseType.CHAR) &&
-                assignLhs.getType(symbolTable) != BaseTypeAST(ctx, BaseType.INT)) {
+            assignLhs.getType(symbolTable) != BaseTypeAST(ctx, BaseType.INT)
+        ) {
             semanticErrorHandler.invalidReadType(ctx)
             return false
         }
         return true
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitReadAST(this)
     }
 }

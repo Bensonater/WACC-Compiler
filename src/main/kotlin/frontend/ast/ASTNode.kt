@@ -1,7 +1,6 @@
 package frontend.ast
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.statement.DeclareAST
 import frontend.ast.type.TypeAST
@@ -21,7 +20,7 @@ abstract class ASTNode(ctx: ParserRuleContext) {
         return null
     }
 
-    open fun accept(visitor : GenerateASTVisitor): List<Instruction>? {
+    open fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return null
     }
 

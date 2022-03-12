@@ -15,17 +15,13 @@ import frontend.ast.type.*
 import language
 import java.util.stream.Collectors
 
-class GenerateASTVisitor (val programState: ProgramState) {
-
-    fun visit(ast: ASTNode) : List<Instruction> {
-        return ast.accept(this)!!
-    }
+class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instruction>> {
 
     /**
      * Translate a program AST and sets the initial directives for main,
      * adds data directive, runtime errors and the library functions.
      */
-    fun visitProgramAST(ast: ProgramAST): List<Instruction> {
+    override fun visitProgramAST(ast: ProgramAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
         instructions.add(DirectiveInstruction("text"))
@@ -62,7 +58,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Translate the function AST and allocate stack for new scope.
      */
-    fun visitFuncAST(ast: FuncAST): List<Instruction> {
+    override fun visitFuncAST(ast: FuncAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         // Create label with the function name (preceded with "f_")
         instructions.add(FunctionLabel(ast.ident.name))
@@ -89,14 +85,14 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * No code generation is required to translate ParamAST.
      */
-    fun visitParamAST(ast: ParamAST): List<Instruction> {
+    override fun visitParamAST(ast: ParamAST): List<Instruction> {
         return emptyList()
     }
 
     /**
      * Translate the binary operator expression AST.
      */
-    fun visitBinOpExprAST(ast: BinOpExprAST): List<Instruction> {
+    override fun visitBinOpExprAST(ast: BinOpExprAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
         // Visit both expressions
@@ -196,7 +192,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Translate the unary operator AST.
      */
-    fun visitUnOpExprAST(ast: UnOpExprAST): List<Instruction> {
+    override fun visitUnOpExprAST(ast: UnOpExprAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         // Visit the expression
         instructions.addAll(visit(ast.expr))
@@ -223,7 +219,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Translate ident variable AST and find offset on stack for that variable
      */
-    fun visitIdentAST(ast: IdentAST): List<Instruction> {
+    override fun visitIdentAST(ast: IdentAST): List<Instruction> {
         val offset = findIdentOffset(ast.symbolTable, ast.name) + ast.symbolTable.callOffset
         val typeAST = ast.getType(ast.symbolTable)
         val isBoolOrChar = typeAST is BaseTypeAST && (typeAST.type == BaseType.BOOL || typeAST.type == BaseType.CHAR)
@@ -235,7 +231,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Translate Pair Element AST for indexing a pair
      */
-    fun visitPairElemAST(ast: PairElemAST): List<Instruction> {
+    override fun visitPairElemAST(ast: PairElemAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast.expr))
         val reg = programState.recentlyUsedCalleeReg()
@@ -253,7 +249,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Translate New Pair AST for declaring a new pair
      */
-    fun visitNewPairAST(ast: NewPairAST): List<Instruction> {
+    override fun visitNewPairAST(ast: NewPairAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
         // Malloc space for two pointers to the first and second elements
@@ -295,7 +291,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Generate code for assign statements
      */
-    fun visitAssignAST(ast: AssignAST): List<Instruction> {
+    override fun visitAssignAST(ast: AssignAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
         instructions.addAll(visit(ast.assignRhs))
@@ -330,7 +326,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Generate code for begin blocks and create a new scope.
      */
-    fun visitBeginAST(ast: BeginAST): List<Instruction> {
+    override fun visitBeginAST(ast: BeginAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         val stackOffset = allocateStack(ast.symbolTable, instructions)
         ast.stats.forEach { instructions.addAll(visit(it)) }
@@ -341,7 +337,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Generate code for call statements and store arguments on stack
      */
-    fun visitCallAST(ast: CallAST): List<Instruction> {
+    override fun visitCallAST(ast: CallAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
 
         var totalBytes = 0
@@ -381,7 +377,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Generate code for variable declarations and store value on stack
      */
-    fun visitDeclareAST(ast: DeclareAST): List<Instruction> {
+    override fun visitDeclareAST(ast: DeclareAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast.assignRhs))
 
@@ -418,7 +414,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Generate code for if statements and check for return statements
      */
-    fun visitIfAST(ast: IfAST): List<Instruction> {
+    override fun visitIfAST(ast: IfAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         val elseLabel = programState.getNextLabel()
         val finalLabel = programState.getNextLabel()
@@ -456,7 +452,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Generate code for read statements and assign value to variable on stack
      */
-    fun visitReadAST(ast: ReadAST): List<Instruction> {
+    override fun visitReadAST(ast: ReadAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         when (ast.assignLhs) {
             is IdentAST -> {
@@ -490,14 +486,14 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * No code generation is required to translate SkipAST.
      */
-    fun visitSkipAST(ast: SkipAST): List<Instruction> {
+    override fun visitSkipAST(ast: SkipAST): List<Instruction> {
         return emptyList()
     }
 
     /**
      * Translates multiple statements between BEGIN and END commands.
      */
-    fun visitStatMultiAST(ast: StatMultiAST): List<Instruction> {
+    override fun visitStatMultiAST(ast: StatMultiAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         ast.stats.forEach { instructions.addAll(visit(it)) }
         return instructions
@@ -506,7 +502,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Translates a single statement
      */
-    fun visitStatSimpleAST(ast: StatSimpleAST): List<Instruction> {
+    override fun visitStatSimpleAST(ast: StatSimpleAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast.expr))
 
@@ -599,7 +595,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Generate code for while statements and create a new scope on stack
      */
-    fun visitWhileAST(ast: WhileAST): List<Instruction> {
+    override fun visitWhileAST(ast: WhileAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         val conditionLabel = programState.getNextLabel()
         val bodyLabel = programState.getNextLabel()
@@ -624,7 +620,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Translates an array element AST, e.g. a[3] where int x = a[3]
      */
-    fun visitArrayElemAST(ast: ArrayElemAST): List<Instruction> {
+    override fun visitArrayElemAST(ast: ArrayElemAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         val stackReg = programState.getFreeCalleeReg()
 
@@ -661,7 +657,7 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Translate an array literal AST, e.g. [19, 21, 3, a, 7] where a = 30
      */
-    fun visitArrayLiterAST(ast: ArrayLiterAST): List<Instruction> {
+    override fun visitArrayLiterAST(ast: ArrayLiterAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         val elemSize = (ast.getType(ast.symbolTable) as ArrayTypeAST).type.size
 
@@ -690,35 +686,35 @@ class GenerateASTVisitor (val programState: ProgramState) {
     /**
      * Translate a boolean literal AST.
      */
-    fun visitBoolLiterAST(ast: BoolLiterAST): List<Instruction> {
+    override fun visitBoolLiterAST(ast: BoolLiterAST): List<Instruction> {
         return visitLiterHelper(ImmediateBoolOperand(ast.value), false)
     }
 
     /**
      * Translate a character literal AST.
      */
-    fun visitCharLiterAST(ast: CharLiterAST): List<Instruction> {
+    override fun visitCharLiterAST(ast: CharLiterAST): List<Instruction> {
         return visitLiterHelper(ImmediateCharOperand(ast.value), false)
     }
 
     /**
      * Translate an integer literal AST.
      */
-    fun visitIntLiterAST(ast: IntLiterAST): List<Instruction> {
+    override fun visitIntLiterAST(ast: IntLiterAST): List<Instruction> {
         return visitLiterHelper(ImmediateInt(ast.value), true)
     }
 
     /**
      * Translate a null pair literal AST.
      */
-    fun visitNullPairLiterAST(ast: NullPairLiterAST): List<Instruction> {
+    override fun visitNullPairLiterAST(ast: NullPairLiterAST): List<Instruction> {
         return visitLiterHelper(ImmediateInt(0), true)
     }
 
     /**
      * Translate a string literal AST.
      */
-    fun visitStrLiterAST(ast: StrLiterAST): List<Instruction> {
+    override fun visitStrLiterAST(ast: StrLiterAST): List<Instruction> {
         val strLabel = ProgramState.dataDirective.addStringLabel(ast.value)
         return visitLiterHelper(ImmediateLabel(strLabel), true)
     }

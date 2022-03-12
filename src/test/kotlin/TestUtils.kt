@@ -1,8 +1,7 @@
 import java.io.File
 
-
 /**
- * Recursively finds each file in the specified directory
+ * Recursively finds each file in a given directory
  */
 fun getEachFile(file: File): List<File> {
     val listOfFiles = emptyList<File>().toMutableList()

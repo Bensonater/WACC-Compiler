@@ -1,7 +1,6 @@
 package frontend.ast
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.type.ArrayTypeAST
 import frontend.ast.type.TypeAST
@@ -13,7 +12,11 @@ import org.antlr.v4.runtime.ParserRuleContext
  * Checks identifier is of type array and in scope.
  * Checks indexing dimension matches array dimension.
  */
-class ArrayElemAST(val ctx: ParserRuleContext, val ident: IdentAST, val listOfIndex: List<ExprAST>) : ExprAST(ctx) {
+class ArrayElemAST(
+    val ctx: ParserRuleContext,
+    val ident: IdentAST,
+    val listOfIndex: List<ExprAST>
+) : ExprAST(ctx) {
 
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
@@ -46,7 +49,7 @@ class ArrayElemAST(val ctx: ParserRuleContext, val ident: IdentAST, val listOfIn
         }
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitArrayElemAST(this)
     }
 }

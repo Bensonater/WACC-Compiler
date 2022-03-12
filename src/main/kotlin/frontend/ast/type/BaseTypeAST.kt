@@ -13,7 +13,7 @@ enum class BaseType {
  * This AST node represents all the possible BaseTypes (Int, bool, char and string).
  * It allows for the type to be passed into the AST node.
  */
-class BaseTypeAST (ctx: ParserRuleContext, val type:BaseType) : TypeAST(ctx) {
+class BaseTypeAST(ctx: ParserRuleContext, val type: BaseType) : TypeAST(ctx) {
 
     override val size = when (type) {
         BaseType.INT, BaseType.STRING -> 4
