@@ -43,7 +43,7 @@ class InvalidSyntaxTest {
         assertTrue(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
     }
 
-    companion object{
+    companion object {
         @JvmStatic
         fun testFiles(): List<File> {
             return getEachFile(File("wacc_examples/invalid/syntaxErr"))
