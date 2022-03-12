@@ -1,7 +1,6 @@
 package frontend.ast.statement
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.ExprAST
 import frontend.ast.FuncAST
@@ -16,7 +15,8 @@ import org.antlr.v4.runtime.ParserRuleContext
  * Checks number of arguments match required parameters for that function.
  * Checks each argument matches required type for each parameter.
  */
-class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<ExprAST>) : StatAST(ctx) {
+class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<ExprAST>) :
+    StatAST(ctx) {
 
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
@@ -46,7 +46,7 @@ class CallAST(val ctx: ParserRuleContext, val ident: IdentAST, val args: List<Ex
         return ident.getType(symbolTable)
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitCallAST(this)
     }
 }

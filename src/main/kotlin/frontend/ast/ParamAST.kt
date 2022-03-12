@@ -1,7 +1,6 @@
 package frontend.ast
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.type.TypeAST
 import org.antlr.v4.runtime.ParserRuleContext
@@ -16,7 +15,7 @@ class ParamAST(val ctx: ParserRuleContext, val type: TypeAST, val ident: IdentAS
         return type.check(symbolTable) && ident.check(symbolTable)
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitParamAST(this)
     }
 }

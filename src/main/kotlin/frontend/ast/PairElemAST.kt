@@ -1,7 +1,6 @@
 package frontend.ast
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.literal.NullPairLiterAST
 import frontend.ast.type.PairTypeAST
@@ -18,7 +17,8 @@ enum class PairIndex {
  * AST node representing a pair element when indexing pair.
  * Checks expression is of pair type.
  */
-class PairElemAST (val ctx: ParserRuleContext, val index: PairIndex, val expr: ExprAST) : ASTNode(ctx) {
+class PairElemAST(val ctx: ParserRuleContext, val index: PairIndex, val expr: ExprAST) :
+    ASTNode(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
         if (!expr.check(symbolTable)) {
@@ -48,7 +48,7 @@ class PairElemAST (val ctx: ParserRuleContext, val index: PairIndex, val expr: E
         }
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitPairElemAST(this)
     }
 }

@@ -1,7 +1,6 @@
 package frontend.ast
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.statement.StatAST
 import frontend.ast.type.BaseType
@@ -13,7 +12,11 @@ import org.antlr.v4.runtime.ParserRuleContext
  * AST node representing the entire program with a function list and body statement.
  * Checks each function is not already defined and records in the symbol table.
  */
-class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val stats: List<StatAST>) : ASTNode(ctx) {
+class ProgramAST(
+    val ctx: ParserRuleContext,
+    val funcList: List<FuncAST>,
+    val stats: List<StatAST>
+) : ASTNode(ctx) {
     /* Inserts all base type into Symbol Table */
     init {
         this.symbolTable = SymbolTable()
@@ -44,7 +47,7 @@ class ProgramAST(val ctx: ParserRuleContext, val funcList: List<FuncAST>, val st
         return true
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitProgramAST(this)
     }
 }

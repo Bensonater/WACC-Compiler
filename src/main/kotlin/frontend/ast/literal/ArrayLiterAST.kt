@@ -1,12 +1,11 @@
 package frontend.ast.literal
 
-import backend.GenerateASTVisitor
-import backend.instruction.Instruction
+import backend.ASTVisitor
 import frontend.SymbolTable
 import frontend.ast.ASTNode
 import frontend.ast.ExprAST
-import frontend.ast.type.ArrayTypeAST
 import frontend.ast.type.ArbitraryTypeAST
+import frontend.ast.type.ArrayTypeAST
 import frontend.ast.type.TypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
@@ -49,7 +48,7 @@ class ArrayLiterAST(val ctx: ParserRuleContext, val vals: List<ExprAST>) : ASTNo
         }
     }
 
-    override fun accept(visitor: GenerateASTVisitor): List<Instruction> {
+    override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {
         return visitor.visitArrayLiterAST(this)
     }
 }
