@@ -25,7 +25,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val instructions = mutableListOf<Instruction>()
 
         instructions.add(DirectiveInstruction("text"))
-        instructions.add(DirectiveInstruction("global main"))
+        if (language == Language.ARM) {
+            instructions.add(DirectiveInstruction("global main"))
+        } else if (language == Language.X86_64) {
+            instructions.add(DirectiveInstruction("global _start"))
+        }
 
         val functionsInstructions =
             ast.funcList.stream().map { GenerateASTVisitor(programState).visit(it) }
@@ -33,7 +37,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
 
         functionsInstructions.forEach { instructions.addAll(it!!) }
 
-        instructions.add(GeneralLabel("main"))
+        if (language == Language.ARM) {
+            instructions.add(GeneralLabel("main"))
+        } else if (language == Language.X86_64) {
+            instructions.add(GeneralLabel("_start"))
+        }
         instructions.add(PushInstruction(Register.LR))
 
         val stackOffset = allocateStack(ast.symbolTable, instructions)
