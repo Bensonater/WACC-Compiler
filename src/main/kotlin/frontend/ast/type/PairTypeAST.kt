@@ -7,7 +7,8 @@ import org.antlr.v4.runtime.ParserRuleContext
  * AST node representing a Pair type, e.g. pair (int, bool).
  * typeFst and typeSnd are the types of the first and second element, i.e. int and bool.
  */
-class PairTypeAST(ctx: ParserRuleContext, val typeFst: TypeAST, val typeSnd: TypeAST) : TypeAST(ctx) {
+class PairTypeAST(ctx: ParserRuleContext, val typeFst: TypeAST, val typeSnd: TypeAST) :
+    TypeAST(ctx) {
     override val size = 4
 
     override fun check(symbolTable: SymbolTable): Boolean {
