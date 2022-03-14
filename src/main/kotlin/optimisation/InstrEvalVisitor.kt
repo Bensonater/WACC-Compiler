@@ -1,72 +1,42 @@
 package optimisation
 
-import frontend.ast.ASTNode
-import frontend.ast.ExprAST
-import frontend.ast.IdentAST
-import frontend.ast.statement.*
+import backend.instruction.ArithmeticInstruction
+import backend.instruction.Instruction
+import backend.instruction.LoadInstruction
+import backend.instruction.StoreInstruction
 
-class InstrEvalVisitor : OptimisationVisitor() {
-    override fun visitIfAST(ast: IfAST): ASTNode {
-        val ifStat = super.visitIfAST(ast)
-        if (ifStat is IfAST) {
-            var thenBody = ifStat.thenStat
-            var elseBody = ifStat.elseStat
-            var changed = false
-            if (thenBody.isEmpty() && elseBody.isEmpty()) {
-                return SkipAST(ifStat.ctx)
-            }
-            if (thenBody.isEmpty()) {
-                thenBody = listOf(SkipAST(ifStat.ctx))
-                changed = true
-            }
-            if (elseBody.isEmpty()) {
-                elseBody = listOf(SkipAST(ifStat.ctx))
-                changed = true
-            }
-            if (changed) {
-                val optimisedIfStat = IfAST(ifStat.ctx, ifStat.expr, thenBody, elseBody)
-                optimisedIfStat.symbolTable = ifStat.symbolTable
-                optimisedIfStat.thenSymbolTable = ifStat.thenSymbolTable
-                optimisedIfStat.elseSymbolTable = ifStat.elseSymbolTable
-                optimisedIfStat.thenReturns = ifStat.thenReturns
-                optimisedIfStat.elseReturns = ifStat.elseReturns
-                return optimisedIfStat
-            }
-        }
-        return ifStat
+class InstrEvalVisitor(val instructions: MutableList<Instruction>) {
+    fun optimise(): List<Instruction> {
+        return instructions
     }
 
-    override fun visitWhileAST(ast: WhileAST): ASTNode {
-        val whileCond = visit(ast.expr) as ExprAST
-        val bodyStats = mutableListOf<StatAST>()
-        for (stat in ast.stats) {
-            bodyStats.add(visit(stat) as StatAST)
+    fun optimiseStoreThenLoad(): List<Instruction> {
+//        val iterator = instructions.listIterator()
+//        var prev = instructions.first()
+//        while (iterator.hasNext()){
+//            val curr = iterator.next()
+//            if (prev is StoreInstruction && curr is LoadInstruction && prev.reg == curr.register) {
+//                iterator.remove()
+//            }
+//            prev = iterator.previous()
+//        }
+        var prev = instructions.first()
+        val optimised = mutableListOf<Instruction>()
+        for (i in instructions) {
+            if (prev is StoreInstruction && i is LoadInstruction && prev.reg == i.register) {
+
+            } else {
+                optimised.add(i)
+            }
+            prev = i
         }
-        if (bodyStats.isEmpty()) {
-            return SkipAST(ast.ctx)
-        }
-        val whileAST = WhileAST(ast.ctx, whileCond, bodyStats)
-        whileAST.symbolTable = ast.symbolTable
-        whileAST.bodySymbolTable = ast.bodySymbolTable
-        return whileAST
+        return optimised
     }
 
-    override fun visitDeclareAST(ast: DeclareAST): ASTNode {
-        val identAst = visit(ast.ident)
-        if (identAst is SkipAST) {
-            return SkipAST(ast.ctx)
-        }
-        return ast
-    }
+//    fun optimiseAddZero(){
+//        val addInstr = instructions.filterNot { it is ArithmeticInstruction && it.type is  }
+//        val
+//
+//    }
 
-    override fun visitIdentAST(ast: IdentAST): ASTNode {
-
-        /*     val accessed = ast.symbolTable.(ast.name)
-             if (!accessed) {
-                 ast.symbolTable.removeOptimisedVariableFromST(ast.name)
-                 return symbolTable()
-             }
-        */
-        return ast
-    }
 }
