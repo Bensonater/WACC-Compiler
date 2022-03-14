@@ -21,8 +21,9 @@ class ConstEvalVisitor : OptimisationVisitor() {
     }
 
     override fun visitDeclareAST(ast: DeclareAST): ASTNode {
-        val declareAST = DeclareAST(ast.ctx, ast.type, ast.ident, visit(ast.assignRhs))
-        //symbolTable.updateVariable()
+        val rhs = visit(ast.assignRhs)
+        val declareAST = DeclareAST(ast.ctx, ast.type, ast.ident, rhs)
+        ast.symbolTable.updateVariable(ast.ident.name, rhs)
         declareAST.symbolTable = ast.symbolTable
         return declareAST
     }
