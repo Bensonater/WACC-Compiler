@@ -22,7 +22,7 @@ class GeneralCodeFunctionalityTest {
         val refExit = map[name]!!.second
 
         ProcessBuilder("./compile", file.invariantSeparatorsPath).start()
-            .waitFor(10, TimeUnit.SECONDS)
+            .waitFor(20, TimeUnit.SECONDS)
         ProcessBuilder(
             "arm-linux-gnueabi-gcc",
             "-o",
@@ -30,7 +30,7 @@ class GeneralCodeFunctionalityTest {
             "-mcpu=arm1176jzf-s",
             "-mtune=arm1176jzf-s",
             "$name.s"
-        ).start().waitFor(10, TimeUnit.SECONDS)
+        ).start().waitFor(20, TimeUnit.SECONDS)
 
         var output: String
         val inputFile = File("reference_output/inputFiles/$name/input.txt")
@@ -42,7 +42,7 @@ class GeneralCodeFunctionalityTest {
             ProcessBuilder("qemu-arm", "-L", "/usr/arm-linux-gnueabi", name).start()
         }
 
-        process.waitFor(10, TimeUnit.SECONDS)
+        process.waitFor(20, TimeUnit.SECONDS)
 
         process.inputStream.reader(Charsets.UTF_8).use {
             output = it.readText()
@@ -63,9 +63,8 @@ class GeneralCodeFunctionalityTest {
             println("OUR EXIT CODE: ${process.exitValue()}")
             println("----------------------")
         }
+        ProcessBuilder("rm", "$name.s", name).start().waitFor(20, TimeUnit.SECONDS)
         assertTrue(success)
-
-        ProcessBuilder("rm", "$name.s", name).start().waitFor(10, TimeUnit.SECONDS)
     }
 
 
