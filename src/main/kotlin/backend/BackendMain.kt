@@ -16,7 +16,7 @@ fun optimiseMain(ast: ASTNode): String {
      * Runs instruction evaluation on the generated assembly code if optimisation is enabled
      */
 
-    val optimisedInstr = InstrEvalVisitor(instructions).optimise()
+    val optimisedInstr = InstrEvalVisitor().optimise(instructions)
 
     return printCode(optimisedInstr)
 }
