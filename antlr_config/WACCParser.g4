@@ -29,7 +29,8 @@ stat: SKIP_STAT                      #statSkip
 
 assignLhs: ident
 | arrayElem
-| pairElem;
+| pairElem
+| pointerElem;
 
 assignRhs: expr
 | arrayLiter
@@ -41,15 +42,19 @@ argList: expr (COMMA expr)*;
 
 pairElem: FST expr | SND expr;
 
-type: baseType | arrayType | pairType;
+pointerElem: MULT ident;
+
+type: baseType | arrayType | pairType | pointerType;
 
 baseType: INT_T | BOOL_T | CHAR_T | STRING_T;
 
-arrayType: (baseType | pairType) (L_BRACKET R_BRACKET)+;
+arrayType: (baseType | pairType | L_PARENTHESIS pointerType R_PARENTHESIS) (L_BRACKET R_BRACKET)+;
 
 pairType: PAIR L_PARENTHESIS pairElemType COMMA pairElemType R_PARENTHESIS;
 
 pairElemType: baseType | arrayType | PAIR;
+
+pointerType: (baseType | pairType | arrayType) MULT+ ;
 
 expr: intLiter                     #exprSingle
 | boolLiter                        #exprSingle
@@ -68,7 +73,7 @@ expr: intLiter                     #exprSingle
 | L_PARENTHESIS expr R_PARENTHESIS #exprBrackets
 ;
 
-unaryOper: NOT | MINUS | LEN | ORD | CHR;
+unaryOper: NOT | MINUS | LEN | ORD | CHR | REF | MULT;
 
 binaryOper1: MULT | DIV | MOD;
 

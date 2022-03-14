@@ -24,6 +24,7 @@ NOT: '!';
 LEN: 'len';
 ORD: 'ord';
 CHR: 'chr';
+REF: '&';
 
 // Comparators
 
