@@ -203,7 +203,7 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
             ctx.unaryOper().ORD() != null -> UnOp.ORD
             ctx.unaryOper().CHR() != null -> UnOp.CHR
             ctx.unaryOper().REF() != null -> UnOp.REF
-            ctx.unaryOper().MULT() != null -> UnOp.DEREF
+            //ctx.unaryOper().MULT() != null -> UnOp.DEREF
             else -> throw RuntimeException()
         }
 

@@ -771,7 +771,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
         instructions.add(BranchInstruction(Condition.AL, RuntimeErrors.nullReferenceLabel, true))
         ProgramState.runtimeErrors.addNullReferenceCheck()
-//        instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
+        instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
         return instructions
     }
 }
