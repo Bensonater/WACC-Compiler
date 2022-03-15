@@ -9,7 +9,7 @@ import frontend.ast.statement.*
 class ConstEvalVisitor : OptimisationVisitor() {
 
     override fun visitAssignAST(ast: AssignAST): ASTNode {
-        val assignAST = AssignAST(ast.ctx, ast.assignLhs, ast.assignRhs)
+        val assignAST = AssignAST(ast.ctx, ast.assignLhs, visit(ast.assignRhs))
         assignAST.symbolTable = ast.symbolTable
         return assignAST
     }
