@@ -22,7 +22,7 @@ class InvalidSyntaxTest {
     @ParameterizedTest
     @MethodSource("testFiles")
     fun invalidFilesReturnSyntaxError(file: File) {
-        println(file.name)
+
         val errorListener = SyntaxErrorListener()
         val input = CharStreams.fromStream(file.inputStream())
         val lexer = WACCLexer(input)
@@ -41,6 +41,9 @@ class InvalidSyntaxTest {
         checkSyntaxVisitor.visit(tree)
 
         assertTrue(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
+        if (!(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)) {
+            println(file.name)
+        }
     }
 
     companion object {
