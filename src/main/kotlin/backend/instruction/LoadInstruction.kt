@@ -11,13 +11,7 @@ class LoadInstruction (val condition: Condition, val addressingMode: AddressingM
     override fun toString(): String {
         return when (language) {
             Language.ARM -> "LDR${memoryType?.name ?: ""}$condition $register, $addressingMode"
-            Language.X86_64 -> {
-                if (condition == Condition.AL) {
-                    "mov $addressingMode, $register"
-                } else {
-                    "cmov$condition $addressingMode, $register"
-                }
-            }
+            Language.X86_64 -> "mov $addressingMode, $register"
         }
     }
 }
