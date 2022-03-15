@@ -40,10 +40,10 @@ class InvalidSyntaxTest {
         val checkSyntaxVisitor = SyntaxChecker(syntaxErrorHandler)
         checkSyntaxVisitor.visit(tree)
 
-        assertTrue(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
         if (!(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)) {
             println(file.name)
         }
+        assertTrue(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
     }
 
     companion object {
