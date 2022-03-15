@@ -2,7 +2,7 @@ package backend
 
 import frontend.ast.ASTNode
 import frontend.ast.ProgramAST
-import optimisation.InstrEvalVisitor
+import optimisation.InstrEval
 
 fun main(ast: ASTNode): String {
     val instructions = GenerateASTVisitor(ProgramState()).visit(ast as ProgramAST)
@@ -16,7 +16,7 @@ fun optimiseMain(ast: ASTNode): String {
      * Runs instruction evaluation on the generated assembly code if optimisation is enabled
      */
 
-    val optimisedInstr = InstrEvalVisitor().optimise(instructions)
+    val optimisedInstr = InstrEval().optimise(instructions)
 
     return printCode(optimisedInstr)
 }

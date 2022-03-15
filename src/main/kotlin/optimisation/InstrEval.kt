@@ -4,7 +4,7 @@ import backend.instruction.Instruction
 import backend.instruction.LoadInstruction
 import backend.instruction.StoreInstruction
 
-class InstrEvalVisitor {
+class InstrEval {
     fun optimise(instructions: List<Instruction>): List<Instruction> {
         var optimised = instructions
         return optimiseStoreThenLoad(optimised)
@@ -23,9 +23,8 @@ class InstrEvalVisitor {
         return optimised
     }
 
-//    fun optimiseAddZero(){
+//    fun optimiseAddZero(instructions: List<Instruction>): List<Instruction>{
 //        val addInstr = instructions.filterNot { it is ArithmeticInstruction && it.type is  }
-//        val
 //
 //    }
 

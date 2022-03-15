@@ -35,8 +35,6 @@ fun main(args: Array<String>) {
 //    if (controlFlow) {
 //        ast = ControlFlowVisitor().visit(ast)
 //    }
-//    if (instrEval) {
-//        ast = InstrEvalVisitor().visit(ast)
 //    }
 //    if (constProp) {
 //        ast = ConstPropVisitor().visit(ast)
