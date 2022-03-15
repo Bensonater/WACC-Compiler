@@ -151,7 +151,11 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitArrayType(ctx: WACCParser.ArrayTypeContext): ASTNode {
-        return ArrayTypeAST(ctx, visit(ctx.getChild(0)) as TypeAST, ctx.L_BRACKET().size)
+        return if (ctx.pointerType() == null) {
+            ArrayTypeAST(ctx, visit(ctx.getChild(0)) as TypeAST, ctx.L_BRACKET().size)
+        } else {
+            ArrayTypeAST(ctx, visit(ctx.pointerType()) as PointerTypeAST, ctx.L_BRACKET().size)
+        }
     }
 
     override fun visitPairType(ctx: WACCParser.PairTypeContext): ASTNode {
@@ -198,6 +202,8 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
             ctx.unaryOper().LEN() != null -> UnOp.LEN
             ctx.unaryOper().ORD() != null -> UnOp.ORD
             ctx.unaryOper().CHR() != null -> UnOp.CHR
+            ctx.unaryOper().REF() != null -> UnOp.REF
+            ctx.unaryOper().MULT() != null -> UnOp.DEREF
             else -> throw RuntimeException()
         }
 
@@ -276,5 +282,17 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
                 mutableListOf(ctxStat)
             )
         }
+    }
+
+    override fun visitPointerElem(ctx: WACCParser.PointerElemContext): ASTNode {
+        return PointerElemAST(ctx, visit(ctx.ident()) as IdentAST)
+    }
+
+    override fun visitPointerType(ctx: WACCParser.PointerTypeContext): ASTNode {
+        var type = visit(ctx.getChild(0)) as TypeAST
+        for (i in 1..ctx.MULT().size) {
+            type = PointerTypeAST(ctx, type)
+        }
+        return type
     }
 }
