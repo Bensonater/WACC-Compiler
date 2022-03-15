@@ -23,7 +23,15 @@ class ArithmeticInstruction (val type: ArithmeticInstrType, val reg1: Register, 
     override fun toString(): String {
         return when (language) {
             Language.ARM -> "$type${if (update) "S" else ""} $reg1, $reg2, $operand"
-            Language.X86_64 -> "$type $operand, $reg1"
+            Language.X86_64 -> {
+                var result = ""
+                if (reg1 != reg2) {
+                    result += "mov $reg2, $reg1\n\t"
+                }
+                result += "$type $operand, $reg1"
+                return result
+            }
+
         }
 
     }
