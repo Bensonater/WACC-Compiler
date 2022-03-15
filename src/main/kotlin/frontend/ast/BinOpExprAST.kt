@@ -3,7 +3,6 @@ package frontend.ast
 import backend.ASTVisitor
 import backend.enums.Condition
 import frontend.SymbolTable
-import frontend.ast.literal.IntLiterAST
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
 import frontend.ast.type.PointerTypeAST
@@ -47,14 +46,14 @@ class BinOpExprAST(
     val expr2: ExprAST
 ) :
     ExprAST(ctx) {
+
+    // Set to true if first operand is pointer for pointer arithmetic
+    var pointerArithmetic = false
+    // Shift offset in instruction if pointer arithmetic
+    var shiftOffset = 0
+
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
-
-        // Set to true if first operand is pointer for pointer arithmetic
-        var pointerArithmetic = false
-        // Shift offset in instruction if pointer arithmetic
-        var shiftOffset = 0
-
         if (!expr1.check(symbolTable) || !expr2.check(symbolTable)) {
             return false
         }
