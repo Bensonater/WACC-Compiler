@@ -10,7 +10,7 @@ class ArbitraryTypeAST(ctx: ParserRuleContext) : TypeAST(ctx) {
     override val size = 4
 
     override fun equals(other: Any?): Boolean {
-        return other is PairTypeAST || other is ArbitraryTypeAST
+        return other is ArbitraryTypeAST || other is PairTypeAST || other is PointerTypeAST
     }
 
     override fun hashCode(): Int {
