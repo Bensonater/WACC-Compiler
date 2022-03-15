@@ -17,7 +17,7 @@ class RegisterModeWithOffset(val reg: Register, val offset : Int, val preIndex: 
     override fun toString(): String {
         return when (language) {
             Language.ARM -> "[$reg${if (offset != 0) ", #${offset}" else ""}]${if (preIndex) "!" else ""}"
-            Language.X86_64 -> "-$offset($reg)"
+            Language.X86_64 -> "$offset($reg)"
         }
     }
 }
