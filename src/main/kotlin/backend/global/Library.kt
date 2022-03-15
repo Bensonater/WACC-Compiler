@@ -1,11 +1,13 @@
 package backend.global
 
+import backend.Language
 import backend.ProgramState
 import backend.addressingmodes.*
 import backend.enums.Condition
 import backend.enums.Register
 import backend.global.RuntimeErrors.Companion.throwRuntimeErrorLabel
 import backend.instruction.*
+import language
 
 
 /**
@@ -61,6 +63,11 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         val callLabel = GeneralLabel(callFunc.toString())
         instructions.add(callLabel)
         instructions.add(PushInstruction(Register.LR))
+        // mov %rsp, %rbp
+        if (language == Language.X86_64) {
+            instructions.add(MoveInstruction(Condition.AL, Register.LR, RegisterMode(Register.SP)))
+        }
+
         val body = when (callFunc) {
             CallFunc.READ_INT, CallFunc.READ_CHAR -> generateReadCall(callFunc)
             CallFunc.PRINT_INT -> generatePrintIntCall()
@@ -72,7 +79,7 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
             CallFunc.FREE_ARRAY -> generateFreeArrayCall()
         }
         instructions.addAll(body)
-        instructions.add(PopInstruction(Register.PC))
+        instructions.add(EndInstruction())
         calls[callFunc] = instructions
     }
 
@@ -129,14 +136,24 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
      * Helper function for printing integers or references.
      */
     private fun printCallHelper(stringTypeLabel: String): List<Instruction> {
-        return listOf(
-            MoveInstruction(Condition.AL, Register.R1, RegisterOperand(Register.R0)),
-            LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
-            ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
-            MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
-        )
+        return if (language == Language.ARM) {
+            listOf(
+                MoveInstruction(Condition.AL, Register.R1, RegisterOperand(Register.R0)),
+                LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
+                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
+            )
+        } else {
+            listOf(
+                MoveInstruction(Condition.AL, Register.R2, RegisterOperand(Register.R0)),
+                LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R1),
+                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R1, Register.R1, ImmediateIntOperand(4)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
+            )
+        }
     }
 
     /**
@@ -157,15 +174,28 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         val trueLabel = globalVals.dataDirective.addStringLabel(trueString)
         val falseLabel = globalVals.dataDirective.addStringLabel(falseString)
 
-        return listOf(
-            CompareInstruction(Register.R0, ImmediateIntOperand(0)),
-            LoadInstruction(Condition.NE, ImmediateLabel(trueLabel), Register.R0),
-            LoadInstruction(Condition.EQ, ImmediateLabel(falseLabel), Register.R0),
-            ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
-            MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
-        )
+        return if (language == Language.ARM) {
+            listOf(
+                CompareInstruction(Register.R0, ImmediateIntOperand(0)),
+                LoadInstruction(Condition.NE, ImmediateLabel(trueLabel), Register.R0),
+                LoadInstruction(Condition.EQ, ImmediateLabel(falseLabel), Register.R0),
+                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
+            )
+        } else {
+            listOf(
+                CompareInstruction(Register.R0, ImmediateIntOperand(0)),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateLabel(trueLabel)),
+                CMoveInstruction(Condition.NE, Register.R0, Register.R1),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateLabel(falseLabel)),
+                CMoveInstruction(Condition.EQ, Register.R0, Register.R1),
+                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R1, Register.R1, ImmediateIntOperand(4)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0))
+            )
+        }
     }
 
     /**
@@ -174,15 +204,27 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
     private fun generatePrintStringCall(): List<Instruction> {
         val stringTypeLabel = globalVals.dataDirective.addStringLabel("%.*s\\0")
 
-        return listOf(
-            LoadInstruction(Condition.AL, RegisterMode(Register.R0), Register.R1),
-            ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R2, Register.R0, ImmediateIntOperand(4)),
-            LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
-            ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
-            MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
-        )
+        return if (language == Language.ARM) {
+            listOf(
+                LoadInstruction(Condition.AL, RegisterMode(Register.R0), Register.R1),
+                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R2, Register.R0, ImmediateIntOperand(4)),
+                LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
+                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
+            )
+        } else {
+            listOf(
+                LoadInstruction(Condition.AL, RegisterMode(Register.R0), Register.R2),
+                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R3, Register.R0, ImmediateIntOperand(4)),
+                LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R1),
+                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R1, Register.R1, ImmediateIntOperand(4)),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0))
+            )
+        }
     }
 
     /**
@@ -190,14 +232,21 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
      */
     private fun generatePrintLnCall(): List<Instruction> {
         val stringTypeLabel = globalVals.dataDirective.addStringLabel("\\0")
-
-        return listOf(
-            LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
-            ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.PUTS.toString()), true),
-            MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
-        )
+        return if (language == Language.ARM) {
+            listOf(
+                LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
+                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.PUTS.toString()), true),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
+            )
+        } else {
+            listOf(
+                LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.PUTS.toString()), true),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0))
+            )
+        }
     }
 
     /**
