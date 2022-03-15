@@ -2,10 +2,7 @@ package frontend.ast
 
 import backend.ASTVisitor
 import frontend.SymbolTable
-import frontend.ast.type.ArrayTypeAST
-import frontend.ast.type.BaseType
-import frontend.ast.type.BaseTypeAST
-import frontend.ast.type.TypeAST
+import frontend.ast.type.*
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
@@ -14,7 +11,9 @@ enum class UnOp {
     MINUS,
     LEN,
     ORD,
-    CHR
+    CHR,
+    REF,
+    DEREF
 }
 
 /**
@@ -83,6 +82,26 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                     return false
                 }
             }
+            UnOp.REF -> {
+                if (expr !is IdentAST && expr !is ArrayElemAST) {
+                    semanticErrorHandler.typeMismatch(
+                        ctx,
+                        "Variable or Array",
+                        exprType.toString()
+                    )
+                    return false
+                }
+            }
+            UnOp.DEREF -> {
+                if (exprType !is PointerTypeAST) {
+                    semanticErrorHandler.typeMismatch(
+                        ctx,
+                        "Pointer Type",
+                        exprType.toString()
+                    )
+                    return false
+                }
+            }
             else -> {
                 return false
             }
@@ -95,6 +114,8 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
             UnOp.NOT -> BaseTypeAST(ctx, BaseType.BOOL)
             UnOp.CHR -> BaseTypeAST(ctx, BaseType.CHAR)
             UnOp.MINUS, UnOp.LEN, UnOp.ORD -> BaseTypeAST(ctx, BaseType.INT)
+            UnOp.REF -> PointerTypeAST(ctx, expr.getType(symbolTable)!!)
+            UnOp.DEREF -> (expr.getType(symbolTable) as PointerTypeAST).type
         }
     }
 
