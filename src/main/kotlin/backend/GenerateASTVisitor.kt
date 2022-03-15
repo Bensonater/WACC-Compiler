@@ -668,7 +668,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val elemSize = (ast.getType(ast.symbolTable) as ArrayTypeAST).type.size
 
         val sizeOfInt = 4
-        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(elemSize * ast.vals.size + sizeOfInt), Register.R0))
+        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(elemSize * ast.vals.size + sizeOfInt), Register.R1))
         instructions.add(BranchInstruction(Condition.AL, GeneralLabel("malloc"), true))
         val stackReg = programState.getFreeCalleeReg()
         instructions.add(MoveInstruction(Condition.AL, stackReg, RegisterOperand(Register.R0)))
@@ -684,7 +684,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         }
 
         instructions.add(LoadInstruction(Condition.AL, ImmediateInt(ast.vals.size), programState.getFreeCalleeReg()))
-        instructions.add(StoreInstruction(RegisterMode(stackReg), programState.recentlyUsedCalleeReg()))
+        if (language == Language.ARM) {
+            instructions.add(StoreInstruction(RegisterMode(stackReg), programState.recentlyUsedCalleeReg()))
+        } else {
+            instructions.add(StoreInstruction(RegisterModeWithOffset(stackReg, 0), programState.recentlyUsedCalleeReg(), Memory.L))
+        }
         programState.freeCalleeReg()
         return instructions
     }
