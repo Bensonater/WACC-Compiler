@@ -9,7 +9,7 @@ class CompareInstruction (val reg: Register, val operand: AddressingMode): Instr
     override fun toString(): String {
         return when (language) {
             Language.ARM -> "CMP $reg, $operand"
-            Language.X86_64 -> "cmp $reg, $operand"
+            Language.X86_64 -> "cmp $operand, $reg"
         }
     }
 }
