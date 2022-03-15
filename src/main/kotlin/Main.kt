@@ -1,6 +1,7 @@
 import org.antlr.v4.runtime.CharStreams
 import kotlin.system.exitProcess
 import frontend.errors.*
+import optimisation.ControlFlowVisitor
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -32,9 +33,9 @@ fun main(args: Array<String>) {
 //    if (constEval) {
 //        ast = ConstEvalVisitor().visit(ast)
 //    }
-//    if (controlFlow) {
-//        ast = ControlFlowVisitor().visit(ast)
-//    }
+    if (controlFlow) {
+        ast = ControlFlowVisitor().visit(ast)
+    }
 //    if (instrEval) {
 //        ast = InstrEvalVisitor().visit(ast)
 //    }

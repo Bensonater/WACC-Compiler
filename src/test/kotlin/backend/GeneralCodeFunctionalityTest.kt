@@ -21,7 +21,7 @@ class GeneralCodeFunctionalityTest {
         val refOutput = map[name]!!.first
         val refExit = map[name]!!.second
 
-        ProcessBuilder("./compile", file.invariantSeparatorsPath).start()
+        ProcessBuilder("./compile", file.invariantSeparatorsPath, "-o").start()
             .waitFor(5, TimeUnit.SECONDS)
         ProcessBuilder(
             "arm-linux-gnueabi-gcc",
