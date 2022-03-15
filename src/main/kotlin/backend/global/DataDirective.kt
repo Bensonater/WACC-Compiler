@@ -1,8 +1,10 @@
 package backend.global
 
+import backend.Language
 import backend.instruction.DirectiveInstruction
 import backend.instruction.Instruction
 import backend.instruction.MessageLabel
+import language
 
 /**
  * Generate, store and translate all directives with labels for the .data directive.
@@ -11,16 +13,25 @@ class DataDirective {
     private val dataLabels = mutableListOf<String>()
 
     fun addStringLabel(stringLabel: String) : String {
-        return if(dataLabels.contains(stringLabel)) {
+        var output = ""
+        if (language == Language.X86_64) {
+            output = "$"
+        }
+        output += if (dataLabels.contains(stringLabel)) {
             "msg_${dataLabels.indexOf(stringLabel)}"
         } else {
             dataLabels.add(stringLabel)
             "msg_${dataLabels.size - 1}"
         }
+        return output
     }
 
     fun toStringLabel(string: String): String {
-        return "msg_${dataLabels.indexOf(string)}"
+        var output = ""
+        if (language == Language.X86_64) {
+            output = "$"
+        }
+        return output + "msg_${dataLabels.indexOf(string)}"
     }
 
     fun translate() : List<Instruction> {
