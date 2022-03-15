@@ -6,4 +6,14 @@ package backend.enums
 enum class Memory {
     B,  // Unsigned Byte
     SB, // Signed Byte
+    W, // Word (2 Bytes)
+    L; // Double word (4 Bytes)
+
+    fun getRegType (reg : Register): String {
+        return when (this) {
+            B, SB -> reg.to8Byte()
+            W -> reg.to16Byte()
+            L -> reg.to32Byte()
+        }
+    }
 }

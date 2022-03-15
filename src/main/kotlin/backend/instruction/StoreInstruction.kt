@@ -10,7 +10,7 @@ class StoreInstruction (val mode: AddressingMode, val reg: Register, val memory:
     override fun toString(): String {
         return when (language) {
             Language.ARM -> "STR${memory?.name ?: ""} $reg, $mode"
-            Language.X86_64 -> "mov $reg, $mode"
+            Language.X86_64 -> "mov${memory?.name?.lowercase() ?: ""} ${memory?.getRegType(reg) ?: reg}, $mode"
         }
     }
 }

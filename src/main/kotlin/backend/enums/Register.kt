@@ -40,4 +40,73 @@ enum class Register {
             }
         }
     }
+
+    fun to8Byte(): String {
+        return "%" +
+            when (this) {
+                R0 -> "al"
+                R1 -> "dil"
+                R2 -> "sil"
+                R3 -> "dl"
+                R4 -> "dil"
+                R5 -> "sil"
+                R6 -> "dl"
+                R7 -> "cl"
+                R8 -> "r8b"
+                R9 -> "r9b"
+                R10 -> "r12b"
+                R11 -> "r13b"
+                R12 -> "r14b"
+                SP -> "spl"
+                LR -> "bpl"
+                PC -> "bpl"
+                NONE -> ""
+            }
+    }
+
+    fun to16Byte(): String {
+        return "%" +
+                when (this) {
+                    R0 -> "ax"
+                    R1 -> "di"
+                    R2 -> "si"
+                    R3 -> "dx"
+                    R4 -> "di"
+                    R5 -> "si"
+                    R6 -> "dx"
+                    R7 -> "cx"
+                    R8 -> "r8w"
+                    R9 -> "r9w"
+                    R10 -> "r12w"
+                    R11 -> "r13w"
+                    R12 -> "r14w"
+                    SP -> "sp"
+                    LR -> "bp"
+                    PC -> "bp"
+                    NONE -> ""
+                }
+    }
+
+    fun to32Byte(): String {
+        return "%" +
+                when (this) {
+                    R0 -> "eax"
+                    R1 -> "edi"
+                    R2 -> "esi"
+                    R3 -> "edx"
+                    R4 -> "edi"
+                    R5 -> "esi"
+                    R6 -> "edx"
+                    R7 -> "ecx"
+                    R8 -> "r8d"
+                    R9 -> "r9d"
+                    R10 -> "r12d"
+                    R11 -> "r13d"
+                    R12 -> "r14d"
+                    SP -> "esp"
+                    LR -> "ebp"
+                    PC -> "ebp"
+                    NONE -> ""
+                }
+    }
 }
