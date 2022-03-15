@@ -79,44 +79,50 @@ class ConstEvalVisitor : OptimisationVisitor() {
         val expr1 = visit(ast.expr1)
         val expr2 = visit(ast.expr2)
 
-        return when (ast.binOp) {
-            is IntBinOp -> {
-                val val1 = (expr1 as IntLiterAST).value
-                val val2 = (expr2 as IntLiterAST).value
-                if ((val2 == 0) && ((ast.binOp == IntBinOp.DIV) || (ast.binOp == IntBinOp.MOD))) {
-                    return ast
-                }
-                return IntLiterAST(ast.ctx, apply(ast.binOp, val1, val2))
-            }
-            is BoolBinOp -> {
-                return BoolLiterAST(
-                    ast.ctx,
-                    apply(ast.binOp, (expr1 as BoolLiterAST).value, (expr2 as BoolLiterAST).value)
-                )
-            }
-            is CmpBinOp -> {
-                if (expr1 is IntLiterAST && expr2 is IntLiterAST) {
-                    val val1 = expr1.value
-                    val val2 = expr2.value
-                    when (ast.binOp) {
-                        CmpBinOp.GTE -> BoolLiterAST(ast.ctx, val1 >= val2)
-                        CmpBinOp.GT -> BoolLiterAST(ast.ctx, val1 > val2)
-                        CmpBinOp.LTE -> BoolLiterAST(ast.ctx, val1 < val2)
-                        CmpBinOp.LT -> BoolLiterAST(ast.ctx, val1 <= val2)
-                        CmpBinOp.EQ -> BoolLiterAST(ast.ctx, val1 == val2)
-                        CmpBinOp.NEQ -> BoolLiterAST(ast.ctx, val1 != val2)
+        if (((expr1 is IntLiterAST) and (expr2 is IntLiterAST)) or
+            ((expr1 is BoolLiterAST) and (expr2 is BoolLiterAST))
+        ) {
+            return when (ast.binOp) {
+                is IntBinOp -> {
+                    val val1 = (expr1 as IntLiterAST).value
+                    val val2 = (expr2 as IntLiterAST).value
+                    if ((val2 == 0) && ((ast.binOp == IntBinOp.DIV) || (ast.binOp == IntBinOp.MOD))) {
+                        return ast
                     }
-                } else {
-                    val val1 = (expr1 as BoolLiterAST).value
-                    val val2 = (expr2 as BoolLiterAST).value
-                    when (ast.binOp) {
-                        CmpBinOp.EQ -> BoolLiterAST(ast.ctx, val1 == val2)
-                        CmpBinOp.NEQ -> BoolLiterAST(ast.ctx, val1 != val2)
-                        else -> ast
+                    return IntLiterAST(ast.ctx, apply(ast.binOp, val1, val2))
+                }
+                is BoolBinOp -> {
+                    return BoolLiterAST(
+                        ast.ctx,
+                        apply(ast.binOp, (expr1 as BoolLiterAST).value, (expr2 as BoolLiterAST).value)
+                    )
+                }
+                is CmpBinOp -> {
+                    if (expr1 is IntLiterAST && expr2 is IntLiterAST) {
+                        val val1 = expr1.value
+                        val val2 = expr2.value
+                        when (ast.binOp) {
+                            CmpBinOp.GTE -> BoolLiterAST(ast.ctx, val1 >= val2)
+                            CmpBinOp.GT -> BoolLiterAST(ast.ctx, val1 > val2)
+                            CmpBinOp.LTE -> BoolLiterAST(ast.ctx, val1 < val2)
+                            CmpBinOp.LT -> BoolLiterAST(ast.ctx, val1 <= val2)
+                            CmpBinOp.EQ -> BoolLiterAST(ast.ctx, val1 == val2)
+                            CmpBinOp.NEQ -> BoolLiterAST(ast.ctx, val1 != val2)
+                        }
+                    } else {
+                        val val1 = (expr1 as BoolLiterAST).value
+                        val val2 = (expr2 as BoolLiterAST).value
+                        when (ast.binOp) {
+                            CmpBinOp.EQ -> BoolLiterAST(ast.ctx, val1 == val2)
+                            CmpBinOp.NEQ -> BoolLiterAST(ast.ctx, val1 != val2)
+                            else -> ast
+                        }
                     }
                 }
+                else -> ast
             }
-            else -> ast
+        } else {
+            return ast
         }
     }
 
