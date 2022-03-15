@@ -54,7 +54,7 @@ pairType: PAIR L_PARENTHESIS pairElemType COMMA pairElemType R_PARENTHESIS;
 
 pairElemType: baseType | arrayType | PAIR;
 
-pointerType: (baseType | pairType | arrayType) MULT+ ;
+pointerType: (baseType | pairType | arrayType) MULT+;
 
 expr: intLiter                     #exprSingle
 | boolLiter                        #exprSingle

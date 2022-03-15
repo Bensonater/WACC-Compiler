@@ -207,6 +207,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 instructions.add(LoadInstruction(Condition.AL, RegisterMode(Register.SP), reg))
                 instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
             }
+            else -> {}
         }
         return instructions
     }
@@ -474,6 +475,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.READ_CHAR.toString()), true))
                 ProgramState.library.addCode(CallFunc.READ_CHAR)
             }
+            else -> {}
         }
         return instructions
     }
@@ -728,5 +730,9 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             instructions.add(MoveInstruction(Condition.AL, reg, param))
         }
         return instructions
+    }
+
+    override fun visitPointerElemAST(ast: PointerElemAST): List<Instruction> {
+        TODO("Not yet implemented")
     }
 }
