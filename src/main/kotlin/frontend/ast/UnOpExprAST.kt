@@ -96,7 +96,7 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                 if (exprType !is PointerTypeAST) {
                     semanticErrorHandler.typeMismatch(
                         ctx,
-                        "Pointer Type",
+                        "Pointer",
                         exprType.toString()
                     )
                     return false

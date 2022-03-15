@@ -113,9 +113,17 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     ArithmeticInstrType.SUB
                 }
                 if (accumUsed) {
-                    instructions.add(ArithmeticInstruction(instr, reg1, reg2, RegisterOperand(reg1), true))
+                    if (ast.pointerArithmetic) {
+                        instructions.add(ArithmeticInstruction(instr, reg1, reg2, RegisterOperandWithShift(reg1, ShiftType.LSL, ast.shiftOffset), true))
+                    } else {
+                        instructions.add(ArithmeticInstruction(instr, reg1, reg2, RegisterOperand(reg1), true))
+                    }
                 } else {
-                    instructions.add(ArithmeticInstruction(instr, reg1, reg1, RegisterOperand(reg2), true))
+                    if (ast.pointerArithmetic) {
+                        instructions.add(ArithmeticInstruction(instr, reg1, reg1, RegisterOperandWithShift(reg2, ShiftType.LSL, ast.shiftOffset), true))
+                    } else {
+                        instructions.add(ArithmeticInstruction(instr, reg1, reg1, RegisterOperand(reg2), true))
+                    }
                 }
                 instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
                 ProgramState.runtimeErrors.addOverflowError()
@@ -206,6 +214,29 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             UnOp.LEN -> {
                 instructions.add(LoadInstruction(Condition.AL, RegisterMode(Register.SP), reg))
                 instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
+            }
+            UnOp.REF -> {
+                if (ast.expr is IdentAST) {
+                    val offset = findIdentOffset(ast.symbolTable, ast.expr.name) + ast.symbolTable.callOffset
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg, Register.SP, ImmediateIntOperand(offset)))
+                }
+                // Load the address of the variable to register for arrays as well.
+                instructions.add(MoveInstruction(Condition.AL, reg, RegisterOperand(reg)))
+            }
+            UnOp.DEREF -> {
+                if (ast.expr is ArrayElemAST) {
+                    instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
+                }
+                // Perform runtime error null reference check
+                instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
+                instructions.add(BranchInstruction(Condition.AL, RuntimeErrors.nullReferenceLabel, true))
+                ProgramState.runtimeErrors.addNullReferenceCheck()
+
+                val baseType = (ast.expr.getType(ast.symbolTable) as PointerTypeAST).type
+                val memType = if (baseType is BaseTypeAST && (baseType.type == BaseType.BOOL || baseType.type == BaseType.CHAR))
+                    Memory.SB else null
+                // Load real value from memory.
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg, memType))
             }
             else -> {}
         }
@@ -300,7 +331,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val isBoolOrChar = rhsType is BaseTypeAST && (rhsType.type == BaseType.BOOL || rhsType.type == BaseType.CHAR)
         val memoryType = if (isBoolOrChar) Memory.B else null
 
-        if (ast.assignRhs is PairElemAST) {
+        if (ast.assignRhs is PairElemAST || ast.assignRhs is PointerElemAST) {
             instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
         }
 
@@ -309,7 +340,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 val offset = findIdentOffset(ast.symbolTable, ast.assignLhs.name)
                 instructions.add(StoreInstruction(RegisterModeWithOffset(Register.SP, offset), reg, memoryType))
             }
-            is ArrayElemAST, is PairElemAST -> {
+            is ArrayElemAST, is PairElemAST, is PointerElemAST -> {
                 instructions.addAll(visit(ast.assignLhs))
                 instructions.add(StoreInstruction(RegisterMode(programState.recentlyUsedCalleeReg()), reg, memoryType))
                 programState.freeCalleeReg()
@@ -547,8 +578,8 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                             ProgramState.library.addCode(CallFunc.PRINT_REFERENCE)
                         }
                     }
-                    // Print references for pairs and other types
-                    is PairTypeAST, is ArbitraryTypeAST -> {
+                    // Print references for pairs, pointers and null types
+                    is PairTypeAST, is PointerTypeAST, is ArbitraryTypeAST -> {
                         instructions.add(BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_REFERENCE.toString()), true))
                         ProgramState.library.addCode(CallFunc.PRINT_REFERENCE)
                     }
@@ -733,6 +764,14 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
     }
 
     override fun visitPointerElemAST(ast: PointerElemAST): List<Instruction> {
-        TODO("Not yet implemented")
+        val instructions = mutableListOf<Instruction>()
+        instructions.addAll(visit(ast.ident))
+        val reg = programState.recentlyUsedCalleeReg()
+        // Perform runtime error null reference check
+        instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
+        instructions.add(BranchInstruction(Condition.AL, RuntimeErrors.nullReferenceLabel, true))
+        ProgramState.runtimeErrors.addNullReferenceCheck()
+//        instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
+        return instructions
     }
 }
