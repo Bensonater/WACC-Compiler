@@ -1,7 +1,6 @@
 package optimisation
 
 import backend.addressingmodes.ImmediateInt
-import backend.addressingmodes.RegisterMode
 import backend.addressingmodes.RegisterOperand
 import backend.instruction.*
 
