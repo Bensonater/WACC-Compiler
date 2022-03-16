@@ -24,6 +24,9 @@ class ArithmeticInstruction (val type: ArithmeticInstrType, val reg1: Register, 
         return when (language) {
             Language.ARM -> "$type${if (update) "S" else ""} $reg1, $reg2, $operand"
             Language.X86_64 -> {
+                if (type == ArithmeticInstrType.RSB) {
+                    return "neg $reg1"
+                }
                 var result = ""
                 if (reg1 != reg2) {
                     result += "mov $reg2, $reg1\n\t"
