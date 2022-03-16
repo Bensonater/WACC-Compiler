@@ -1,5 +1,6 @@
 package backend.global
 
+import backend.Language
 import backend.ProgramState
 import backend.addressingmodes.ImmediateIntOperand
 import backend.addressingmodes.ImmediateLabel
@@ -8,6 +9,7 @@ import backend.addressingmodes.RegisterOperand
 import backend.enums.Condition
 import backend.enums.Register
 import backend.instruction.*
+import language
 
 class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
 
@@ -108,14 +110,28 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
     fun addDivideByZeroCheck() {
         if (!errors.containsKey(ErrorType.DIVIDE_BY_ZERO)) {
             val errorMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.DIVIDE_BY_ZERO.toString())
-            errors[ErrorType.DIVIDE_BY_ZERO] = listOf(
-                divideZeroCheckLabel,
-                PushInstruction(Register.LR),
-                CompareInstruction(Register.R1, ImmediateIntOperand(0)),
-                LoadInstruction(Condition.EQ, ImmediateLabel(errorMsgLabel), Register.R0),
-                BranchInstruction(Condition.EQ, throwRuntimeErrorLabel, true),
-                PopInstruction(Register.PC)
-            )
+            errors[ErrorType.DIVIDE_BY_ZERO] = when (language) {
+                Language.ARM -> listOf(
+                        divideZeroCheckLabel,
+                        PushInstruction(Register.LR),
+                        CompareInstruction(Register.R1, ImmediateIntOperand(0)),
+                        LoadInstruction(Condition.EQ, ImmediateLabel(errorMsgLabel), Register.R0),
+                        BranchInstruction(Condition.EQ, throwRuntimeErrorLabel, true),
+                        PopInstruction(Register.PC)
+                    )
+                Language.X86_64 -> {
+                    listOf(
+                        divideZeroCheckLabel,
+                        PushInstruction(Register.LR),
+                        MoveInstruction(Condition.AL, Register.LR, RegisterMode(Register.SP)),
+                        CompareInstruction(Register.R1, ImmediateIntOperand(0)),
+                        LoadInstruction(Condition.AL, ImmediateLabel(errorMsgLabel), Register.R12),
+                        CMoveInstruction(Condition.EQ, Register.R12, Register.R0),
+                        BranchInstruction(Condition.EQ, throwRuntimeErrorLabel, false),
+                        EndInstruction()
+                    )
+                }
+            }
         }
         addThrowRuntimeError()
     }
