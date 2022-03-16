@@ -335,8 +335,8 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val isBoolOrChar = rhsType is BaseTypeAST && (rhsType.type == BaseType.BOOL || rhsType.type == BaseType.CHAR)
         val memoryType = if (isBoolOrChar) Memory.B else null
 
-        if (ast.assignRhs is PairElemAST || ast.assignRhs is PointerElemAST) {
-            instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
+        if (ast.assignRhs is PairElemAST || ast.assignRhs is ArrayElemAST || ast.assignRhs is PointerElemAST) {
+            instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg, memoryType))
         }
 
         when (ast.assignLhs) {
@@ -428,7 +428,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             }
         }
 
-        if (ast.assignRhs is PairElemAST || ast.assignRhs is ArrayElemAST) {
+        if (ast.assignRhs is PairElemAST || ast.assignRhs is ArrayElemAST || ast.assignRhs is PointerElemAST) {
             instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg, memoryType))
         }
         instructions.add(
