@@ -42,7 +42,7 @@ argList: expr (COMMA expr)*;
 
 pairElem: FST expr | SND expr;
 
-pointerElem: MULT ident;
+pointerElem: MULT expr;
 
 type: baseType | arrayType | pairType | pointerType;
 
