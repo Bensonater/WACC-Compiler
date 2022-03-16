@@ -175,8 +175,15 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                         instructions.add(MoveInstruction(Condition.AL, reg1, RegisterOperand(Register.R0)))
                     }
                     IntBinOp.MOD -> {
-                        instructions.add(BranchInstruction(Condition.AL, GeneralLabel("__aeabi_idivmod"), true))
-                        instructions.add(MoveInstruction(Condition.AL, reg1, RegisterOperand(Register.R1)))
+                        if (language == Language.ARM) {
+                            instructions.add(BranchInstruction(Condition.AL, GeneralLabel("__aeabi_idivmod"), true))
+                            instructions.add(MoveInstruction(Condition.AL, reg1, RegisterOperand(Register.R1)))
+                        } else {
+                            instructions.add(MoveInstruction(Condition.AL, Register.R3, ImmediateIntOperand(0)))
+                            instructions.add(SignExtendInstruction(Memory.Q))
+                            instructions.add(DivideInstruction(Register.R1))
+                            instructions.add(MoveInstruction(Condition.AL, reg1, RegisterOperand(Register.R3)))
+                        }
                     }
                 }
             }
