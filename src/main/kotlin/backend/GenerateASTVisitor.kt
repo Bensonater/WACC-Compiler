@@ -228,6 +228,12 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             UnOp.LEN -> {
                 instructions.add(LoadInstruction(Condition.AL, RegisterMode(Register.SP), reg))
                 instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
+                if (language == Language.X86_64) {
+                    val tempReg = programState.getFreeCalleeReg()
+                    instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(reg, 0), tempReg))
+                    instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(tempReg, 0), reg))
+                    programState.freeCalleeReg()
+                }
             }
         }
         return instructions
