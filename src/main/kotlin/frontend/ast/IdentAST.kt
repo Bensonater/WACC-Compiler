@@ -24,8 +24,6 @@ class IdentAST(val ctx: ParserRuleContext, val name: String) : ExprAST(ctx) {
     }
 
     override fun getType(symbolTable: SymbolTable): TypeAST {
-        println(name)
-        println(symbolTable.lookupAll(name))
         return when (val type = symbolTable.lookupAll(name)) {
             is DeclareAST -> type.type
             is FuncAST -> type.type

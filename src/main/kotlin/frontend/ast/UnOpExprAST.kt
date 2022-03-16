@@ -26,24 +26,10 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
         if (!expr.check(symbolTable)) {
             return false
         }
-        if (unOp == UnOp.LEN) {
-            if (expr.getType(symbolTable) !is ArrayTypeAST) {
-                semanticErrorHandler.typeMismatch(
-                    ctx,
-                    "ARRAY",
-                    expr.getType(symbolTable).toString()
-                )
-                return false
-            }
-            return true
-        }
         val exprType = expr.getType(symbolTable)
-        if (exprType !is BaseTypeAST) {
-            return false
-        }
         when (unOp) {
             UnOp.NOT -> {
-                if (exprType.type != BaseType.BOOL) {
+                if (exprType !is BaseTypeAST || exprType.type != BaseType.BOOL) {
                     semanticErrorHandler.typeMismatch(
                         ctx,
                         BaseType.BOOL.toString(),
@@ -52,8 +38,8 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                     return false
                 }
             }
-            UnOp.MINUS -> {
-                if (exprType.type != BaseType.INT) {
+            UnOp.MINUS, UnOp.CHR -> {
+                if (exprType !is BaseTypeAST || exprType.type != BaseType.INT) {
                     semanticErrorHandler.typeMismatch(
                         ctx,
                         BaseType.INT.toString(),
@@ -62,8 +48,18 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                     return false
                 }
             }
+            UnOp.LEN -> {
+                if (exprType !is ArrayTypeAST) {
+                    semanticErrorHandler.typeMismatch(
+                        ctx,
+                        "ARRAY",
+                        expr.getType(symbolTable).toString()
+                    )
+                    return false
+                }
+            }
             UnOp.ORD -> {
-                if (exprType.type != BaseType.CHAR) {
+                if (exprType !is BaseTypeAST || exprType.type != BaseType.CHAR) {
                     semanticErrorHandler.typeMismatch(
                         ctx,
                         BaseType.CHAR.toString(),
@@ -72,21 +68,11 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                     return false
                 }
             }
-            UnOp.CHR -> {
-                if (exprType.type != BaseType.INT) {
-                    semanticErrorHandler.typeMismatch(
-                        ctx,
-                        BaseType.INT.toString(),
-                        exprType.toString()
-                    )
-                    return false
-                }
-            }
             UnOp.REF -> {
-                if (expr !is IdentAST && expr !is ArrayElemAST) {
+                if (expr !is IdentAST && expr !is ArrayElemAST && expr !is PointerElemAST) {
                     semanticErrorHandler.typeMismatch(
                         ctx,
-                        "Variable or Array",
+                        "Variable, Array element or Pointer element",
                         exprType.toString()
                     )
                     return false
@@ -101,10 +87,6 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                     )
                     return false
                 }
-            }
-
-            else -> {
-                return false
             }
         }
         return true
