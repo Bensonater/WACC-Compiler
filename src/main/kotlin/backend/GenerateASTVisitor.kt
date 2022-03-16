@@ -246,7 +246,18 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val offset = findIdentOffset(ast.symbolTable, ast.name) + ast.symbolTable.callOffset
         val typeAST = ast.getType(ast.symbolTable)
         val isBoolOrChar = typeAST is BaseTypeAST && (typeAST.type == BaseType.BOOL || typeAST.type == BaseType.CHAR)
-        val memoryType = if (isBoolOrChar) Memory.SB else null
+        val memoryType: Memory? = when (language) {
+            Language.ARM -> if (isBoolOrChar) Memory.B else null
+            Language.X86_64 -> {
+                if (isBoolOrChar) {
+                    Memory.B
+                } else if (typeAST is BaseTypeAST && typeAST.type == BaseType.INT) {
+                    Memory.L
+                } else {
+                    null
+                }
+            }
+        }
         return listOf(LoadInstruction(Condition.AL, RegisterModeWithOffset(Register.SP, offset),
             programState.getFreeCalleeReg(), memoryType))
     }
@@ -409,7 +420,18 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         }
         ast.symbolTable.currOffset -= ast.type.size
         val isBoolOrChar = ast.type is BaseTypeAST && (ast.type.type == BaseType.BOOL || ast.type.type == BaseType.CHAR)
-        val memoryType = if (isBoolOrChar) Memory.B else null
+        val memoryType: Memory? = when (language) {
+            Language.ARM -> if (isBoolOrChar) Memory.B else null
+            Language.X86_64 -> {
+                if (isBoolOrChar) {
+                    Memory.B
+                } else if (ast.type is BaseTypeAST && ast.type.type == BaseType.INT) {
+                    Memory.L
+                } else {
+                    null
+                }
+            }
+        }
         val reg = programState.recentlyUsedCalleeReg()
 
         if (ast.type is PairTypeAST) {
