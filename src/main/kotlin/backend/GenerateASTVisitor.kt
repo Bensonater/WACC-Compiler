@@ -136,17 +136,21 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 ProgramState.runtimeErrors.addOverflowError()
             }
             IntBinOp.MULT -> {
-                val shiftAmount = 31
-                if (accumUsed) {
-                    instructions.add(MultiplyInstruction(Condition.AL, reg1, reg2, reg2, reg1))
-                } else {
-                    instructions.add(MultiplyInstruction(Condition.AL, reg1, reg2, reg1, reg2))
-                }
-                instructions.add(CompareInstruction(reg2, RegisterOperandWithShift(reg1, ShiftType.ASR, shiftAmount)))
                 if (language == Language.ARM) {
+                    val shiftAmount = 31
+                    if (accumUsed) {
+                        instructions.add(MultiplyInstruction(Condition.AL, reg1, reg2, reg2, reg1))
+                    } else {
+                        instructions.add(MultiplyInstruction(Condition.AL, reg1, reg2, reg1, reg2))
+                    }
+                    instructions.add(CompareInstruction(reg2, RegisterOperandWithShift(reg1, ShiftType.ASR, shiftAmount)))
                     instructions.add(BranchInstruction(Condition.NE, RuntimeErrors.throwOverflowErrorLabel, true))
                 } else {
-                    instructions.add(BranchInstruction(Condition.NE, RuntimeErrors.throwOverflowErrorLabel, false))
+                    instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterMode(reg2)))
+                    instructions.add(iMultiplyInstruction(reg1))
+                    instructions.add(MoveInstruction(Condition.AL, reg1, RegisterMode(Register.R0)))
+//                    instructions.add(CompareInstruction(reg2, RegisterOperandWithShift(reg1, ShiftType.ASR, shiftAmount)))
+//                     instructions.add(BranchInstruction(Condition.NE, RuntimeErrors.throwOverflowErrorLabel, false))
                 }
                 ProgramState.runtimeErrors.addOverflowError()
             }
@@ -162,7 +166,12 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 ProgramState.runtimeErrors.addDivideByZeroCheck()
                 when (ast.binOp) {
                     IntBinOp.DIV -> {
-                        instructions.add(BranchInstruction(Condition.AL, GeneralLabel("__aeabi_idiv"), true))
+                        if (language == Language.ARM) {
+                            instructions.add(BranchInstruction(Condition.AL, GeneralLabel("__aeabi_idiv"), true))
+                        } else {
+                            instructions.add(MoveInstruction(Condition.AL, Register.R3, ImmediateIntOperand(0)))
+                            instructions.add(DivideInstruction(Register.R1))
+                        }
                         instructions.add(MoveInstruction(Condition.AL, reg1, RegisterOperand(Register.R0)))
                     }
                     IntBinOp.MOD -> {
