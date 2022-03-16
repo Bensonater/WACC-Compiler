@@ -279,8 +279,23 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 }
             }
         }
-        return listOf(LoadInstruction(Condition.AL, RegisterModeWithOffset(Register.SP, offset),
-            programState.getFreeCalleeReg(), memoryType))
+        return if (language == Language.ARM) {
+            listOf(LoadInstruction(Condition.AL, RegisterModeWithOffset(Register.SP, offset),
+                programState.getFreeCalleeReg(), memoryType))
+        } else {
+            val reg = programState.getFreeCalleeReg()
+            val instructions = mutableListOf<Instruction>(
+                LoadInstruction(
+                    Condition.AL, RegisterModeWithOffset(Register.SP, offset),
+                    reg, memoryType
+                ))
+            if (typeAST is BaseTypeAST && typeAST.type == BaseType.INT) {
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), Register.R0))
+                instructions.add(SignExtendInstruction(Memory.L))
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(Register.R0), reg))
+            }
+            instructions
+        }
     }
 
     /**
