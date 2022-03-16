@@ -230,13 +230,8 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     val offset = findIdentOffset(ast.symbolTable, ast.expr.name) + ast.symbolTable.callOffset
                     instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, reg, Register.SP, ImmediateIntOperand(offset)))
                 }
-                // Load the address of the variable to register for arrays as well.
-                instructions.add(MoveInstruction(Condition.AL, reg, RegisterOperand(reg)))
             }
             UnOp.DEREF -> {
-                if (ast.expr is ArrayElemAST) {
-                    instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
-                }
                 // Perform runtime error null reference check
                 instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                 instructions.add(BranchInstruction(Condition.AL, RuntimeErrors.nullReferenceLabel, true))
