@@ -113,7 +113,12 @@ class BinOpExprAST(
         return true
     }
 
-    override fun getType(symbolTable: SymbolTable): TypeAST {
+    override fun getType(symbolTable: SymbolTable): TypeAST? {
+        // Allow pointer arithmetic
+        if (pointerArithmetic) {
+            return expr1.getType(symbolTable)
+        }
+
         return if (binOp is IntBinOp)
             BaseTypeAST(ctx, BaseType.INT)
         else
