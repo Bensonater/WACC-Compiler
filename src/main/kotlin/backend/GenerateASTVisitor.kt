@@ -208,8 +208,10 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         instructions.addAll(visit(ast.expr))
         val reg = programState.recentlyUsedCalleeReg()
 
-        // Load content at address back to register for elem expressions
-        loadAddress(ast.expr, instructions, reg)
+        if (ast.unOp != UnOp.REF) {
+            // Load content at address back to register for elem expressions
+            loadAddress(ast.expr, instructions, reg)
+        }
 
         // Add instructions based on the type of unary operator
         when (ast.unOp) {
