@@ -8,7 +8,7 @@ class SignExtendInstruction(val from: Memory) :Instruction {
             Memory.B, Memory.SB -> "cbw"
             Memory.W -> "cwde"
             Memory.L -> "cdqe"
-            else -> ""
+            Memory.Q -> "cqo"
         }
     }
 
