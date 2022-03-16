@@ -192,6 +192,7 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
                 MoveInstruction(Condition.AL, Register.R0, ImmediateLabel(falseLabel)),
                 CMoveInstruction(Condition.EQ, Register.R0, Register.R1),
                 ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R1, Register.R1, ImmediateIntOperand(4)),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0))
             )
