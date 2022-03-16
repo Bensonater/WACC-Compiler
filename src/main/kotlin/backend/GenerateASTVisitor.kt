@@ -128,7 +128,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 } else {
                     instructions.add(ArithmeticInstruction(instr, reg1, reg1, RegisterOperand(reg2), true))
                 }
-                instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
+                if (language == Language.ARM) {
+                    instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
+                } else {
+                    instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, false))
+                }
                 ProgramState.runtimeErrors.addOverflowError()
             }
             IntBinOp.MULT -> {
@@ -139,7 +143,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     instructions.add(MultiplyInstruction(Condition.AL, reg1, reg2, reg1, reg2))
                 }
                 instructions.add(CompareInstruction(reg2, RegisterOperandWithShift(reg1, ShiftType.ASR, shiftAmount)))
-                instructions.add(BranchInstruction(Condition.NE, RuntimeErrors.throwOverflowErrorLabel, true))
+                if (language == Language.ARM) {
+                    instructions.add(BranchInstruction(Condition.NE, RuntimeErrors.throwOverflowErrorLabel, true))
+                } else {
+                    instructions.add(BranchInstruction(Condition.NE, RuntimeErrors.throwOverflowErrorLabel, false))
+                }
                 ProgramState.runtimeErrors.addOverflowError()
             }
             IntBinOp.DIV, IntBinOp.MOD -> {
