@@ -86,6 +86,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
 
     /**
      * Translate the binary operator expression AST.
+     * Loads result to recentlyUsedCalleeReg
      */
     override fun visitBinOpExprAST(ast: BinOpExprAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
@@ -194,6 +195,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
 
     /**
      * Translate the unary operator AST.
+     * Loads real value to recentlyUsedCalleeReg
      */
     override fun visitUnOpExprAST(ast: UnOpExprAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
@@ -245,6 +247,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
 
     /**
      * Translate ident variable AST and find offset on stack for that variable
+     * Loads real value to recentlyUsedCalleeReg
      */
     override fun visitIdentAST(ast: IdentAST): List<Instruction> {
         val offset = findIdentOffset(ast.symbolTable, ast.name) + ast.symbolTable.callOffset
@@ -257,6 +260,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
 
     /**
      * Translate Pair Element AST for indexing a pair
+     * Loads element address into recentlyUsedCalleeReg
      */
     override fun visitPairElemAST(ast: PairElemAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
@@ -647,6 +651,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
 
     /**
      * Translates an array element AST, e.g. a[3] where int x = a[3]
+     * Loads element address into recentlyUsedCalleeReg
      */
     override fun visitArrayElemAST(ast: ArrayElemAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
@@ -763,6 +768,10 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         return instructions
     }
 
+    /**
+     * Generate code for a pointer on LHS e.g. *a = 1
+     * Loads pointer address into recentlyUsedCalleeReg
+     */
     override fun visitPointerElemAST(ast: PointerElemAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast.ident))
@@ -771,7 +780,6 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
         instructions.add(BranchInstruction(Condition.AL, RuntimeErrors.nullReferenceLabel, true))
         ProgramState.runtimeErrors.addNullReferenceCheck()
-        instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
         return instructions
     }
 }
