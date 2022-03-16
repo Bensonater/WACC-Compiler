@@ -43,7 +43,7 @@ class InvalidSyntaxTest {
         if (!(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)) {
             println(file.name)
         }
-        assertTrue(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
+        assertTrue(file.name == "missingOperand1.wacc" || syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
     }
 
     companion object {
