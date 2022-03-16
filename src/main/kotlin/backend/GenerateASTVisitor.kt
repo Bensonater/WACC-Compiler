@@ -239,7 +239,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             }
             UnOp.MINUS -> {
                 instructions.add(ArithmeticInstruction(ArithmeticInstrType.RSB, reg, reg, ImmediateIntOperand(0), true))
-                instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
+                if (language == Language.ARM) {
+                    instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
+                } else {
+                    instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, false))
+                }
                 ProgramState.runtimeErrors.addOverflowError()
             }
             UnOp.LEN -> {
