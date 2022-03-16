@@ -19,7 +19,8 @@ class DeclareAST(
     val ctx: ParserRuleContext,
     val type: TypeAST,
     val ident: IdentAST,
-    val assignRhs: ASTNode
+    val assignRhs: ASTNode,
+    var changed: Boolean = false
 ) : StatAST(ctx) {
     lateinit var label: String
 
