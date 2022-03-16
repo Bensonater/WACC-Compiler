@@ -1,9 +1,9 @@
 package optimisation
 
+import backend.addressingmodes.ImmediateInt
 import backend.addressingmodes.RegisterMode
-import backend.instruction.Instruction
-import backend.instruction.LoadInstruction
-import backend.instruction.StoreInstruction
+import backend.addressingmodes.RegisterOperand
+import backend.instruction.*
 
 class InstrEval {
     fun optimise(instructions: List<Instruction>): List<Instruction> {
@@ -11,7 +11,7 @@ class InstrEval {
 
         var prev = instructions.first()
         for (i in instructions) {
-            if (storeThenLoad(prev, i)) {
+            if (storeThenLoad(prev, i) || addZero(prev, i)) {
             } else {
                 optimised.add(i)
             }
@@ -21,13 +21,14 @@ class InstrEval {
     }
 
     private fun storeThenLoad(prev: Instruction, curr: Instruction): Boolean {
-        return prev is StoreInstruction && curr is LoadInstruction && prev.reg == curr.register
-                && prev.mode is RegisterMode && curr.addressingMode is RegisterMode && prev.mode.reg == curr.addressingMode.reg
+        return prev is StoreInstruction && curr is LoadInstruction && prev.reg.toString() == curr.register.toString()
+                && prev.mode.toString() == curr.addressingMode.toString()
     }
 
-//    fun optimiseAddZero(instructions: List<Instruction>): List<Instruction>{
-//        val addInstr = instructions.filterNot { it is ArithmeticInstruction && it.type is  }
-//
-//    }
+    private fun addZero(prev: Instruction, curr: Instruction): Boolean {
+        return prev is LoadInstruction && prev.addressingMode is ImmediateInt && prev.addressingMode.num == 0
+                && curr is ArithmeticInstruction && curr.type == ArithmeticInstrType.ADD && curr.operand is RegisterOperand
+                && curr.operand.register.toString() == prev.register.toString() && curr.reg1 == curr.reg2
+    }
 
 }
