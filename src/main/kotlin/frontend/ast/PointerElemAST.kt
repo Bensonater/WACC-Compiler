@@ -7,13 +7,13 @@ import frontend.ast.type.TypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
-class PointerElemAST(val ctx: ParserRuleContext, val ident: IdentAST): ASTNode(ctx) {
+class PointerElemAST(val ctx: ParserRuleContext, val expr: ExprAST): ASTNode(ctx) {
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
-        if (!ident.check(symbolTable)) {
+        if (!expr.check(symbolTable)) {
             return false
         }
-        val identType = ident.getType(symbolTable)
+        val identType = expr.getType(symbolTable)
         if (identType !is PointerTypeAST) {
             semanticErrorHandler.typeMismatch(ctx, "Pointer", identType.toString())
             return false
@@ -22,7 +22,7 @@ class PointerElemAST(val ctx: ParserRuleContext, val ident: IdentAST): ASTNode(c
     }
 
     override fun getType(symbolTable: SymbolTable): TypeAST {
-        return (ident.getType(symbolTable) as PointerTypeAST).type
+        return (expr.getType(symbolTable) as PointerTypeAST).type
     }
 
     override fun <S : T, T> accept(visitor: ASTVisitor<S>): T? {

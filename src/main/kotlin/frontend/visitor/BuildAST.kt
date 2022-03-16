@@ -285,7 +285,7 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitPointerElem(ctx: WACCParser.PointerElemContext): ASTNode {
-        return PointerElemAST(ctx, visit(ctx.ident()) as IdentAST)
+        return PointerElemAST(ctx, visit(ctx.expr()) as ExprAST)
     }
 
     override fun visitPointerType(ctx: WACCParser.PointerTypeContext): ASTNode {

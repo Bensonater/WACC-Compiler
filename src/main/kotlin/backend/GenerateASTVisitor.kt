@@ -774,7 +774,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
      */
     override fun visitPointerElemAST(ast: PointerElemAST): List<Instruction> {
         val instructions = mutableListOf<Instruction>()
-        instructions.addAll(visit(ast.ident))
+        instructions.addAll(visit(ast.expr))
         val reg = programState.recentlyUsedCalleeReg()
         // Perform runtime error null reference check
         instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
