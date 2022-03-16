@@ -170,8 +170,19 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     instructions.add(CompareInstruction(reg1, RegisterOperand(reg2)))
                 }
 
-                instructions.add(MoveInstruction(ast.binOp.cond, reg1, ImmediateBoolOperand(true)))
-                instructions.add(MoveInstruction(ast.binOp.opposite, reg1, ImmediateBoolOperand(false)))
+                if (language == Language.ARM) {
+                    instructions.add(MoveInstruction(ast.binOp.cond, reg1, ImmediateBoolOperand(true)))
+                    instructions.add(MoveInstruction(ast.binOp.opposite, reg1, ImmediateBoolOperand(false)))
+                } else {
+                    val tempReg = programState.getFreeCalleeReg()
+                    instructions.add(MoveInstruction(Condition.AL, tempReg,
+                        ImmediateBoolOperand(true)))
+                    instructions.add(CMoveInstruction(ast.binOp.cond, reg1, tempReg))
+                    instructions.add(MoveInstruction(Condition.AL, tempReg,
+                        ImmediateBoolOperand(false)))
+                    instructions.add(CMoveInstruction(ast.binOp.opposite, reg1, tempReg))
+                    programState.freeCalleeReg()
+                }
             }
             BoolBinOp.AND -> {
                 if (accumUsed) {
