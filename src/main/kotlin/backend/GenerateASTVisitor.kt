@@ -177,10 +177,10 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     val tempReg = programState.getFreeCalleeReg()
                     instructions.add(MoveInstruction(Condition.AL, tempReg,
                         ImmediateBoolOperand(true)))
-                    instructions.add(CMoveInstruction(ast.binOp.cond, reg1, tempReg))
+                    instructions.add(CMoveInstruction(ast.binOp.cond, tempReg, reg1))
                     instructions.add(MoveInstruction(Condition.AL, tempReg,
                         ImmediateBoolOperand(false)))
-                    instructions.add(CMoveInstruction(ast.binOp.opposite, reg1, tempReg))
+                    instructions.add(CMoveInstruction(ast.binOp.opposite, tempReg, reg1))
                     programState.freeCalleeReg()
                 }
             }
