@@ -233,6 +233,21 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 // Load the address of the variable to register for arrays as well.
                 instructions.add(MoveInstruction(Condition.AL, reg, RegisterOperand(reg)))
             }
+            UnOp.DEREF -> {
+                if (ast.expr is ArrayElemAST) {
+                    instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
+                }
+                // Perform runtime error null reference check
+                instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
+                instructions.add(BranchInstruction(Condition.AL, RuntimeErrors.nullReferenceLabel, true))
+                ProgramState.runtimeErrors.addNullReferenceCheck()
+
+                val baseType = (ast.expr.getType(ast.symbolTable) as PointerTypeAST).type
+                val memType = if (baseType is BaseTypeAST && (baseType.type == BaseType.BOOL || baseType.type == BaseType.CHAR))
+                    Memory.SB else null
+                // Load real value from memory.
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg, memType))
+            }
             else -> {}
         }
         return instructions

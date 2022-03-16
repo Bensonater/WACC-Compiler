@@ -13,6 +13,7 @@ enum class UnOp {
     ORD,
     CHR,
     REF,
+    DEREF
 }
 
 /**
@@ -91,6 +92,17 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                     return false
                 }
             }
+            UnOp.DEREF -> {
+                if (exprType !is PointerTypeAST) {
+                    semanticErrorHandler.typeMismatch(
+                        ctx,
+                        "Pointer",
+                        exprType.toString()
+                    )
+                    return false
+                }
+            }
+
             else -> {
                 return false
             }
@@ -104,6 +116,7 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
             UnOp.CHR -> BaseTypeAST(ctx, BaseType.CHAR)
             UnOp.MINUS, UnOp.LEN, UnOp.ORD -> BaseTypeAST(ctx, BaseType.INT)
             UnOp.REF -> PointerTypeAST(ctx, expr.getType(symbolTable)!!)
+            UnOp.DEREF -> (expr.getType(symbolTable) as PointerTypeAST).type
         }
     }
 

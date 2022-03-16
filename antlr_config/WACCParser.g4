@@ -63,7 +63,6 @@ expr: intLiter                     #exprSingle
 | pairLiter                        #exprSingle
 | ident                            #exprSingle
 | arrayElem                        #exprSingle
-| pointerElem                      #exprSingle
 | unaryOper expr                   #exprUnOp
 | expr binaryOper1 expr            #exprBinOp
 | expr binaryOper2 expr            #exprBinOp
@@ -74,7 +73,7 @@ expr: intLiter                     #exprSingle
 | L_PARENTHESIS expr R_PARENTHESIS #exprBrackets
 ;
 
-unaryOper: NOT | MINUS | LEN | ORD | CHR | REF;
+unaryOper: NOT | MINUS | LEN | ORD | CHR | REF | MULT;
 
 binaryOper1: MULT | DIV | MOD;
 
