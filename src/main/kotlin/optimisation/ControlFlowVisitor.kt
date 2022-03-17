@@ -16,9 +16,9 @@ class ControlFlowVisitor: OptimisationVisitor() {
         for (stat in branchStats) {
             newStats.add(visit(stat) as StatAST)
         }
-        val statMultiAST = StatMultiAST(ast.ctx, newStats)
-        statMultiAST.symbolTable = if (ast.expr.value) ast.thenSymbolTable else ast.elseSymbolTable
-        return statMultiAST
+        val newScope = BeginAST(ast.ctx, newStats)
+        newScope.symbolTable = if (ast.expr.value) ast.thenSymbolTable else ast.elseSymbolTable
+        return newScope
     }
 
     override fun visitWhileAST(ast: WhileAST): ASTNode {
