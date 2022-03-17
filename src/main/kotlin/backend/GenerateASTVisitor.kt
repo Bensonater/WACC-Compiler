@@ -69,6 +69,9 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         // Create label with the function name (preceded with "f_")
         instructions.add(FunctionLabel(ast.ident.name))
         instructions.add(PushInstruction(Register.LR))
+        if (language == Language.X86_64) {
+            instructions.add(MoveInstruction(Condition.AL, Register.LR, RegisterMode(Register.SP)))
+        }
         // Allocate space in the stack for the variables in the function.
         val stackOffset = allocateStack(ast.symbolTable, instructions)
         // Translate all the statements in the function.
@@ -79,7 +82,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         if (!(((lastStat is IfAST) && lastStat.thenReturns && lastStat.elseReturns)
                     || ((lastStat is StatSimpleAST) && lastStat.command == Command.EXIT))) {
             deallocateStack(stackOffset, instructions)
-            instructions.add(PopInstruction(Register.PC))
+            instructions.add(EndInstruction())
         }
         if (language == Language.ARM) {
             instructions.add(DirectiveInstruction("ltorg"))
@@ -677,7 +680,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             Command.RETURN -> {
                 instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                 moveStackPointer(ArithmeticInstrType.ADD, checkFuncOffset(ast.symbolTable), instructions)
-                instructions.add(PopInstruction(Register.PC))
+                instructions.add(EndInstruction())
                 programState.freeAllCalleeRegs()
             }
         }
