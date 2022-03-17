@@ -3,6 +3,8 @@ package backend.instruction
 import backend.Language
 import backend.enums.Register
 import backend.addressingmodes.AddressingMode
+import backend.addressingmodes.RegisterOperand
+import backend.addressingmodes.RegisterOperandWithShift
 import language
 
 enum class ArithmeticInstrType {
@@ -19,19 +21,27 @@ enum class ArithmeticInstrType {
 }
 
 
-class ArithmeticInstruction (val type: ArithmeticInstrType, val reg1: Register, val reg2: Register, val operand: AddressingMode, val update: Boolean = false) : Instruction {
+class ArithmeticInstruction (val type: ArithmeticInstrType, val reg1: Register, val reg2: Register, var operand: AddressingMode,
+                             val update: Boolean = false, val shifted: Register? = null) : Instruction {
     override fun toString(): String {
         return when (language) {
             Language.ARM -> "$type${if (update) "S" else ""} $reg1, $reg2, $operand"
             Language.X86_64 -> {
+                var result = ""
+                if (shifted != null) {
+                    result += "$operand\n\t"
+                }
                 if (type == ArithmeticInstrType.RSB) {
                     return "neg $reg1"
                 }
-                var result = ""
                 if (reg1 != reg2) {
                     result += "mov $reg2, $reg1\n\t"
                 }
-                result += "$type $operand, $reg1"
+                result += if (shifted == null) {
+                    "$type $operand, $reg1"
+                } else {
+                    "$type $shifted, $reg1"
+                }
                 return result
             }
 
