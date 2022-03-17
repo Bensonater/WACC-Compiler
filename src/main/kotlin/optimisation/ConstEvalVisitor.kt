@@ -92,21 +92,22 @@ class ConstEvalVisitor : OptimisationVisitor() {
     }
 
     /**
-     * If the ast is a literal, then we eval and return
-     * otherwise we attempt to eval until it is no longer possible
+     * Recursively evaluates the expression until it is a literal
      */
     private fun findExprLiteral(expr: ASTNode): ASTNode {
-        // Returns if we have found the literal AST
         when (expr) {
+            // Looks up the corresponding value if the ast is a variable ident
             is IdentAST -> {
                 val declare = expr.symbolTable.lookupAll(expr.name)!!
                 if (declare is DeclareAST) {
                     return findExprLiteral(declare.assignRhs)
                 }
             }
+            // Evaluates unary expressions
             is UnOpExprAST -> {
                 return propagateUnOpExprAST(expr)
             }
+            // Evaluates binary expressions
             is BinOpExprAST -> {
                 return propagateBinOpExprAST(expr)
             }
