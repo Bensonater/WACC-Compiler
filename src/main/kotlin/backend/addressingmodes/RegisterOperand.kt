@@ -28,7 +28,7 @@ enum class ShiftType {
 
     override fun toString(): String {
         return when (language) {
-            Language.ARM -> this.toString()
+            Language.ARM -> name
             Language.X86_64 -> {
                 when (this) {
                     ASR -> "shr"
