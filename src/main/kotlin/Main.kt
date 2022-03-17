@@ -2,7 +2,7 @@ import org.antlr.v4.runtime.CharStreams
 import kotlin.system.exitProcess
 import frontend.errors.*
 import optimisation.ControlFlowVisitor
-import optimisation.ConstEvalVisitor
+import optimisation.ConstEvalPropVisitor
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -26,12 +26,12 @@ fun main(args: Array<String>) {
 
     // Optimise AST by refactoring AST tree and chaining multiple optimisations
     val optimiseAll = args.contains("-o")
-    val constEval = optimiseAll || args.contains("-oCE")
-    val instrEval = optimiseAll || args.contains("-oIE")
+    val constEvalProp = optimiseAll || args.contains("-oCEP")
     val controlFlow = optimiseAll || args.contains("-oCF")
+    val instrEval = optimiseAll || args.contains("-oIE")
 
-    if (constEval) {
-        ast = ConstEvalVisitor().visit(ast)
+    if (constEvalProp) {
+        ast = ConstEvalPropVisitor().visit(ast)
     }
     if (controlFlow) {
         ast = ControlFlowVisitor().visit(ast)

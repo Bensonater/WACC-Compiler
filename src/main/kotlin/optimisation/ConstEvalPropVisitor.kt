@@ -7,7 +7,7 @@ import frontend.ast.literal.IntLiterAST
 import frontend.ast.statement.*
 import frontend.ast.type.BaseTypeAST
 
-class ConstEvalVisitor : OptimisationVisitor() {
+class ConstEvalPropVisitor : OptimisationVisitor() {
 
     override fun visitAssignAST(ast: AssignAST): ASTNode {
         val assignAST = AssignAST(ast.ctx, ast.assignLhs, visit(ast.assignRhs))
