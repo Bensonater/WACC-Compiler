@@ -124,7 +124,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     ArithmeticInstrType.SUB
                 }
                 if (accumUsed) {
-                    instructions.add(ArithmeticInstruction(instr, reg1, reg2, RegisterOperand(reg1), true))
+                    if (language == Language.ARM) {
+                        instructions.add(ArithmeticInstruction(instr, reg1, reg2, RegisterOperand(reg1), true))
+                    } else {
+                        instructions.add(ArithmeticInstruction(instr, reg1, reg1, RegisterOperand(reg2), true))
+                    }
                 } else {
                     instructions.add(ArithmeticInstruction(instr, reg1, reg1, RegisterOperand(reg2), true))
                 }
