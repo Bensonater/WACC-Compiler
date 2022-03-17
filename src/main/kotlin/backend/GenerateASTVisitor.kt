@@ -754,7 +754,9 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 }
 
             }
-            instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(stackReg, 0), stackReg))
+            if (language == Language.X86_64) {
+                instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(stackReg, 0), stackReg))
+            }
             programState.freeCalleeReg()
         }
         return instructions
