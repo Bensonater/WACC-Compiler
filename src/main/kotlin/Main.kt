@@ -2,6 +2,7 @@ import org.antlr.v4.runtime.CharStreams
 import kotlin.system.exitProcess
 import frontend.errors.*
 import optimisation.ControlFlowVisitor
+import optimisation.ConstEvalVisitor
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -30,8 +31,14 @@ fun main(args: Array<String>) {
     val instrEval = optimiseAll || args.contains("-oIE")
     val controlFlow = optimiseAll || args.contains("-oCF")
 
-//    if (constEval) {
-//        ast = ConstEvalVisitor().visit(ast)
+    if (constEval) {
+        ast = ConstEvalVisitor().visit(ast)
+    }
+//    if (controlFlow) {
+//        ast = ControlFlowVisitor().visit(ast)
+//    }
+//    if (instrEval) {
+//        ast = InstrEvalVisitor().visit(ast)
 //    }
 //    if (constProp) {
 //        ast = ConstPropVisitor().visit(ast)
