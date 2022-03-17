@@ -17,7 +17,7 @@ class ControlFlowVisitor: OptimisationVisitor() {
             newStats.add(visit(stat) as StatAST)
         }
         val statMultiAST = StatMultiAST(ast.ctx, newStats)
-        statMultiAST.symbolTable = ast.symbolTable
+        statMultiAST.symbolTable = if (ast.expr.value) ast.thenSymbolTable else ast.elseSymbolTable
         return statMultiAST
     }
 
