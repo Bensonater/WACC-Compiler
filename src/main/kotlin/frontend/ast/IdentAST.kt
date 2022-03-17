@@ -30,7 +30,7 @@ class IdentAST(val ctx: ParserRuleContext, val name: String) : ExprAST(ctx) {
             is ParamAST -> type.type
             is ArrayTypeAST -> type
             is PairTypeAST -> type
-            else -> throw RuntimeException("Unknown type")
+            else -> throw RuntimeException("Undefined variable $name. Symbol table lost!")
         }
     }
 
