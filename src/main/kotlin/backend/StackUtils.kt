@@ -9,6 +9,7 @@ import frontend.FuncSymbolTable
 import frontend.SymbolTable
 import frontend.ast.ParamAST
 import frontend.ast.statement.DeclareAST
+import language
 
 const val SIZE_OF_POINTER = 4
 private const val MAX_STACK_OFFSET = 1024
@@ -86,7 +87,7 @@ fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
  */
 fun findIdentOffset(symbolTable: SymbolTable, ident: String, accOffset: Int = 0): Int {
     val totalOffset = accOffset + symbolTable.symbolTable.values.sumOf { it.size() }
-    val returnPointerSize = 4
+    val returnPointerSize = if (language == Language.X86_64) 16 else 4
     var offsetCount = 0
     for ((key, node) in symbolTable.symbolTable) {
         if (key == ident && node is ParamAST) {
