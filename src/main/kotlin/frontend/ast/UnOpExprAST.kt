@@ -69,10 +69,10 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                 }
             }
             UnOp.REF -> {
-                if (expr !is IdentAST && expr !is ArrayElemAST && expr !is PointerElemAST) {
+                if (expr !is IdentAST && expr !is ArrayElemAST && !(expr is UnOpExprAST && expr.unOp == UnOp.DEREF)) {
                     semanticErrorHandler.typeMismatch(
                         ctx,
-                        "Variable, Array element or Pointer element",
+                        "Variable, Array element or *( )",
                         exprType.toString()
                     )
                     return false
