@@ -1,6 +1,7 @@
 import org.antlr.v4.runtime.CharStreams
 import kotlin.system.exitProcess
 import frontend.errors.*
+import optimisation.ControlFlowVisitor
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -24,10 +25,10 @@ fun main(args: Array<String>) {
 
     // Optimise AST by refactoring AST tree and chaining multiple optimisations
     val optimiseAll = args.contains("-o")
-    val constProp = optimiseAll || args.contains("-oCP")
     val constEval = optimiseAll || args.contains("-oCE")
+    val constProp = optimiseAll || args.contains("-oCP")
     val instrEval = optimiseAll || args.contains("-oIE")
-    val controlFlow = optimiseAll || args.contains("oCF")
+    val controlFlow = optimiseAll || args.contains("-oCF")
 
 //    if (constEval) {
 //        ast = ConstEvalVisitor().visit(ast)
@@ -38,9 +39,9 @@ fun main(args: Array<String>) {
 //    if (instrEval) {
 //        ast = InstrEvalVisitor().visit(ast)
 //    }
-//    if (controlFlow) {
-//        ast = ControlFlowVisitor().visit(ast)
-//    }
+    if (controlFlow) {
+        ast = ControlFlowVisitor().visit(ast)
+    }
 
     // Generate assembly instructions by passing into backend
     val code = backend.main(ast)
