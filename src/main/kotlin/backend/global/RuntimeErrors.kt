@@ -60,13 +60,23 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
      */
     fun addThrowRuntimeError() {
         if (!errors.containsKey(ErrorType.RUNTIME_ERROR)) {
-             errors[ErrorType.RUNTIME_ERROR] = listOf(
-                throwRuntimeErrorLabel,
-                BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true),
-                // Exit code is -1
-                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(-1)),
-                BranchInstruction(Condition.AL, exitLabel, true)
-            )
+            if (language == Language.ARM) {
+                errors[ErrorType.RUNTIME_ERROR] = listOf(
+                        throwRuntimeErrorLabel,
+                        BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true),
+                        // Exit code is -1
+                        MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(-1)),
+                        BranchInstruction(Condition.AL, exitLabel, true)
+                    )
+            } else {
+                errors[ErrorType.RUNTIME_ERROR] = listOf(
+                    throwRuntimeErrorLabel,
+                    BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true),
+                    // Exit code is -1 to %rdi
+                    MoveInstruction(Condition.AL, Register.R1, ImmediateIntOperand(-1)),
+                    BranchInstruction(Condition.AL, exitLabel, true)
+                )
+            }
             globalVals.library.addCode(CallFunc.PRINT_STRING)
         }
     }
