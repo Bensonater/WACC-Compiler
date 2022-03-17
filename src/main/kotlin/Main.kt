@@ -28,7 +28,7 @@ fun main(args: Array<String>) {
     val constEval = optimiseAll || args.contains("-oCE")
     val constProp = optimiseAll || args.contains("-oCP")
     val instrEval = optimiseAll || args.contains("-oIE")
-    val controlFlow = optimiseAll || args.contains("oCF")
+    val controlFlow = optimiseAll || args.contains("-oCF")
 
 //    if (constEval) {
 //        ast = ConstEvalVisitor().visit(ast)

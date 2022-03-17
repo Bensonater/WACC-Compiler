@@ -63,9 +63,8 @@ class GeneralCodeFunctionalityTest {
             println("OUR EXIT CODE: ${process.exitValue()}")
             println("----------------------")
         }
-        assertTrue(success)
-
         ProcessBuilder("rm", "$name.s", name).start().waitFor(5, TimeUnit.SECONDS)
+        assertTrue(success)
     }
 
 
