@@ -5,6 +5,7 @@ import backend.enums.Condition
 import frontend.SymbolTable
 import frontend.ast.type.BaseType
 import frontend.ast.type.BaseTypeAST
+import frontend.ast.type.PointerTypeAST
 import frontend.ast.type.TypeAST
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
@@ -45,6 +46,12 @@ class BinOpExprAST(
     val expr2: ExprAST
 ) :
     ExprAST(ctx) {
+
+    // Set to true if first operand is pointer for pointer arithmetic
+    var pointerArithmetic = false
+    // Shift offset in instruction if pointer arithmetic
+    var shiftOffset = 0
+
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable
         if (!expr1.check(symbolTable) || !expr2.check(symbolTable)) {
@@ -52,6 +59,20 @@ class BinOpExprAST(
         }
         val expr1Type = expr1.getType(symbolTable)
         val expr2Type = expr2.getType(symbolTable)
+
+        // Allow for pointer arithmetic
+        if (expr1Type is PointerTypeAST && expr2Type is BaseTypeAST && expr2Type.type == BaseType.INT
+            && (binOp == IntBinOp.PLUS || binOp == IntBinOp.MINUS)) {
+            pointerArithmetic = true
+            shiftOffset = when {
+                // Char and Bool pointers have a unit of 1 byte so don't need to shift
+                expr1Type.type is BaseTypeAST && expr1Type.type.type == BaseType.CHAR -> 0
+                expr1Type.type is BaseTypeAST && expr1Type.type.type == BaseType.BOOL -> 0
+                else -> 2 // All other types have a unit of 4 bytes, so need to shift by 2
+            }
+            return true
+        }
+
         if (expr1Type != expr2Type) {
             semanticErrorHandler.typeMismatch(ctx, expr1Type.toString(), expr2Type.toString())
             return false
@@ -61,9 +82,7 @@ class BinOpExprAST(
             is IntBinOp -> checkInt(expr1Type)
             is CmpBinOp -> checkCmp(expr1Type)
             is BoolBinOp -> checkBool(expr1Type)
-            else -> {
-                true
-            }
+            else -> true
         }
 
     }
@@ -94,7 +113,12 @@ class BinOpExprAST(
         return true
     }
 
-    override fun getType(symbolTable: SymbolTable): TypeAST {
+    override fun getType(symbolTable: SymbolTable): TypeAST? {
+        // Allow pointer arithmetic
+        if (pointerArithmetic) {
+            return expr1.getType(symbolTable)
+        }
+
         return if (binOp is IntBinOp)
             BaseTypeAST(ctx, BaseType.INT)
         else

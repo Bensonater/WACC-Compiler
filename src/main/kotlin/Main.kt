@@ -25,6 +25,7 @@ fun main(args: Array<String>) {
 
     // Optimise AST by refactoring AST tree and chaining multiple optimisations
     val optimiseAll = args.contains("-o")
+    val constProp = optimiseAll || args.contains("-oCP")
     val constEval = optimiseAll || args.contains("-oCE")
     val constProp = optimiseAll || args.contains("-oCP")
     val instrEval = optimiseAll || args.contains("-oIE")
