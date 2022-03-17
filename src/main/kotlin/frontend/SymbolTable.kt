@@ -88,14 +88,14 @@ open class SymbolTable {
     /**
      * Updates rhs of declared variable during optimisation
      */
-    fun updateVariable(name: String, rhs: ASTNode, changed: Boolean) {
+    fun updateVariable(name: String, rhs: ASTNode) {
         if (symbolTable.containsKey(name)) {
             val oldAST = symbolTable[name]
             if (oldAST is DeclareAST) {
-                symbolTable[name] = DeclareAST(oldAST.ctx, oldAST.type, oldAST.ident, rhs, changed)
+                symbolTable[name] = DeclareAST(oldAST.ctx, oldAST.type, oldAST.ident, rhs)
             }
         } else {
-            parent?.updateVariable(name, rhs, changed)
+            parent?.updateVariable(name, rhs)
         }
     }
 }

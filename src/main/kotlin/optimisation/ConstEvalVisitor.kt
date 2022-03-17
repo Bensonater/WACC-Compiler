@@ -12,7 +12,7 @@ class ConstEvalVisitor : OptimisationVisitor() {
     override fun visitAssignAST(ast: AssignAST): ASTNode {
         val assignAST = AssignAST(ast.ctx, ast.assignLhs, visit(ast.assignRhs))
         if (ast.assignLhs is IdentAST) {
-            ast.symbolTable.updateVariable(ast.assignLhs.name, assignAST.assignRhs, true)
+            ast.symbolTable.updateVariable(ast.assignLhs.name, assignAST.assignRhs)
         }
         assignAST.symbolTable = ast.symbolTable
 
@@ -28,7 +28,7 @@ class ConstEvalVisitor : OptimisationVisitor() {
     override fun visitDeclareAST(ast: DeclareAST): ASTNode {
         val rhs = if (ast.type is BaseTypeAST) findExprLiteral(ast.assignRhs) else visit(ast.assignRhs)
         val declareAST = DeclareAST(ast.ctx, ast.type, ast.ident, rhs)
-        ast.symbolTable.updateVariable(ast.ident.name, rhs, false)
+        ast.symbolTable.updateVariable(ast.ident.name, rhs)
         declareAST.symbolTable = ast.symbolTable
         return declareAST
     }
@@ -100,7 +100,7 @@ class ConstEvalVisitor : OptimisationVisitor() {
         when (expr) {
             is IdentAST -> {
                 val declare = expr.symbolTable.lookupAll(expr.name)!!
-                if (declare is DeclareAST && !declare.changed) {
+                if (declare is DeclareAST) {
                     return findExprLiteral(declare.assignRhs)
                 }
             }
