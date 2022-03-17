@@ -17,12 +17,24 @@ class RegisterOperandWithShift (val register: Register, val shiftType: ShiftType
     override fun toString(): String {
         return when (language) {
             Language.ARM -> "$register, $shiftType #$offset"
-            Language.X86_64 -> ""
+            Language.X86_64 -> "$shiftType $$offset, $register"
         }
     }
 }
 
 enum class ShiftType {
     ASR,
-    LSL
+    LSL;
+
+    override fun toString(): String {
+        return when (language) {
+            Language.ARM -> this.toString()
+            Language.X86_64 -> {
+                when (this) {
+                    ASR -> "shr"
+                    LSL -> "shl"
+                }
+            }
+        }
+    }
 }
