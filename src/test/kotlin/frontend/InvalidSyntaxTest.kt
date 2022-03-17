@@ -40,16 +40,18 @@ class InvalidSyntaxTest {
         val checkSyntaxVisitor = SyntaxChecker(syntaxErrorHandler)
         checkSyntaxVisitor.visit(tree)
 
-        if (!(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)) {
-            println(file.name)
-        }
-        assertTrue(file.name == "missingOperand1.wacc" || syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
+        assertTrue(syntaxErrorHandler.hasErrors() || parser.numberOfSyntaxErrors > 0)
     }
 
     companion object {
         @JvmStatic
         fun testFiles(): List<File> {
-            return getEachFile(File("wacc_examples/invalid/syntaxErr"))
+            val root = "wacc_examples/invalid/syntaxErr"
+            /**
+             * The missingOperand1 file is excluded as a syntax error should no longer be returned
+             * thanks to the inclusion of pointer types
+             */
+            return getEachFile(File(root), listOf(File("$root/expressions/missingOperand1.wacc")))
         }
     }
 }
