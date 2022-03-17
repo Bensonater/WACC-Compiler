@@ -37,8 +37,6 @@ fun main(args: Array<String>) {
 //    if (controlFlow) {
 //        ast = ControlFlowVisitor().visit(ast)
 //    }
-//    if (instrEval) {
-//        ast = InstrEvalVisitor().visit(ast)
 //    }
 //    if (constProp) {
 //        ast = ConstPropVisitor().visit(ast)
@@ -51,8 +49,8 @@ fun main(args: Array<String>) {
     }
 
     // Generate assembly instructions by passing into backend
-    val code = backend.main(ast)
-//    val code = if (instrEval) backend.optimiseMain(ast) else backend.main(ast)
+//    val code = backend.main(ast)
+    val code = if (instrEval) backend.optimiseMain(ast) else backend.main(ast)
 
     // Creates an assembly file and write the instructions
     val fileName = args[0].split(".wacc")[0].split("/").last()
