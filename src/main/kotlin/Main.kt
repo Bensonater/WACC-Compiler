@@ -27,29 +27,17 @@ fun main(args: Array<String>) {
     // Optimise AST by refactoring AST tree and chaining multiple optimisations
     val optimiseAll = args.contains("-o")
     val constEval = optimiseAll || args.contains("-oCE")
-    val constProp = optimiseAll || args.contains("-oCP")
     val instrEval = optimiseAll || args.contains("-oIE")
     val controlFlow = optimiseAll || args.contains("-oCF")
 
     if (constEval) {
         ast = ConstEvalVisitor().visit(ast)
     }
-//    if (controlFlow) {
-//        ast = ControlFlowVisitor().visit(ast)
-//    }
-//    }
-//    if (constProp) {
-//        ast = ConstPropVisitor().visit(ast)
-//    }
-//    if (instrEval) {
-//        ast = InstrEvalVisitor().visit(ast)
-//    }
     if (controlFlow) {
         ast = ControlFlowVisitor().visit(ast)
     }
 
     // Generate assembly instructions by passing into backend
-//    val code = backend.main(ast)
     val code = if (instrEval) backend.optimiseMain(ast) else backend.main(ast)
 
     // Creates an assembly file and write the instructions
