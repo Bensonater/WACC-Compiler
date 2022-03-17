@@ -44,9 +44,9 @@ fun main(input: CharStream) : Pair<Int, ASTNode?> {
 
     val ast = buildASTVisitor.visit(tree)
 
-    ast.check(SymbolTable())
+    val semanticError = ast.check(SymbolTable())
 
-    if (semanticErrorHandler.hasErrors()) {
+    if (semanticErrorHandler.hasErrors() || semanticError) {
         semanticErrorHandler.printErrors()
         return SEMANTIC_ERROR_CODE to null
     }
