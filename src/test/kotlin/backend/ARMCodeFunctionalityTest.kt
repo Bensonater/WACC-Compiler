@@ -7,7 +7,7 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertTrue
 
-class GeneralCodeFunctionalityTest {
+class ARMCodeFunctionalityTest {
     private val map = MapOfFilesToOutput.getMap()
 
     /**
