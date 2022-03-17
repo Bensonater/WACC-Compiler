@@ -16,8 +16,8 @@ class MultiplyInstruction (val condition: Condition, val rdLo: Register, val rdH
 /**
  * Multiples %rax with %{reg}
  */
-class iMultiplyInstruction (val reg: Register) : Instruction {
+class IMultiplyInstruction (val reg1: Register, val reg2: Register) : Instruction {
     override fun toString(): String {
-        return "imul $reg"
+        return "imul $reg1, $reg2"
     }
 }
