@@ -59,4 +59,8 @@ interface ASTVisitor<T> {
     fun visitNullPairLiterAST(ast: NullPairLiterAST): T
     fun visitArrayLiterAST(ast: ArrayLiterAST): T
 
+    /**
+     * Visit Type Elem AST
+     */
+    fun visitPointerElemAST(ast: PointerElemAST): T
 }

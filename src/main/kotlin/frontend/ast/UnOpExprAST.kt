@@ -2,10 +2,7 @@ package frontend.ast
 
 import backend.ASTVisitor
 import frontend.SymbolTable
-import frontend.ast.type.ArrayTypeAST
-import frontend.ast.type.BaseType
-import frontend.ast.type.BaseTypeAST
-import frontend.ast.type.TypeAST
+import frontend.ast.type.*
 import frontend.semanticErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
@@ -14,7 +11,9 @@ enum class UnOp {
     MINUS,
     LEN,
     ORD,
-    CHR
+    CHR,
+    REF,
+    DEREF
 }
 
 /**
@@ -27,24 +26,10 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
         if (!expr.check(symbolTable)) {
             return false
         }
-        if (unOp == UnOp.LEN) {
-            if (expr.getType(symbolTable) !is ArrayTypeAST) {
-                semanticErrorHandler.typeMismatch(
-                    ctx,
-                    "ARRAY",
-                    expr.getType(symbolTable).toString()
-                )
-                return false
-            }
-            return true
-        }
         val exprType = expr.getType(symbolTable)
-        if (exprType !is BaseTypeAST) {
-            return false
-        }
         when (unOp) {
             UnOp.NOT -> {
-                if (exprType.type != BaseType.BOOL) {
+                if (exprType !is BaseTypeAST || exprType.type != BaseType.BOOL) {
                     semanticErrorHandler.typeMismatch(
                         ctx,
                         BaseType.BOOL.toString(),
@@ -53,8 +38,8 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                     return false
                 }
             }
-            UnOp.MINUS -> {
-                if (exprType.type != BaseType.INT) {
+            UnOp.MINUS, UnOp.CHR -> {
+                if (exprType !is BaseTypeAST || exprType.type != BaseType.INT) {
                     semanticErrorHandler.typeMismatch(
                         ctx,
                         BaseType.INT.toString(),
@@ -63,8 +48,18 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                     return false
                 }
             }
+            UnOp.LEN -> {
+                if (exprType !is ArrayTypeAST) {
+                    semanticErrorHandler.typeMismatch(
+                        ctx,
+                        "ARRAY",
+                        expr.getType(symbolTable).toString()
+                    )
+                    return false
+                }
+            }
             UnOp.ORD -> {
-                if (exprType.type != BaseType.CHAR) {
+                if (exprType !is BaseTypeAST || exprType.type != BaseType.CHAR) {
                     semanticErrorHandler.typeMismatch(
                         ctx,
                         BaseType.CHAR.toString(),
@@ -73,18 +68,25 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
                     return false
                 }
             }
-            UnOp.CHR -> {
-                if (exprType.type != BaseType.INT) {
+            UnOp.REF -> {
+                if (expr !is IdentAST && expr !is ArrayElemAST) {
                     semanticErrorHandler.typeMismatch(
                         ctx,
-                        BaseType.INT.toString(),
+                        "Variable or Array element",
                         exprType.toString()
                     )
                     return false
                 }
             }
-            else -> {
-                return false
+            UnOp.DEREF -> {
+                if (exprType !is PointerTypeAST) {
+                    semanticErrorHandler.typeMismatch(
+                        ctx,
+                        "Pointer",
+                        exprType.toString()
+                    )
+                    return false
+                }
             }
         }
         return true
@@ -95,6 +97,8 @@ class UnOpExprAST(val ctx: ParserRuleContext, val unOp: UnOp, val expr: ExprAST)
             UnOp.NOT -> BaseTypeAST(ctx, BaseType.BOOL)
             UnOp.CHR -> BaseTypeAST(ctx, BaseType.CHAR)
             UnOp.MINUS, UnOp.LEN, UnOp.ORD -> BaseTypeAST(ctx, BaseType.INT)
+            UnOp.REF -> PointerTypeAST(ctx, expr.getType(symbolTable)!!)
+            UnOp.DEREF -> (expr.getType(symbolTable) as PointerTypeAST).type
         }
     }
 
