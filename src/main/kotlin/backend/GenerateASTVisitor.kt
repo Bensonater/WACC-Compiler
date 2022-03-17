@@ -622,7 +622,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         }
         when (ast.command) {
             Command.EXIT -> {
-                instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
+                if (language == Language.ARM) {
+                    instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
+                } else {
+                    instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(reg)))
+                }
                 instructions.add(BranchInstruction(Condition.AL, GeneralLabel("exit"), true))
                 programState.freeAllCalleeRegs()
             }
@@ -637,6 +641,9 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                             Pair(BaseType.STRING, CallFunc.PRINT_STRING)
                         )
                         if (exprType.type == BaseType.CHAR){
+                            if (language == Language.X86_64) {
+                                instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(Register.R0)))
+                            }
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.PUTCHAR.toString()), true))
                         } else{
                             // Looks up the type and adds the function call
@@ -668,13 +675,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 programState.freeCalleeReg()
             }
             Command.FREE -> {
-                instructions.add(
-                    MoveInstruction(
-                        Condition.AL,
-                        Register.R0,
-                        RegisterOperand(programState.recentlyUsedCalleeReg())
-                    )
-                )
+                if (language == Language.ARM) {
+                    instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
+                } else {
+                    instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(reg)))
+                }
 
                 // Determine which type of data structure to free
                 val freeType = if (exprType is ArrayTypeAST) {
