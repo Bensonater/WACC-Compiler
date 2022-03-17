@@ -152,4 +152,8 @@ abstract class OptimisationVisitor: ASTVisitor<ASTNode> {
     override fun visitArrayLiterAST(ast: ArrayLiterAST): ASTNode {
         return ast
     }
+
+    override fun visitPointerElemAST(ast: PointerElemAST): ASTNode {
+        return ast
+    }
 }
