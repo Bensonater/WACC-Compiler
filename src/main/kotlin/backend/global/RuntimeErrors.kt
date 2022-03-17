@@ -2,10 +2,7 @@ package backend.global
 
 import backend.Language
 import backend.ProgramState
-import backend.addressingmodes.ImmediateIntOperand
-import backend.addressingmodes.ImmediateLabel
-import backend.addressingmodes.RegisterMode
-import backend.addressingmodes.RegisterOperand
+import backend.addressingmodes.*
 import backend.enums.Condition
 import backend.enums.Register
 import backend.instruction.*
@@ -154,19 +151,35 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
         if (!errors.containsKey(ErrorType.ARRAY_OUT_OF_BOUNDS)) {
             val negativeMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.NEGATIVE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
             val tooLargeMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.LARGE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
-
-            errors[ErrorType.DIVIDE_BY_ZERO] = listOf(
-                checkArrayBoundsLabel,
-                PushInstruction(Register.LR),
-                CompareInstruction(Register.R0, ImmediateIntOperand(0)),
-                LoadInstruction(Condition.LT, ImmediateLabel(negativeMsgLabel), Register.R0),
-                BranchInstruction(Condition.LT, throwRuntimeErrorLabel, true),
-                LoadInstruction(Condition.AL,  RegisterMode(Register.R1), Register.R1),
-                CompareInstruction(Register.R0, RegisterOperand(Register.R1)),
-                LoadInstruction(Condition.CS, ImmediateLabel(tooLargeMsgLabel), Register.R0),
-                BranchInstruction(Condition.CS, throwRuntimeErrorLabel, true),
-                PopInstruction(Register.PC)
-            )
+            errors[ErrorType.DIVIDE_BY_ZERO] = when (language) {
+                Language.ARM -> listOf(
+                    checkArrayBoundsLabel,
+                    PushInstruction(Register.LR),
+                    CompareInstruction(Register.R0, ImmediateIntOperand(0)),
+                    LoadInstruction(Condition.LT, ImmediateLabel(negativeMsgLabel), Register.R0),
+                    BranchInstruction(Condition.LT, throwRuntimeErrorLabel, true),
+                    LoadInstruction(Condition.AL, RegisterMode(Register.R1), Register.R1),
+                    CompareInstruction(Register.R0, RegisterOperand(Register.R1)),
+                    LoadInstruction(Condition.CS, ImmediateLabel(tooLargeMsgLabel), Register.R0),
+                    BranchInstruction(Condition.CS, throwRuntimeErrorLabel, true),
+                    PopInstruction(Register.PC)
+                )
+                Language.X86_64 -> listOf(
+                    checkArrayBoundsLabel,
+                    PushInstruction(Register.LR),
+                    MoveInstruction(Condition.AL, Register.LR, RegisterMode(Register.SP)),
+                    CompareInstruction(Register.R0, ImmediateIntOperand(0)),
+                    LoadInstruction(Condition.AL, ImmediateLabel(negativeMsgLabel), Register.R12),
+                    CMoveInstruction(Condition.LT, Register.R12, Register.R0),
+                    BranchInstruction(Condition.LT, throwRuntimeErrorLabel, false),
+                    LoadInstruction(Condition.AL, RegisterModeWithOffset(Register.R1, 0), Register.R12),
+                    CompareInstruction(Register.R0, RegisterOperand(Register.R12)),
+                    LoadInstruction(Condition.AL, ImmediateLabel(tooLargeMsgLabel), Register.R12),
+                    CMoveInstruction(Condition.CS, Register.R12, Register.R0),
+                    BranchInstruction(Condition.CS, throwRuntimeErrorLabel, false),
+                    EndInstruction()
+                )
+            }
             addThrowRuntimeError()
         }
     }
