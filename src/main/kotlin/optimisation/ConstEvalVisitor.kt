@@ -38,7 +38,9 @@ class ConstEvalVisitor : OptimisationVisitor() {
         for (stat in ast.stats) {
             stats.add(visit(stat) as StatAST)
         }
-        return StatMultiAST(ast.ctx, stats)
+        val statMulti = StatMultiAST(ast.ctx, stats)
+        statMulti.symbolTable = ast.symbolTable
+        return statMulti
     }
 
     override fun visitReadAST(ast: ReadAST): ASTNode {
@@ -48,7 +50,9 @@ class ConstEvalVisitor : OptimisationVisitor() {
     }
 
     override fun visitNewPairAST(ast: NewPairAST): ASTNode {
-        return NewPairAST(ast.ctx, visit(ast.fst) as ExprAST, visit(ast.snd) as ExprAST)
+        val newPair = NewPairAST(ast.ctx, visit(ast.fst) as ExprAST, visit(ast.snd) as ExprAST)
+        newPair.symbolTable = ast.symbolTable
+        return newPair
     }
 
     override fun visitCallAST(ast: CallAST): ASTNode {
