@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.util.concurrent.TimeUnit
-import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 class X86CodeFunctionalityTest {
