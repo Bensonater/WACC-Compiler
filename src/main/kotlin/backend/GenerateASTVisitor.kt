@@ -745,8 +745,14 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, RegisterOperand(tempReg)))
             } else {
                 val multiplyByFour = 2
-                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg,
-                    RegisterOperandWithShift(tempReg, ShiftType.LSL, multiplyByFour), true, tempReg))
+                if (language == Language.ARM) {
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg,
+                        RegisterOperandWithShift(tempReg, ShiftType.LSL, multiplyByFour), true))
+                } else {
+                    instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg,
+                        RegisterOperandWithShift(tempReg, ShiftType.LSL, multiplyByFour), true, tempReg))
+                }
+
             }
             instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(stackReg, 0), stackReg))
             programState.freeCalleeReg()
