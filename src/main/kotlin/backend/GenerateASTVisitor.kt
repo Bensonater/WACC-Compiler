@@ -434,12 +434,10 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             val size = argType!!.size
             totalBytes += size
             ast.symbolTable.callOffset = totalBytes
-            val isBoolOrChar =
-                argType is BaseTypeAST && (argType.type == BaseType.BOOL || argType.type == BaseType.CHAR)
-            val memoryType = if (isBoolOrChar) Memory.B else null
-            if (arg is ArrayElemAST) {
-                instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
-            }
+
+            // Load content at address back to register for elem expressions
+            val memoryType = loadAddress(arg, instructions, reg)
+
             instructions.add(
                 StoreInstruction(
                     RegisterModeWithOffset(Register.SP, negativeCallStackOffset * size, true),
@@ -447,6 +445,10 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     memoryType
                 )
             )
+            if (language == Language.X86_64) {
+                instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, Register.SP, Register.SP,
+                    ImmediateIntOperand(size)))
+            }
             programState.freeCalleeReg()
         }
         ast.symbolTable.callOffset = 0
@@ -862,4 +864,18 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         }
         return instructions
     }
+
+    private fun loadAddress(expr: ASTNode, instructions: MutableList<Instruction>, reg: Register): Memory? {
+        val type = expr.getType(expr.symbolTable)
+        val isBoolOrChar = type is BaseTypeAST && (type.type == BaseType.BOOL || type.type == BaseType.CHAR)
+        val memoryType = if (isBoolOrChar) Memory.B else null
+
+        // Loads content at address back to register
+        if (expr is PairElemAST || expr is ArrayElemAST) {
+            instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg, memoryType))
+        }
+
+        return memoryType
+    }
+
 }
