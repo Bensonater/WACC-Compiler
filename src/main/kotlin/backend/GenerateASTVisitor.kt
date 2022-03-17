@@ -337,7 +337,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val instructions = mutableListOf<Instruction>()
 
         // Malloc space for two pointers to the first and second elements
-        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(2 * SIZE_OF_POINTER), Register.R0))
+        if (language == Language.ARM) {
+            instructions.add(LoadInstruction(Condition.AL, ImmediateInt(2 * SIZE_OF_POINTER), Register.R0))
+        } else {
+            instructions.add(LoadInstruction(Condition.AL, ImmediateInt(2 * SIZE_OF_POINTER), Register.R1))
+        }
         instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.MALLOC.toString()), true))
         val stackReg = programState.getFreeCalleeReg()
         instructions.add(MoveInstruction(Condition.AL, stackReg, RegisterOperand(Register.R0)))
@@ -360,7 +364,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast))
         val astType = ast.getType(ast.symbolTable)!!
-        instructions.add(LoadInstruction(Condition.AL, ImmediateInt(astType.size), Register.R0))
+        if (language == Language.ARM) {
+            instructions.add(LoadInstruction(Condition.AL, ImmediateInt(astType.size), Register.R0))
+        } else {
+            instructions.add(LoadInstruction(Condition.AL, ImmediateInt(astType.size), Register.R1))
+        }
         instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.MALLOC.toString()), true))
 
         val isBoolOrChar = astType is BaseTypeAST && (astType.type == BaseType.BOOL || astType.type == BaseType.CHAR)
