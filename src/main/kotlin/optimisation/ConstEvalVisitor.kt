@@ -62,38 +62,16 @@ class ConstEvalVisitor : OptimisationVisitor() {
     }
 
     override fun visitUnOpExprAST(ast: UnOpExprAST): ASTNode {
-//        val expr = visit(ast.expr)
-        /**
-         * If the ast is a literal, then we eval and return
-         * otherwise we attempt to eval until it is no longer possible
-         */
         val expr = visit(ast.expr)
-        return when {
-            (expr is IntLiterAST) && (ast.unOp == UnOp.CHR) -> {
-                CharLiterAST(ast.ctx, expr.value.toChar())
-            }
-            (expr is IntLiterAST) && (ast.unOp == UnOp.MINUS) -> {
-                IntLiterAST(ast.ctx, -expr.value)
-            }
-            (expr is CharLiterAST) && (ast.unOp == UnOp.ORD) -> {
-                IntLiterAST(ast.ctx, expr.value.code)
-            }
-            (expr is BoolLiterAST) && (ast.unOp == UnOp.NOT) -> {
-                BoolLiterAST(ast.ctx, !expr.value)
-            }
-            else -> {
-                ast
-            }
-        }
+        return unOpHelper(expr, ast)
     }
 
     private fun propagateUnOpExprAST(ast: UnOpExprAST): ASTNode {
-//        val expr = visit(ast.expr)
-        /**
-         * If the ast is a literal, then we eval and return
-         * otherwise we attempt to eval until it is no longer possible
-         */
         val expr = findExprLiteral(ast.expr)
+        return unOpHelper(expr, ast)
+    }
+
+    private fun unOpHelper(expr: ASTNode, ast: UnOpExprAST): ASTNode {
         return when {
             (expr is IntLiterAST) && (ast.unOp == UnOp.CHR) -> {
                 CharLiterAST(ast.ctx, expr.value.toChar())
@@ -114,7 +92,8 @@ class ConstEvalVisitor : OptimisationVisitor() {
     }
 
     /**
-     * Find the literal AST of the UnOp expression
+     * If the ast is a literal, then we eval and return
+     * otherwise we attempt to eval until it is no longer possible
      */
     private fun findExprLiteral(expr: ASTNode): ASTNode {
         // Returns if we have found the literal AST
@@ -138,63 +117,16 @@ class ConstEvalVisitor : OptimisationVisitor() {
     override fun visitBinOpExprAST(ast: BinOpExprAST): ASTNode {
         val expr1 = visit(ast.expr1)
         val expr2 = visit(ast.expr2)
-
-//        val expr1 = findExprLiteral(ast.expr1)
-//        val expr2 = findExprLiteral(ast.expr2)
-
-        if (((expr1 is IntLiterAST) and (expr2 is IntLiterAST)) or
-            ((expr1 is BoolLiterAST) and (expr2 is BoolLiterAST))
-        ) {
-            return when (ast.binOp) {
-                is IntBinOp -> {
-                    val val1 = (expr1 as IntLiterAST).value
-                    val val2 = (expr2 as IntLiterAST).value
-                    if ((val2 == 0) && ((ast.binOp == IntBinOp.DIV) || (ast.binOp == IntBinOp.MOD))) {
-                        return ast
-                    }
-                    return IntLiterAST(ast.ctx, apply(ast.binOp, val1, val2))
-                }
-                is BoolBinOp -> {
-                    return BoolLiterAST(
-                        ast.ctx, apply(ast.binOp, (expr1 as BoolLiterAST).value, (expr2 as BoolLiterAST).value)
-                    )
-                }
-                is CmpBinOp -> {
-                    if (expr1 is IntLiterAST && expr2 is IntLiterAST) {
-                        val val1 = expr1.value
-                        val val2 = expr2.value
-                        when (ast.binOp) {
-                            CmpBinOp.GTE -> BoolLiterAST(ast.ctx, val1 >= val2)
-                            CmpBinOp.GT -> BoolLiterAST(ast.ctx, val1 > val2)
-                            CmpBinOp.LTE -> BoolLiterAST(ast.ctx, val1 < val2)
-                            CmpBinOp.LT -> BoolLiterAST(ast.ctx, val1 <= val2)
-                            CmpBinOp.EQ -> BoolLiterAST(ast.ctx, val1 == val2)
-                            CmpBinOp.NEQ -> BoolLiterAST(ast.ctx, val1 != val2)
-                        }
-                    } else {
-                        val val1 = (expr1 as BoolLiterAST).value
-                        val val2 = (expr2 as BoolLiterAST).value
-                        when (ast.binOp) {
-                            CmpBinOp.EQ -> BoolLiterAST(ast.ctx, val1 == val2)
-                            CmpBinOp.NEQ -> BoolLiterAST(ast.ctx, val1 != val2)
-                            else -> ast
-                        }
-                    }
-                }
-                else -> ast
-            }
-        } else {
-            return ast
-        }
+        return binOpHelper(expr1, expr2, ast)
     }
 
     private fun propagateBinOpExprAST(ast: BinOpExprAST): ASTNode {
-//        val expr1 = visit(ast.expr1)
-//        val expr2 = visit(ast.expr2)
-//
         val expr1 = findExprLiteral(ast.expr1)
         val expr2 = findExprLiteral(ast.expr2)
+        return binOpHelper(expr1, expr2, ast)
+    }
 
+    private fun binOpHelper(expr1: ASTNode, expr2: ASTNode, ast: BinOpExprAST): ASTNode {
         if (((expr1 is IntLiterAST) and (expr2 is IntLiterAST)) or
             ((expr1 is BoolLiterAST) and (expr2 is BoolLiterAST))
         ) {
@@ -240,7 +172,6 @@ class ConstEvalVisitor : OptimisationVisitor() {
             return ast
         }
     }
-
 
     private fun apply(op: IntBinOp, val1: Int, val2: Int): Int {
         return when (op) {
