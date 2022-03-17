@@ -150,9 +150,9 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     instructions.add(CompareInstruction(reg2, RegisterOperandWithShift(reg1, ShiftType.ASR, shiftAmount)))
                     instructions.add(BranchInstruction(Condition.NE, RuntimeErrors.throwOverflowErrorLabel, true))
                 } else {
-                    instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterMode(reg2)))
-                    instructions.add(iMultiplyInstruction(reg1))
-                    instructions.add(MoveInstruction(Condition.AL, reg1, RegisterMode(Register.R0)))
+//                    instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterMode(reg2)))
+                    instructions.add(IMultiplyInstruction(reg2, reg1))
+//                    instructions.add(MoveInstruction(Condition.AL, reg1, RegisterMode(Register.R0)))
 //                    instructions.add(CompareInstruction(reg2, RegisterOperandWithShift(reg1, ShiftType.ASR, shiftAmount)))
 //                     instructions.add(BranchInstruction(Condition.NE, RuntimeErrors.throwOverflowErrorLabel, false))
                 }
@@ -722,7 +722,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
 
         ast.listOfIndex.forEach {
             instructions.addAll(visit(it))
-            instructions.add(LoadInstruction(Condition.AL, RegisterMode(stackReg), stackReg))
+            if (language == Language.ARM) {
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(stackReg), stackReg))
+            } else {
+                instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(stackReg, 0), stackReg))
+            }
             instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(programState.recentlyUsedCalleeReg())))
             instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(stackReg)))
             instructions.add(BranchInstruction(Condition.AL, RuntimeErrors.checkArrayBoundsLabel, true))
@@ -732,15 +736,16 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, ImmediateIntOperand(SIZE_OF_POINTER)))
 
             val identType = ast.ident.getType(ast.symbolTable)
-
+            val tempReg = programState.recentlyUsedCalleeReg()
             if ((identType is ArrayTypeAST) && (identType.type is BaseTypeAST &&
                         (identType.type.type == BaseType.BOOL || identType.type.type == BaseType.CHAR))) {
-                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, RegisterOperand(programState.recentlyUsedCalleeReg())))
+                instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, RegisterOperand(tempReg)))
             } else {
                 val multiplyByFour = 2
                 instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg,
-                    RegisterOperandWithShift(programState.recentlyUsedCalleeReg(), ShiftType.LSL, multiplyByFour)))
+                    RegisterOperandWithShift(tempReg, ShiftType.LSL, multiplyByFour), true, tempReg))
             }
+            instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(stackReg, 0), stackReg))
             programState.freeCalleeReg()
         }
         return instructions
