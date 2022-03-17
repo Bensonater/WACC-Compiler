@@ -1,6 +1,7 @@
 package extension
 
 import getEachFile
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
@@ -15,7 +16,7 @@ class OptimisationTest {
      * Tests the output of all valid WACC example files, comparing them to the output
      * of the reference compiler (testing functional correctness)
      */
-    @Ignore
+    @Disabled
     @ParameterizedTest
     @MethodSource("testFiles")
     fun assemblyIsOptimised(file: File) {
@@ -23,7 +24,7 @@ class OptimisationTest {
         val optimisedCode = map[name]
 
         ProcessBuilder("./compile", file.invariantSeparatorsPath, "-o").start()
-            .waitFor(5, TimeUnit.SECONDS)
+            .waitFor(20, TimeUnit.SECONDS)
         ProcessBuilder(
             "arm-linux-gnueabi-gcc",
             "-o",
@@ -31,7 +32,7 @@ class OptimisationTest {
             "-mcpu=arm1176jzf-s",
             "-mtune=arm1176jzf-s",
             "$name.s"
-        ).start().waitFor(5, TimeUnit.SECONDS)
+        ).start().waitFor(20, TimeUnit.SECONDS)
 
         val assemblyCode = File("$name.s").inputStream().bufferedReader().use { it.readText() }
         println("----------------------------")
@@ -44,7 +45,7 @@ class OptimisationTest {
         } else {
             println("- FAIL: Assembly NOT Optimised for $name")
         }
-        ProcessBuilder("rm", "$name.s").start().waitFor(5, TimeUnit.SECONDS)
+        ProcessBuilder("rm", "$name.s").start().waitFor(20, TimeUnit.SECONDS)
         assertTrue(success)
     }
 

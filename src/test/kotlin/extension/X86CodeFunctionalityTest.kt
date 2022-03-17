@@ -2,6 +2,7 @@ package extension
 
 import backend.MapOfFilesToOutput
 import getEachFile
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
@@ -16,7 +17,7 @@ class X86CodeFunctionalityTest {
      * Tests the output of all valid WACC example files, comparing them to the output
      * of the reference compiler (testing functional correctness)
      */
-    @Ignore
+    @Disabled
     @ParameterizedTest
     @MethodSource("testFiles")
     fun assemblyIsFunctionallyCorrect(file: File) {
@@ -63,8 +64,6 @@ class X86CodeFunctionalityTest {
         }
         ProcessBuilder("rm", "$name.s", name).start().waitFor(20, TimeUnit.SECONDS)
         assertTrue(success)
-
-        ProcessBuilder("rm", "$name.s", name).start().waitFor(5, TimeUnit.SECONDS)
     }
 
 

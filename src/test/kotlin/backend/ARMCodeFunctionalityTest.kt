@@ -65,8 +65,6 @@ class ARMCodeFunctionalityTest {
         }
         ProcessBuilder("rm", "$name.s", name).start().waitFor(20, TimeUnit.SECONDS)
         assertTrue(success)
-
-        ProcessBuilder("rm", "$name.s", name).start().waitFor(5, TimeUnit.SECONDS)
     }
 
 
