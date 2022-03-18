@@ -89,6 +89,7 @@ class X86CodeFunctionalityTest {
                     File("$root/runtimeErr/arrayOutOfBounds/arrayOutOfBoundsWrite.wacc"),
                     File("$root/inputFiles/echoBigInt.wacc"),
                     File("$root/inputFiles/echoBigNegInt.wacc"),
+                    File("$root/inputFiles/echoChar.wacc"),
                     File("$root/inputFiles/echoInt.wacc"),
                     File("$root/inputFiles/echoNegInt.wacc"),
                     File("$root/inputFiles/echoPuncChar.wacc"),
