@@ -10,8 +10,7 @@ class InstrEval {
 
         var prev = instructions.first()
         for (i in instructions) {
-            if (storeThenLoad(prev, i) || addZero(prev, i) || moveSameReg(i)) {
-            } else {
+            if (!(storeThenLoad(prev, i) || addZero(prev, i) || moveSameReg(i))) {
                 optimised.add(i)
             }
             prev = i
@@ -27,7 +26,7 @@ class InstrEval {
     private fun addZero(prev: Instruction, curr: Instruction): Boolean {
         return prev is LoadInstruction && prev.addressingMode is ImmediateInt && prev.addressingMode.num == 0
                 && curr is ArithmeticInstruction && curr.type == ArithmeticInstrType.ADD && curr.operand is RegisterOperand
-                && curr.operand.register.toString() == prev.register.toString() && curr.reg1 == curr.reg2
+                && curr.operand.toString() == prev.register.toString() && curr.reg1 == curr.reg2
     }
 
     private fun moveSameReg(curr: Instruction): Boolean {
