@@ -2,6 +2,7 @@ package frontend
 
 import frontend.ast.ASTNode
 import frontend.ast.FuncAST
+import frontend.ast.statement.DeclareAST
 import frontend.ast.type.TypeAST
 
 open class SymbolTable {
@@ -82,6 +83,20 @@ open class SymbolTable {
             st = st.parent!!
         }
         return st.funcAST.type
+    }
+
+    /**
+     * Updates rhs of declared variable during optimisation
+     */
+    fun updateVariable(name: String, rhs: ASTNode) {
+        if (symbolTable.containsKey(name)) {
+            val oldAST = symbolTable[name]
+            if (oldAST is DeclareAST) {
+                symbolTable[name] = DeclareAST(oldAST.ctx, oldAST.type, oldAST.ident, rhs)
+            }
+        } else {
+            parent?.updateVariable(name, rhs)
+        }
     }
 }
 

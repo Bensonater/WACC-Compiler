@@ -7,7 +7,7 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertTrue
 
-class GeneralCodeFunctionalityTest {
+class ARMCodeFunctionalityTest {
     private val map = MapOfFilesToOutput.getMap()
 
     /**
@@ -21,8 +21,8 @@ class GeneralCodeFunctionalityTest {
         val refOutput = map[name]!!.first
         val refExit = map[name]!!.second
 
-        ProcessBuilder("./compile", file.invariantSeparatorsPath).start()
-            .waitFor(5, TimeUnit.SECONDS)
+        ProcessBuilder("./compile", file.invariantSeparatorsPath, "-o").start()
+            .waitFor(20, TimeUnit.SECONDS)
         ProcessBuilder(
             "arm-linux-gnueabi-gcc",
             "-o",
@@ -30,7 +30,7 @@ class GeneralCodeFunctionalityTest {
             "-mcpu=arm1176jzf-s",
             "-mtune=arm1176jzf-s",
             "$name.s"
-        ).start().waitFor(5, TimeUnit.SECONDS)
+        ).start().waitFor(20, TimeUnit.SECONDS)
 
         var output: String
         val inputFile = File("reference_output/inputFiles/$name/input.txt")
@@ -42,7 +42,7 @@ class GeneralCodeFunctionalityTest {
             ProcessBuilder("qemu-arm", "-L", "/usr/arm-linux-gnueabi", name).start()
         }
 
-        process.waitFor(5, TimeUnit.SECONDS)
+        process.waitFor(20, TimeUnit.SECONDS)
 
         process.inputStream.reader(Charsets.UTF_8).use {
             output = it.readText()
@@ -63,9 +63,8 @@ class GeneralCodeFunctionalityTest {
             println("OUR EXIT CODE: ${process.exitValue()}")
             println("----------------------")
         }
+        ProcessBuilder("rm", "$name.s", name).start().waitFor(20, TimeUnit.SECONDS)
         assertTrue(success)
-
-        ProcessBuilder("rm", "$name.s", name).start().waitFor(5, TimeUnit.SECONDS)
     }
 
 

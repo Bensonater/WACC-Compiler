@@ -46,7 +46,12 @@ class InvalidSyntaxTest {
     companion object {
         @JvmStatic
         fun testFiles(): List<File> {
-            return getEachFile(File("wacc_examples/invalid/syntaxErr"))
+            val root = "wacc_examples/invalid/syntaxErr"
+            /**
+             * The missingOperand1 file is excluded as a syntax error should no longer be returned
+             * thanks to the inclusion of pointer types
+             */
+            return getEachFile(File(root), listOf(File("$root/expressions/missingOperand1.wacc")))
         }
     }
 }

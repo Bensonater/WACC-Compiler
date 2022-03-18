@@ -27,9 +27,6 @@ JFLAGS	:= -sourcepath $(SOURCE_DIR) $(FLAGS)
 # run the antlr build script then attempts to compile all .java files within src/antlr
 all:
 	cd $(ANTLR_DIR) && ./$(ANTLR)
-# 	$(MKDIR) $(OUTPUT_DIR)
-# 	$(JAVAC) $(JFLAGS) $(ANTLR_SOURCE_DIR)/*.java
-# 	$(KOTLINC) $(FLAGS) $(FRONTEND_SOURCE_DIR)/*.kt
 	mvn compile
 
 # run all tests
@@ -42,7 +39,6 @@ specific_tests:
 
 # clean up all of the compiled files
 clean:
-# 	$(RM) $(OUTPUT_DIR) $(ANTLR_SOURCE_DIR)
 	mvn clean
 	$(RM) *.s
 
