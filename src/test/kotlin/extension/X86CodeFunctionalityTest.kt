@@ -16,7 +16,6 @@ class X86CodeFunctionalityTest {
      * Tests the output of all valid WACC example files, comparing them to the output
      * of the reference compiler (testing functional correctness)
      */
-    @Disabled
     @ParameterizedTest
     @MethodSource("testFiles")
     fun assemblyIsFunctionallyCorrect(file: File) {
@@ -85,6 +84,33 @@ class X86CodeFunctionalityTest {
                     File("$root/pointers/pointerArray.wacc"),
                     File("$root/pointers/pointerBasic.wacc"),
                     File("$root/pointers/pointerBinExp.wacc"),
+                    File("$root/array/arrayNested.wacc"),
+                    File("$root/runtimeErr/arrayOutOfBounds/arrayOutOfBounds.wacc"),
+                    File("$root/runtimeErr/arrayOutOfBounds/arrayOutOfBoundsWrite.wacc"),
+                    File("$root/inputFiles/echoBigInt.wacc"),
+                    File("$root/inputFiles/echoBigNegInt.wacc"),
+                    File("$root/inputFiles/echoInt.wacc"),
+                    File("$root/inputFiles/echoNegInt.wacc"),
+                    File("$root/inputFiles/echoPuncChar.wacc"),
+                    File("$root/inputFiles/fibonacciFullIt.wacc"),
+                    File("$root/inputFiles/fibonacciFullRec.wacc"),
+                    File("$root/inputFiles/IOLoop.wacc"),
+                    File("$root/inputFiles/IOSequence.wacc"),
+                    File("$root/inputFiles/printInputTriangle.wacc"),
+                    File("$root/inputFiles/read.wacc"),
+                    File("$root/inputFiles/readPair.wacc"),
+                    File("$root/inputFiles/rmStyleAddIO.wacc"),
+                    File("$root/function/simple_functions/functionReturnPair.wacc"),
+                    File("$root/pairs/createPair.wacc"),
+                    File("$root/pairs/createPair02.wacc"),
+                    File("$root/pairs/createPair03.wacc"),
+                    File("$root/pairs/createRefPair.wacc"),
+                    File("$root/pairs/free.wacc"),
+                    File("$root/pairs/linkedList.wacc"),
+                    File("$root/pairs/nestedPair.wacc"),
+                    File("$root/pairs/writeFst.wacc"),
+                    File("$root/pairs/writeSnd.wacc"),
+
 
             ))
         }
