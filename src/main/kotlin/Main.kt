@@ -6,7 +6,7 @@ import optimisation.ControlFlowVisitor
 import optimisation.ConstEvalPropVisitor
 import java.io.File
 
-val language = Language.ARM
+var LANGUAGE = Language.ARM
 
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
@@ -32,6 +32,10 @@ fun main(args: Array<String>) {
     val constEvalProp = optimiseAll || args.contains("-oCEP")
     val controlFlow = optimiseAll || args.contains("-oCF")
     val instrEval = optimiseAll || args.contains("-oIE")
+
+    if (args.contains("-x86")) {
+        LANGUAGE = Language.X86_64
+    }
 
     if (constEvalProp) {
         ast = ConstEvalPropVisitor().visit(ast)

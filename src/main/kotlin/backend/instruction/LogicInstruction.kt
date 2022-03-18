@@ -3,7 +3,7 @@ package backend.instruction
 import backend.Language
 import backend.addressingmodes.AddressingMode
 import backend.enums.Register
-import language
+import LANGUAGE
 
 enum class LogicOperation {
     AND,
@@ -11,7 +11,7 @@ enum class LogicOperation {
     EOR;
 
     override fun toString(): String {
-        return when (language) {
+        return when (LANGUAGE) {
             Language.X86_64 -> {
                 when (this) {
                     AND -> "and"
@@ -27,7 +27,7 @@ enum class LogicOperation {
 class LogicInstruction(val op: LogicOperation, val reg1: Register, val reg2: Register,
                        val operand: AddressingMode) : Instruction {
     override fun toString(): String {
-        return when (language) {
+        return when (LANGUAGE) {
             Language.ARM -> "$op $reg1, $reg2, $operand"
             Language.X86_64 -> {
                 var result = ""

@@ -12,7 +12,7 @@ import frontend.ast.*
 import frontend.ast.literal.*
 import frontend.ast.statement.*
 import frontend.ast.type.*
-import language
+import LANGUAGE
 import java.util.stream.Collectors
 
 class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instruction>> {
@@ -35,7 +35,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
 
         instructions.add(GeneralLabel("main"))
         instructions.add(PushInstruction(Register.LR))
-        if (language == Language.X86_64) {
+        if (LANGUAGE == Language.X86_64) {
             instructions.add(MoveInstruction(Condition.AL, Register.LR, RegisterMode(Register.SP)))
         }
 
@@ -47,7 +47,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
 
         instructions.add(LoadInstruction(Condition.AL, ImmediateInt(0), Register.R0))
         instructions.add(EndInstruction())
-        if (language == Language.ARM) {
+        if (LANGUAGE == Language.ARM) {
             instructions.add(DirectiveInstruction("ltorg"))
         }
 
@@ -66,7 +66,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         // Create label with the function name (preceded with "f_")
         instructions.add(FunctionLabel(ast.ident.name))
         instructions.add(PushInstruction(Register.LR))
-        if (language == Language.X86_64) {
+        if (LANGUAGE == Language.X86_64) {
             instructions.add(MoveInstruction(Condition.AL, Register.LR, RegisterMode(Register.SP)))
         }
         // Allocate space in the stack for the variables in the function.
@@ -81,7 +81,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             deallocateStack(stackOffset, instructions)
             instructions.add(EndInstruction())
         }
-        if (language == Language.ARM) {
+        if (LANGUAGE == Language.ARM) {
             instructions.add(DirectiveInstruction("ltorg"))
         }
         programState.freeAllCalleeRegs()
@@ -129,7 +129,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 } else {
                     ArithmeticInstrType.SUB
                 }
-                if (accumUsed && language == Language.ARM) {
+                if (accumUsed && LANGUAGE == Language.ARM) {
                     if (ast.pointerArithmetic) {
                         instructions.add(ArithmeticInstruction(instr, reg1, reg2, RegisterOperandWithShift(reg1, ShiftType.LSL, ast.shiftOffset), true))
                     } else {
@@ -142,7 +142,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                         instructions.add(ArithmeticInstruction(instr, reg1, reg1, RegisterOperand(reg2), true))
                     }
                 }
-                if (language == Language.ARM) {
+                if (LANGUAGE == Language.ARM) {
                     instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
                 } else {
                     instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, false))
@@ -150,7 +150,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 ProgramState.runtimeErrors.addOverflowError()
             }
             IntBinOp.MULT -> {
-                if (language == Language.ARM) {
+                if (LANGUAGE == Language.ARM) {
                     val shiftAmount = 31
                     if (accumUsed) {
                         instructions.add(MultiplyInstruction(Condition.AL, reg1, reg2, reg2, reg1))
@@ -180,7 +180,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 ProgramState.runtimeErrors.addDivideByZeroCheck()
                 when (ast.binOp) {
                     IntBinOp.DIV -> {
-                        if (language == Language.ARM) {
+                        if (LANGUAGE == Language.ARM) {
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel("__aeabi_idiv"), true))
                         } else {
                             instructions.add(MoveInstruction(Condition.AL, Register.R3, ImmediateIntOperand(0)))
@@ -189,7 +189,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                         instructions.add(MoveInstruction(Condition.AL, reg1, RegisterOperand(Register.R0)))
                     }
                     IntBinOp.MOD -> {
-                        if (language == Language.ARM) {
+                        if (LANGUAGE == Language.ARM) {
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel("__aeabi_idivmod"), true))
                             instructions.add(MoveInstruction(Condition.AL, reg1, RegisterOperand(Register.R1)))
                         } else {
@@ -208,7 +208,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     instructions.add(CompareInstruction(reg1, RegisterOperand(reg2)))
                 }
 
-                if (language == Language.ARM) {
+                if (LANGUAGE == Language.ARM) {
                     instructions.add(MoveInstruction(ast.binOp.cond, reg1, ImmediateBoolOperand(true)))
                     instructions.add(MoveInstruction(ast.binOp.opposite, reg1, ImmediateBoolOperand(false)))
                 } else {
@@ -266,7 +266,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             }
             UnOp.MINUS -> {
                 instructions.add(ArithmeticInstruction(ArithmeticInstrType.RSB, reg, reg, ImmediateIntOperand(0), true))
-                if (language == Language.ARM) {
+                if (LANGUAGE == Language.ARM) {
                     instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, true))
                 } else {
                     instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, false))
@@ -276,7 +276,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             UnOp.LEN -> {
                 instructions.add(LoadInstruction(Condition.AL, RegisterMode(Register.SP), reg))
                 instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg))
-                if (language == Language.X86_64) {
+                if (LANGUAGE == Language.X86_64) {
                     val tempReg = programState.getFreeCalleeReg()
                     instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(reg, 0), tempReg))
                     instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(tempReg, 0), reg))
@@ -314,7 +314,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val offset = findIdentOffset(ast.symbolTable, ast.name) + ast.symbolTable.callOffset
         val typeAST = ast.getType(ast.symbolTable)
         val isBoolOrChar = typeAST is BaseTypeAST && (typeAST.type == BaseType.BOOL || typeAST.type == BaseType.CHAR)
-        val memoryType: Memory? = when (language) {
+        val memoryType: Memory? = when (LANGUAGE) {
             Language.ARM -> if (isBoolOrChar) Memory.SB else null
             Language.X86_64 -> {
                 if (isBoolOrChar) {
@@ -326,7 +326,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 }
             }
         }
-        return if (language == Language.ARM) {
+        return if (LANGUAGE == Language.ARM) {
             listOf(LoadInstruction(Condition.AL, RegisterModeWithOffset(Register.SP, offset),
                 programState.getFreeCalleeReg(), memoryType))
         } else {
@@ -375,7 +375,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val instructions = mutableListOf<Instruction>()
 
         // Malloc space for two pointers to the first and second elements
-        if (language == Language.ARM) {
+        if (LANGUAGE == Language.ARM) {
             instructions.add(LoadInstruction(Condition.AL, ImmediateInt(2 * SIZE_OF_POINTER), Register.R0))
         } else {
             instructions.add(LoadInstruction(Condition.AL, ImmediateInt(2 * SIZE_OF_POINTER), Register.R1))
@@ -402,7 +402,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val instructions = mutableListOf<Instruction>()
         instructions.addAll(visit(ast))
         val astType = ast.getType(ast.symbolTable)!!
-        if (language == Language.ARM) {
+        if (LANGUAGE == Language.ARM) {
             instructions.add(LoadInstruction(Condition.AL, ImmediateInt(astType.size), Register.R0))
         } else {
             instructions.add(LoadInstruction(Condition.AL, ImmediateInt(astType.size), Register.R1))
@@ -487,7 +487,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     memoryType
                 )
             )
-            if (language == Language.X86_64) {
+            if (LANGUAGE == Language.X86_64) {
                 instructions.add(ArithmeticInstruction(ArithmeticInstrType.SUB, Register.SP, Register.SP,
                     ImmediateIntOperand(size)))
             }
@@ -631,7 +631,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
 
         when (ast.command) {
             Command.EXIT -> {
-                if (language == Language.ARM) {
+                if (LANGUAGE == Language.ARM) {
                     instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                 } else {
                     instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(reg)))
@@ -650,7 +650,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                             Pair(BaseType.STRING, CallFunc.PRINT_STRING)
                         )
                         if (exprType.type == BaseType.CHAR){
-                            if (language == Language.X86_64) {
+                            if (LANGUAGE == Language.X86_64) {
                                 instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(Register.R0)))
                             }
                             instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.PUTCHAR.toString()), true))
@@ -684,7 +684,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 programState.freeCalleeReg()
             }
             Command.FREE -> {
-                if (language == Language.ARM) {
+                if (LANGUAGE == Language.ARM) {
                     instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                 } else {
                     instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(reg)))
@@ -758,7 +758,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             val reg = programState.recentlyUsedCalleeReg()
             // Load content at address back to register for elem expressions
             loadAddress(it, instructions, reg)
-            if (language == Language.ARM) {
+            if (LANGUAGE == Language.ARM) {
                 instructions.add(LoadInstruction(Condition.AL, RegisterMode(stackReg), stackReg))
             } else {
                 instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(stackReg, 0), stackReg))
@@ -777,7 +777,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, RegisterOperand(reg)))
             } else {
                 val multiplyByFour = 2
-                if (language == Language.ARM) {
+                if (LANGUAGE == Language.ARM) {
                     instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg,
                         RegisterOperandWithShift(reg, ShiftType.LSL, multiplyByFour), true))
                 } else {
@@ -786,7 +786,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 }
 
             }
-            if (language == Language.X86_64) {
+            if (LANGUAGE == Language.X86_64) {
                 instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(stackReg, 0), stackReg))
             }
             programState.freeCalleeReg()
@@ -802,7 +802,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val elemSize = (ast.getType(ast.symbolTable) as ArrayTypeAST).type.size
 
         val sizeOfInt = 4
-        if (language == Language.ARM) {
+        if (LANGUAGE == Language.ARM) {
             instructions.add(
                 LoadInstruction(
                     Condition.AL,
@@ -838,7 +838,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         }
 
         instructions.add(LoadInstruction(Condition.AL, ImmediateInt(ast.vals.size), programState.getFreeCalleeReg()))
-        if (language == Language.ARM) {
+        if (LANGUAGE == Language.ARM) {
             instructions.add(StoreInstruction(RegisterMode(stackReg), programState.recentlyUsedCalleeReg()))
         } else {
             instructions.add(StoreInstruction(RegisterModeWithOffset(stackReg, 0), programState.recentlyUsedCalleeReg(), Memory.L))
@@ -920,7 +920,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
     private fun loadAddress(expr: ASTNode, instructions: MutableList<Instruction>, reg: Register): Memory? {
         val type = expr.getType(expr.symbolTable)
         val isBoolOrChar = type is BaseTypeAST && (type.type == BaseType.BOOL || type.type == BaseType.CHAR)
-        val memoryType: Memory? = when (language) {
+        val memoryType: Memory? = when (LANGUAGE) {
             Language.ARM -> if (isBoolOrChar) Memory.B else null
             Language.X86_64 -> {
                 if (isBoolOrChar) {

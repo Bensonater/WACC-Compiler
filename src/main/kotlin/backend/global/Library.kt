@@ -7,7 +7,7 @@ import backend.enums.Condition
 import backend.enums.Register
 import backend.global.RuntimeErrors.Companion.throwRuntimeErrorLabel
 import backend.instruction.*
-import language
+import LANGUAGE
 
 
 /**
@@ -64,7 +64,7 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         instructions.add(callLabel)
         instructions.add(PushInstruction(Register.LR))
         // mov %rsp, %rbp
-        if (language == Language.X86_64) {
+        if (LANGUAGE == Language.X86_64) {
             instructions.add(MoveInstruction(Condition.AL, Register.LR, RegisterMode(Register.SP)))
         }
 
@@ -136,7 +136,7 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
      * Helper function for printing integers or references.
      */
     private fun printCallHelper(stringTypeLabel: String): List<Instruction> {
-        return if (language == Language.ARM) {
+        return if (LANGUAGE == Language.ARM) {
             listOf(
                 MoveInstruction(Condition.AL, Register.R1, RegisterOperand(Register.R0)),
                 LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
@@ -175,7 +175,7 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         val trueLabel = globalVals.dataDirective.addStringLabel(trueString)
         val falseLabel = globalVals.dataDirective.addStringLabel(falseString)
 
-        return if (language == Language.ARM) {
+        return if (LANGUAGE == Language.ARM) {
             listOf(
                 CompareInstruction(Register.R0, ImmediateIntOperand(0)),
                 LoadInstruction(Condition.NE, ImmediateLabel(trueLabel), Register.R0),
@@ -206,7 +206,7 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
     private fun generatePrintStringCall(): List<Instruction> {
         val stringTypeLabel = globalVals.dataDirective.addStringLabel("%.*s\\0")
 
-        return if (language == Language.ARM) {
+        return if (LANGUAGE == Language.ARM) {
             listOf(
                 LoadInstruction(Condition.AL, RegisterMode(Register.R0), Register.R1),
                 ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R2, Register.R0, ImmediateIntOperand(4)),
@@ -234,7 +234,7 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
      */
     private fun generatePrintLnCall(): List<Instruction> {
         val stringTypeLabel = globalVals.dataDirective.addStringLabel("\\0")
-        return if (language == Language.ARM) {
+        return if (LANGUAGE == Language.ARM) {
             listOf(
                 LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
                 ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),

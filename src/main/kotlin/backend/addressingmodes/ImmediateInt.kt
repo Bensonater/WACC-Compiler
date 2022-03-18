@@ -1,11 +1,11 @@
 package backend.addressingmodes
 
 import backend.Language
-import language
+import LANGUAGE
 
 class ImmediateInt (val num : Int) : AddressingMode {
     override fun toString(): String {
-        return when (language) {
+        return when (LANGUAGE) {
             Language.ARM -> "=$num"
             Language.X86_64 -> "$$num"
         }

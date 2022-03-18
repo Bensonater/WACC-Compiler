@@ -1,7 +1,7 @@
 package backend.enums
 
 import backend.Language
-import language
+import LANGUAGE
 
 
 enum class Register {
@@ -14,7 +14,7 @@ enum class Register {
     NONE;
 
     override fun toString(): String {
-        return when (language) {
+        return when (LANGUAGE) {
             Language.ARM -> name.lowercase()
             Language.X86_64 -> {
                 "%" +

@@ -1,11 +1,11 @@
 package backend.instruction
 
 import backend.Language
-import language
+import LANGUAGE
 
 abstract class LabelInstruction (val labelName : String) : Instruction {
     override fun toString(): String {
-        return when (language){
+        return when (LANGUAGE){
             Language.ARM -> "$labelName:"
             Language.X86_64 -> "$labelName:"
         }
@@ -20,7 +20,7 @@ data class MessageLabel(val index: Int, val msg: String) : LabelInstruction(msg)
     override fun toString(): String {
         val stringInstructions = mutableListOf<String>()
         stringInstructions.add(GeneralLabel("msg_$index").toString())
-        if (language == Language.ARM) {
+        if (LANGUAGE == Language.ARM) {
             stringInstructions.add("\t${DirectiveInstruction("word ${msg.length - msg.count { c -> c == '\\' }}")}")
             stringInstructions.add("\t${DirectiveInstruction("ascii \"${msg}\"")}")
         } else {

@@ -2,11 +2,11 @@ package backend.instruction
 
 import backend.Language
 import backend.enums.Condition
-import language
+import LANGUAGE
 
 class BranchInstruction (val condition: Condition, val label: LabelInstruction, val link: Boolean): Instruction {
     override fun toString(): String {
-        return when (language) {
+        return when (LANGUAGE) {
             Language.ARM ->  "B" + (if (link) "L" else "") + condition.toString() + " " + label.labelName
             Language.X86_64 -> {
                 if (link) {
