@@ -383,7 +383,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         }
         instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.MALLOC.toString()), true))
         val stackReg = programState.getFreeCalleeReg()
-        instructions.add(MoveInstruction(Condition.AL, stackReg, RegisterOperand(Register.R0)))
+        if (LANGUAGE == Language.ARM) {
+            instructions.add(MoveInstruction(Condition.AL, stackReg, RegisterOperand(Register.R0)))
+        } else {
+            instructions.add(MoveInstruction(Condition.AL, stackReg, RegisterModeWithOffset(Register.R0, 0)))
+        }
 
         // Malloc first element
         instructions.addAll(mallocPairAST(ast.fst))
