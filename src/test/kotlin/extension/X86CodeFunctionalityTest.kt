@@ -70,7 +70,6 @@ class X86CodeFunctionalityTest {
             val root = "wacc_examples/valid"
             return getEachFile(File(root),
                 listOf(
-                /*
                     File("$root/array/array.wacc"),
                     File("$root/array/arrayPrint.wacc"),
                     File("$root/array/printRef.wacc"),
@@ -111,7 +110,6 @@ class X86CodeFunctionalityTest {
                     File("$root/pairs/nestedPair.wacc"),
                     File("$root/pairs/writeFst.wacc"),
                     File("$root/pairs/writeSnd.wacc"),
-*/
             ))
         }
     }
