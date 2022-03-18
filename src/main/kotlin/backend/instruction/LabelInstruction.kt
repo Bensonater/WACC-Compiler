@@ -1,11 +1,11 @@
 package backend.instruction
 
-import backend.Language
 import LANGUAGE
+import backend.Language
 
-abstract class LabelInstruction (val labelName : String) : Instruction {
+abstract class LabelInstruction(val labelName: String) : Instruction {
     override fun toString(): String {
-        return when (LANGUAGE){
+        return when (LANGUAGE) {
             Language.ARM -> "$labelName:"
             Language.X86_64 -> "$labelName:"
         }

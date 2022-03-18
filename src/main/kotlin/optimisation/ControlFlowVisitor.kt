@@ -4,7 +4,7 @@ import frontend.ast.ASTNode
 import frontend.ast.literal.BoolLiterAST
 import frontend.ast.statement.*
 
-class ControlFlowVisitor: OptimisationVisitor() {
+class ControlFlowVisitor : OptimisationVisitor() {
     override fun visitIfAST(ast: IfAST): ASTNode {
         if (ast.expr !is BoolLiterAST) {
             return super.visitIfAST(ast)

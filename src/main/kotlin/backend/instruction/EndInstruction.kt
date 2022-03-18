@@ -1,8 +1,8 @@
 package backend.instruction
 
+import LANGUAGE
 import backend.Language
 import backend.enums.Register
-import LANGUAGE
 
 class EndInstruction : Instruction {
 

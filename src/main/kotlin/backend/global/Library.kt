@@ -1,5 +1,6 @@
 package backend.global
 
+import LANGUAGE
 import backend.Language
 import backend.ProgramState
 import backend.addressingmodes.*
@@ -7,7 +8,6 @@ import backend.enums.Condition
 import backend.enums.Register
 import backend.global.RuntimeErrors.Companion.throwRuntimeErrorLabel
 import backend.instruction.*
-import LANGUAGE
 
 
 /**
@@ -119,14 +119,24 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
             listOf(
                 MoveInstruction(Condition.AL, Register.R1, RegisterOperand(Register.R0)),
                 LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
-                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
+                ArithmeticInstruction(
+                    ArithmeticInstrType.ADD,
+                    Register.R0,
+                    Register.R0,
+                    ImmediateIntOperand(4)
+                ),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.SCANF.toString()), true)
             )
         } else {
             listOf(
                 MoveInstruction(Condition.AL, Register.R2, RegisterOperand(Register.R0)),
                 LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R1),
-                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R1, Register.R1, ImmediateIntOperand(4)),
+                ArithmeticInstruction(
+                    ArithmeticInstrType.ADD,
+                    Register.R1,
+                    Register.R1,
+                    ImmediateIntOperand(4)
+                ),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.SCANF.toString()), true)
             )
@@ -150,7 +160,12 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
             listOf(
                 MoveInstruction(Condition.AL, Register.R1, RegisterOperand(Register.R0)),
                 LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
-                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
+                ArithmeticInstruction(
+                    ArithmeticInstrType.ADD,
+                    Register.R0,
+                    Register.R0,
+                    ImmediateIntOperand(4)
+                ),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
@@ -159,7 +174,12 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
             listOf(
                 MoveInstruction(Condition.AL, Register.R2, RegisterOperand(Register.R0)),
                 LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R1),
-                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R1, Register.R1, ImmediateIntOperand(4)),
+                ArithmeticInstruction(
+                    ArithmeticInstrType.ADD,
+                    Register.R1,
+                    Register.R1,
+                    ImmediateIntOperand(4)
+                ),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0))
@@ -190,7 +210,12 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
                 CompareInstruction(Register.R0, ImmediateIntOperand(0)),
                 LoadInstruction(Condition.NE, ImmediateLabel(trueLabel), Register.R0),
                 LoadInstruction(Condition.EQ, ImmediateLabel(falseLabel), Register.R0),
-                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
+                ArithmeticInstruction(
+                    ArithmeticInstrType.ADD,
+                    Register.R0,
+                    Register.R0,
+                    ImmediateIntOperand(4)
+                ),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
@@ -202,7 +227,12 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
                 CMoveInstruction(Condition.NE, Register.R0, Register.R1),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateLabel(falseLabel)),
                 CMoveInstruction(Condition.EQ, Register.R0, Register.R1),
-                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R1, Register.R1, ImmediateIntOperand(4)),
+                ArithmeticInstruction(
+                    ArithmeticInstrType.ADD,
+                    Register.R1,
+                    Register.R1,
+                    ImmediateIntOperand(4)
+                ),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0))
@@ -219,9 +249,19 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         return if (LANGUAGE == Language.ARM) {
             listOf(
                 LoadInstruction(Condition.AL, RegisterMode(Register.R0), Register.R1),
-                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R2, Register.R0, ImmediateIntOperand(4)),
+                ArithmeticInstruction(
+                    ArithmeticInstrType.ADD,
+                    Register.R2,
+                    Register.R0,
+                    ImmediateIntOperand(4)
+                ),
                 LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
-                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
+                ArithmeticInstruction(
+                    ArithmeticInstrType.ADD,
+                    Register.R0,
+                    Register.R0,
+                    ImmediateIntOperand(4)
+                ),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
@@ -229,9 +269,19 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         } else {
             listOf(
                 LoadInstruction(Condition.AL, RegisterMode(Register.R0), Register.R2),
-                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R3, Register.R0, ImmediateIntOperand(4)),
+                ArithmeticInstruction(
+                    ArithmeticInstrType.ADD,
+                    Register.R3,
+                    Register.R0,
+                    ImmediateIntOperand(4)
+                ),
                 LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R1),
-                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R1, Register.R1, ImmediateIntOperand(4)),
+                ArithmeticInstruction(
+                    ArithmeticInstrType.ADD,
+                    Register.R1,
+                    Register.R1,
+                    ImmediateIntOperand(4)
+                ),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.PRINTF.toString()), true),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0))
@@ -247,7 +297,12 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         return if (LANGUAGE == Language.ARM) {
             listOf(
                 LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
-                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
+                ArithmeticInstruction(
+                    ArithmeticInstrType.ADD,
+                    Register.R0,
+                    Register.R0,
+                    ImmediateIntOperand(4)
+                ),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.PUTS.toString()), true),
                 MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.FFLUSH.toString()), true)
@@ -265,7 +320,8 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
      * Generate instructions for free pair call.
      */
     private fun generateFreePairCall(): List<Instruction> {
-        val label = globalVals.dataDirective.addStringLabel(RuntimeErrors.ErrorType.NULL_REFERENCE.toString())
+        val label =
+            globalVals.dataDirective.addStringLabel(RuntimeErrors.ErrorType.NULL_REFERENCE.toString())
 
         val instructions = listOf(
             CompareInstruction(Register.R0, ImmediateIntOperand(0)),

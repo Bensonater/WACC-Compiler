@@ -1,5 +1,6 @@
 package backend
 
+import LANGUAGE
 import backend.addressingmodes.ImmediateIntOperand
 import backend.enums.Register
 import backend.instruction.ArithmeticInstrType
@@ -9,7 +10,6 @@ import frontend.FuncSymbolTable
 import frontend.SymbolTable
 import frontend.ast.ParamAST
 import frontend.ast.statement.DeclareAST
-import LANGUAGE
 
 val SIZE_OF_POINTER = if (LANGUAGE == Language.ARM) 4 else 8
 private const val MAX_STACK_OFFSET = 1024
@@ -20,7 +20,7 @@ private const val X86_64_STACK_ALIGN = 16
  * @param symbolTable The symbol table of this scope
  * @return The size in bytes of the total declared variables
  */
-fun calculateStackOffset(symbolTable : SymbolTable) : Int {
+fun calculateStackOffset(symbolTable: SymbolTable): Int {
     var offset = 0
     var paramSize = 0
     for (astNode in symbolTable.symbolTable.values) {
@@ -47,7 +47,7 @@ fun calculateStackOffset(symbolTable : SymbolTable) : Int {
  * @param instructions The instructions list to add instructions to
  * @return The size of the stack allocated in bytes
  */
-fun allocateStack (symbolTable: SymbolTable, instructions: MutableList<Instruction>) : Int {
+fun allocateStack(symbolTable: SymbolTable, instructions: MutableList<Instruction>): Int {
     val stackOffset = calculateStackOffset(symbolTable)
     moveStackPointer(ArithmeticInstrType.SUB, stackOffset, instructions)
     return stackOffset
@@ -59,7 +59,7 @@ fun allocateStack (symbolTable: SymbolTable, instructions: MutableList<Instructi
  * @param instructions The instructions list to add instructions to
  * @return The size of the stack deallocated in bytes
  */
-fun deallocateStack (stackOffset: Int, instructions: MutableList<Instruction>) {
+fun deallocateStack(stackOffset: Int, instructions: MutableList<Instruction>) {
     moveStackPointer(ArithmeticInstrType.ADD, stackOffset, instructions)
 }
 
@@ -69,21 +69,25 @@ fun deallocateStack (stackOffset: Int, instructions: MutableList<Instruction>) {
  * @param stackOffset The size required to offset on the stack
  * @param instructions The instructions list to add instructions to
  */
-fun moveStackPointer (addOrSubtract: ArithmeticInstrType, stackOffset: Int,
-                              instructions: MutableList<Instruction>) {
+fun moveStackPointer(
+    addOrSubtract: ArithmeticInstrType, stackOffset: Int,
+    instructions: MutableList<Instruction>
+) {
     if (stackOffset > 0) {
         var stackOffsetLeft = stackOffset
         while (stackOffsetLeft > MAX_STACK_OFFSET) {
             instructions.add(
-                ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
-                ImmediateIntOperand(MAX_STACK_OFFSET)
+                ArithmeticInstruction(
+                    addOrSubtract, Register.SP, Register.SP,
+                    ImmediateIntOperand(MAX_STACK_OFFSET)
                 )
             )
             stackOffsetLeft -= MAX_STACK_OFFSET
         }
         instructions.add(
-            ArithmeticInstruction(addOrSubtract, Register.SP, Register.SP,
-            ImmediateIntOperand(stackOffsetLeft)
+            ArithmeticInstruction(
+                addOrSubtract, Register.SP, Register.SP,
+                ImmediateIntOperand(stackOffsetLeft)
             )
         )
     }
@@ -127,7 +131,7 @@ fun findIdentOffset(symbolTable: SymbolTable, ident: String, accOffset: Int = 0)
  * @param symbolTable The symbol table of the current scope
  * @return The offset required to move the stack pointer at return statement
  */
-fun checkFuncOffset(symbolTable: SymbolTable): Int{
+fun checkFuncOffset(symbolTable: SymbolTable): Int {
     if (symbolTable is FuncSymbolTable) {
         return symbolTable.totalDeclaredSize
     }

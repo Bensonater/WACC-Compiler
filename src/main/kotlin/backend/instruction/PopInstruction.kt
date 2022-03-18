@@ -1,10 +1,10 @@
 package backend.instruction
 
+import LANGUAGE
 import backend.Language
 import backend.enums.Register
-import LANGUAGE
 
-class PopInstruction (private val register : Register) : Instruction {
+class PopInstruction(private val register: Register) : Instruction {
     override fun toString(): String {
         return when (LANGUAGE) {
             Language.ARM -> "POP {$register}"

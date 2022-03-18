@@ -1,12 +1,12 @@
 package backend.global
 
+import LANGUAGE
 import backend.Language
 import backend.ProgramState
 import backend.addressingmodes.*
 import backend.enums.Condition
 import backend.enums.Register
 import backend.instruction.*
-import LANGUAGE
 
 class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
 
@@ -59,16 +59,24 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
         if (!errors.containsKey(ErrorType.RUNTIME_ERROR)) {
             if (LANGUAGE == Language.ARM) {
                 errors[ErrorType.RUNTIME_ERROR] = listOf(
-                        throwRuntimeErrorLabel,
-                        BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true),
-                        // Exit code is -1
-                        MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(-1)),
-                        BranchInstruction(Condition.AL, exitLabel, true)
-                    )
+                    throwRuntimeErrorLabel,
+                    BranchInstruction(
+                        Condition.AL,
+                        GeneralLabel(CallFunc.PRINT_STRING.toString()),
+                        true
+                    ),
+                    // Exit code is -1
+                    MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(-1)),
+                    BranchInstruction(Condition.AL, exitLabel, true)
+                )
             } else {
                 errors[ErrorType.RUNTIME_ERROR] = listOf(
                     throwRuntimeErrorLabel,
-                    BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true),
+                    BranchInstruction(
+                        Condition.AL,
+                        GeneralLabel(CallFunc.PRINT_STRING.toString()),
+                        true
+                    ),
                     // Exit code is -1 to %rdi
                     MoveInstruction(Condition.AL, Register.R1, ImmediateIntOperand(-1)),
                     BranchInstruction(Condition.AL, exitLabel, true)
@@ -83,7 +91,8 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
      */
     fun addOverflowError() {
         if (!errors.containsKey(ErrorType.OVERFLOW_ERROR)) {
-            val errorMsg = globalVals.dataDirective.addStringLabel(ErrorType.OVERFLOW_ERROR.toString())
+            val errorMsg =
+                globalVals.dataDirective.addStringLabel(ErrorType.OVERFLOW_ERROR.toString())
             errors[ErrorType.OVERFLOW_ERROR] = listOf(
                 throwOverflowErrorLabel,
                 LoadInstruction(Condition.AL, ImmediateLabel(errorMsg), Register.R0),
@@ -98,7 +107,8 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
      */
     fun addNullReferenceCheck() {
         if (!errors.containsKey(ErrorType.NULL_REFERENCE)) {
-            val errorMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.NULL_REFERENCE.toString())
+            val errorMsgLabel =
+                globalVals.dataDirective.addStringLabel(ErrorType.NULL_REFERENCE.toString())
             errors[ErrorType.NULL_REFERENCE] = listOf(
                 nullReferenceLabel,
                 PushInstruction(Register.LR),
@@ -116,16 +126,17 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
      */
     fun addDivideByZeroCheck() {
         if (!errors.containsKey(ErrorType.DIVIDE_BY_ZERO)) {
-            val errorMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.DIVIDE_BY_ZERO.toString())
+            val errorMsgLabel =
+                globalVals.dataDirective.addStringLabel(ErrorType.DIVIDE_BY_ZERO.toString())
             errors[ErrorType.DIVIDE_BY_ZERO] = when (LANGUAGE) {
                 Language.ARM -> listOf(
-                        divideZeroCheckLabel,
-                        PushInstruction(Register.LR),
-                        CompareInstruction(Register.R1, ImmediateIntOperand(0)),
-                        LoadInstruction(Condition.EQ, ImmediateLabel(errorMsgLabel), Register.R0),
-                        BranchInstruction(Condition.EQ, throwRuntimeErrorLabel, true),
-                        PopInstruction(Register.PC)
-                    )
+                    divideZeroCheckLabel,
+                    PushInstruction(Register.LR),
+                    CompareInstruction(Register.R1, ImmediateIntOperand(0)),
+                    LoadInstruction(Condition.EQ, ImmediateLabel(errorMsgLabel), Register.R0),
+                    BranchInstruction(Condition.EQ, throwRuntimeErrorLabel, true),
+                    PopInstruction(Register.PC)
+                )
                 Language.X86_64 -> {
                     listOf(
                         divideZeroCheckLabel,
@@ -149,8 +160,10 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
      */
     fun addArrayBoundsCheck() {
         if (!errors.containsKey(ErrorType.ARRAY_OUT_OF_BOUNDS)) {
-            val negativeMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.NEGATIVE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
-            val tooLargeMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.LARGE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
+            val negativeMsgLabel =
+                globalVals.dataDirective.addStringLabel(ErrorType.NEGATIVE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
+            val tooLargeMsgLabel =
+                globalVals.dataDirective.addStringLabel(ErrorType.LARGE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
             errors[ErrorType.DIVIDE_BY_ZERO] = when (LANGUAGE) {
                 Language.ARM -> listOf(
                     checkArrayBoundsLabel,
@@ -172,7 +185,11 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
                     LoadInstruction(Condition.AL, ImmediateLabel(negativeMsgLabel), Register.R12),
                     CMoveInstruction(Condition.LT, Register.R12, Register.R0),
                     BranchInstruction(Condition.LT, throwRuntimeErrorLabel, false),
-                    LoadInstruction(Condition.AL, RegisterModeWithOffset(Register.R1, 0), Register.R12),
+                    LoadInstruction(
+                        Condition.AL,
+                        RegisterModeWithOffset(Register.R1, 0),
+                        Register.R12
+                    ),
                     CompareInstruction(Register.R0, RegisterOperand(Register.R12)),
                     LoadInstruction(Condition.AL, ImmediateLabel(tooLargeMsgLabel), Register.R12),
                     CMoveInstruction(Condition.CS, Register.R12, Register.R0),

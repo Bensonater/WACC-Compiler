@@ -1,10 +1,10 @@
 package backend.addressingmodes
 
+import LANGUAGE
 import backend.Language
 import backend.enums.Register
-import LANGUAGE
 
-class RegisterOperand (val register : Register) : AddressingMode {
+class RegisterOperand(val register: Register) : AddressingMode {
     override fun toString(): String {
         return when (LANGUAGE) {
             Language.ARM -> register.toString()
@@ -13,7 +13,8 @@ class RegisterOperand (val register : Register) : AddressingMode {
     }
 }
 
-class RegisterOperandWithShift (val register: Register, val shiftType: ShiftType, val offset: Int) : AddressingMode {
+class RegisterOperandWithShift(val register: Register, val shiftType: ShiftType, val offset: Int) :
+    AddressingMode {
     override fun toString(): String {
         return when (LANGUAGE) {
             Language.ARM -> "$register, $shiftType #$offset"

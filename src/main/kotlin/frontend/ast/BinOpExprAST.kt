@@ -49,6 +49,7 @@ class BinOpExprAST(
 
     // Set to true if first operand is pointer for pointer arithmetic
     var pointerArithmetic = false
+
     // Shift offset in instruction if pointer arithmetic
     var shiftOffset = 0
 
@@ -62,7 +63,8 @@ class BinOpExprAST(
 
         // Allow for pointer arithmetic
         if (expr1Type is PointerTypeAST && expr2Type is BaseTypeAST && expr2Type.type == BaseType.INT
-            && (binOp == IntBinOp.PLUS || binOp == IntBinOp.MINUS)) {
+            && (binOp == IntBinOp.PLUS || binOp == IntBinOp.MINUS)
+        ) {
             pointerArithmetic = true
             shiftOffset = when {
                 // Char and Bool pointers have a unit of 1 byte so don't need to shift

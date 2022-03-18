@@ -1,16 +1,18 @@
 package frontend
 
-import antlr.*
+import antlr.WACCLexer
+import antlr.WACCParser
 import frontend.ast.ASTNode
 import frontend.errors.*
 import frontend.visitor.BuildAST
 import frontend.visitor.SyntaxChecker
-import org.antlr.v4.runtime.*
+import org.antlr.v4.runtime.CharStream
+import org.antlr.v4.runtime.CommonTokenStream
 
 
 val semanticErrorHandler = SemanticErrorHandler()
 
-fun main(input: CharStream) : Pair<Int, ASTNode?> {
+fun main(input: CharStream): Pair<Int, ASTNode?> {
 
     val errorListener = SyntaxErrorListener()
 

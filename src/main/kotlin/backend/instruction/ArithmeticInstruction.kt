@@ -1,9 +1,9 @@
 package backend.instruction
 
-import backend.Language
-import backend.enums.Register
-import backend.addressingmodes.AddressingMode
 import LANGUAGE
+import backend.Language
+import backend.addressingmodes.AddressingMode
+import backend.enums.Register
 
 enum class ArithmeticInstrType {
     ADD,
@@ -19,8 +19,15 @@ enum class ArithmeticInstrType {
 }
 
 
-class ArithmeticInstruction (val type: ArithmeticInstrType, val reg1: Register, val reg2: Register, var operand: AddressingMode,
-                             val update: Boolean = false, val shifted: Register? = null, val intCalc: Boolean = false) : Instruction {
+class ArithmeticInstruction(
+    val type: ArithmeticInstrType,
+    val reg1: Register,
+    val reg2: Register,
+    var operand: AddressingMode,
+    val update: Boolean = false,
+    val shifted: Register? = null,
+    val intCalc: Boolean = false
+) : Instruction {
     override fun toString(): String {
         return when (LANGUAGE) {
             Language.ARM -> "$type${if (update) "S" else ""} $reg1, $reg2, $operand"

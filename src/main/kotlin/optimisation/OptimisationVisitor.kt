@@ -5,7 +5,7 @@ import frontend.ast.*
 import frontend.ast.literal.*
 import frontend.ast.statement.*
 
-abstract class OptimisationVisitor: ASTVisitor<ASTNode> {
+abstract class OptimisationVisitor : ASTVisitor<ASTNode> {
     override fun visitProgramAST(ast: ProgramAST): ASTNode {
         val funcList = mutableListOf<FuncAST>()
         for (func in ast.funcList) {

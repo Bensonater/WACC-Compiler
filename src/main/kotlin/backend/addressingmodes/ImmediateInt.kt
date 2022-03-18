@@ -1,9 +1,9 @@
 package backend.addressingmodes
 
-import backend.Language
 import LANGUAGE
+import backend.Language
 
-class ImmediateInt (val num : Int) : AddressingMode {
+class ImmediateInt(val num: Int) : AddressingMode {
     override fun toString(): String {
         return when (LANGUAGE) {
             Language.ARM -> "=$num"

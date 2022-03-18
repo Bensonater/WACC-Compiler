@@ -12,7 +12,8 @@ fun printCode(instructions: List<Instruction>): String {
         }
 
         if (instr !is DirectiveInstruction && instr !is LabelInstruction ||
-                instr.toString() == ".ltorg") {
+            instr.toString() == ".ltorg"
+        ) {
             code.append('\t')
         }
         code.appendLine(instr.toString())

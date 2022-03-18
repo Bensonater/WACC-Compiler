@@ -1,9 +1,9 @@
 package backend.addressingmodes
 
-import backend.Language
 import LANGUAGE
+import backend.Language
 
-class ImmediateCharOperand(val char : Char) : AddressingMode {
+class ImmediateCharOperand(val char: Char) : AddressingMode {
     override fun toString(): String {
         return when (LANGUAGE) {
             Language.ARM -> {

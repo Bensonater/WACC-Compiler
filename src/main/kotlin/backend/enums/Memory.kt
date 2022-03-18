@@ -10,7 +10,7 @@ enum class Memory {
     L, // Double word (4 Bytes)
     Q; // 8 bytes
 
-    fun getRegType (reg : Register): String {
+    fun getRegType(reg: Register): String {
         return when (this) {
             B, SB -> reg.to8Byte()
             W -> reg.to16Byte()

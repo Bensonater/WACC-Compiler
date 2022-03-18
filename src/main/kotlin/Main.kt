@@ -1,10 +1,11 @@
 import backend.Language
-import org.antlr.v4.runtime.CharStreams
-import kotlin.system.exitProcess
-import frontend.errors.*
-import optimisation.ControlFlowVisitor
+import frontend.errors.OTHER_ERROR_CODE
+import frontend.errors.SUCCESS_CODE
 import optimisation.ConstEvalPropVisitor
+import optimisation.ControlFlowVisitor
+import org.antlr.v4.runtime.CharStreams
 import java.io.File
+import kotlin.system.exitProcess
 
 var LANGUAGE = Language.ARM
 
@@ -14,7 +15,7 @@ fun main(args: Array<String>) {
         exitProcess(OTHER_ERROR_CODE)
     }
     if (!File(args[0]).exists()) {
-        println ("Error - ${args[0]} does not exist.")
+        println("Error - ${args[0]} does not exist.")
         exitProcess(OTHER_ERROR_CODE)
     }
     val input = CharStreams.fromFileName(args[0])

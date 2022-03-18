@@ -6,7 +6,7 @@ abstract class ErrorHandler {
 
     protected val errors: MutableList<String> = mutableListOf()
 
-    fun errorCount() : Int = errors.size
+    fun errorCount(): Int = errors.size
 
     fun hasErrors(): Boolean = errors.isNotEmpty()
 
@@ -22,7 +22,7 @@ abstract class ErrorHandler {
 
     abstract fun errorText(ctx: ParserRuleContext): String
 
-    protected fun addErrorWithContext (ctx: ParserRuleContext, errorMessage: String) {
+    protected fun addErrorWithContext(ctx: ParserRuleContext, errorMessage: String) {
         val error = errorText(ctx) + errorMessage
         throwError(error)
     }

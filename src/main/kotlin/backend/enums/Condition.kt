@@ -1,7 +1,7 @@
 package backend.enums
 
-import backend.Language
 import LANGUAGE
+import backend.Language
 
 enum class Condition {
     EQ,

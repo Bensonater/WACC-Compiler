@@ -5,5 +5,4 @@ import org.antlr.v4.runtime.ParserRuleContext
 /**
  * Abstract AST node encapsulating all expression nodes.
  */
-abstract class ExprAST(ctx: ParserRuleContext) : ASTNode(ctx) {
-}
+abstract class ExprAST(ctx: ParserRuleContext) : ASTNode(ctx)

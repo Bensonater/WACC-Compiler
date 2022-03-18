@@ -26,7 +26,8 @@ class ConstEvalPropVisitor : OptimisationVisitor() {
     }
 
     override fun visitDeclareAST(ast: DeclareAST): ASTNode {
-        val rhs = if (ast.type is BaseTypeAST) findExprLiteral(ast.assignRhs) else visit(ast.assignRhs)
+        val rhs =
+            if (ast.type is BaseTypeAST) findExprLiteral(ast.assignRhs) else visit(ast.assignRhs)
         val declareAST = DeclareAST(ast.ctx, ast.type, ast.ident, rhs)
         ast.symbolTable.updateVariable(ast.ident.name, rhs)
         declareAST.symbolTable = ast.symbolTable
@@ -146,7 +147,12 @@ class ConstEvalPropVisitor : OptimisationVisitor() {
                 }
                 is BoolBinOp -> {
                     return BoolLiterAST(
-                        ast.ctx, apply(ast.binOp, (expr1 as BoolLiterAST).value, (expr2 as BoolLiterAST).value)
+                        ast.ctx,
+                        apply(
+                            ast.binOp,
+                            (expr1 as BoolLiterAST).value,
+                            (expr2 as BoolLiterAST).value
+                        )
                     )
                 }
                 is CmpBinOp -> {

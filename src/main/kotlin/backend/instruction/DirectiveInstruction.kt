@@ -1,9 +1,9 @@
 package backend.instruction
 
-import backend.Language
 import LANGUAGE
+import backend.Language
 
-class DirectiveInstruction (private val directive: String) : Instruction{
+class DirectiveInstruction(private val directive: String) : Instruction {
     override fun toString(): String {
         return when (LANGUAGE) {
             Language.ARM -> ".$directive"

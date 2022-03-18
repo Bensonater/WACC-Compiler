@@ -1,7 +1,7 @@
 package backend.enums
 
-import backend.Language
 import LANGUAGE
+import backend.Language
 
 
 enum class Register {
@@ -18,50 +18,50 @@ enum class Register {
             Language.ARM -> name.lowercase()
             Language.X86_64 -> {
                 "%" +
-                when (this) {
-                    R0 -> "rax"
-                    R1 -> "rdi"
-                    R2 -> "rsi"
-                    R3 -> "rdx"
-                    R4 -> "rdi"
-                    R5 -> "rsi"
-                    R6 -> "rdx"
-                    R7 -> "rcx"
-                    R8 -> "r8"
-                    R9 -> "r9"
-                    R10 -> "r12"
-                    R11 -> "r13"
-                    R12 -> "r14"
-                    SP -> "rsp"
-                    LR -> "rbp"
-                    PC -> "rbp"
-                    NONE -> ""
-                }
+                        when (this) {
+                            R0 -> "rax"
+                            R1 -> "rdi"
+                            R2 -> "rsi"
+                            R3 -> "rdx"
+                            R4 -> "rdi"
+                            R5 -> "rsi"
+                            R6 -> "rdx"
+                            R7 -> "rcx"
+                            R8 -> "r8"
+                            R9 -> "r9"
+                            R10 -> "r12"
+                            R11 -> "r13"
+                            R12 -> "r14"
+                            SP -> "rsp"
+                            LR -> "rbp"
+                            PC -> "rbp"
+                            NONE -> ""
+                        }
             }
         }
     }
 
     fun to8Byte(): String {
         return "%" +
-            when (this) {
-                R0 -> "al"
-                R1 -> "dil"
-                R2 -> "sil"
-                R3 -> "dl"
-                R4 -> "dil"
-                R5 -> "sil"
-                R6 -> "dl"
-                R7 -> "cl"
-                R8 -> "r8b"
-                R9 -> "r9b"
-                R10 -> "r12b"
-                R11 -> "r13b"
-                R12 -> "r14b"
-                SP -> "spl"
-                LR -> "bpl"
-                PC -> "bpl"
-                NONE -> ""
-            }
+                when (this) {
+                    R0 -> "al"
+                    R1 -> "dil"
+                    R2 -> "sil"
+                    R3 -> "dl"
+                    R4 -> "dil"
+                    R5 -> "sil"
+                    R6 -> "dl"
+                    R7 -> "cl"
+                    R8 -> "r8b"
+                    R9 -> "r9b"
+                    R10 -> "r12b"
+                    R11 -> "r13b"
+                    R12 -> "r14b"
+                    SP -> "spl"
+                    LR -> "bpl"
+                    PC -> "bpl"
+                    NONE -> ""
+                }
     }
 
     fun to16Byte(): String {

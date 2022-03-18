@@ -8,7 +8,6 @@ import frontend.ast.statement.*
 import frontend.ast.type.*
 
 
-
 class BuildAST : WACCParserBaseVisitor<ASTNode>() {
 
 
@@ -47,7 +46,8 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
 
     override fun visitAssignRhs(ctx: WACCParser.AssignRhsContext): ASTNode {
         if (ctx.NEWPAIR() != null) {
-            return NewPairAST(ctx,
+            return NewPairAST(
+                ctx,
                 visit(ctx.expr(0)) as ExprAST,
                 visit(ctx.expr(1)) as ExprAST
             )
@@ -67,12 +67,14 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
     override fun visitStatWhile(ctx: WACCParser.StatWhileContext): ASTNode {
         val ctxStat = visit(ctx.stat()) as StatAST
         return if (ctxStat is StatMultiAST) {
-            WhileAST (ctx,
+            WhileAST(
+                ctx,
                 visit(ctx.expr()) as ExprAST,
                 ctxStat.stats
             )
         } else {
-            WhileAST (ctx,
+            WhileAST(
+                ctx,
                 visit(ctx.expr()) as ExprAST,
                 mutableListOf(ctxStat)
             )
@@ -84,7 +86,8 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitStatDeclare(ctx: WACCParser.StatDeclareContext): ASTNode {
-        return DeclareAST(ctx,
+        return DeclareAST(
+            ctx,
             visit(ctx.type()) as TypeAST,
             visit(ctx.ident()) as IdentAST,
             visit(ctx.assignRhs())
@@ -96,9 +99,10 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitStatIf(ctx: WACCParser.StatIfContext): ASTNode {
-        return IfAST(ctx,
+        return IfAST(
+            ctx,
             visit(ctx.expr()) as ExprAST,
-            mutableListOf(visit(ctx.stat(0)) as StatAST) ,
+            mutableListOf(visit(ctx.stat(0)) as StatAST),
             mutableListOf(visit(ctx.stat(1)) as StatAST)
         )
     }
@@ -159,8 +163,9 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
     }
 
     override fun visitPairType(ctx: WACCParser.PairTypeContext): ASTNode {
-        return PairTypeAST(ctx, visit(ctx.pairElemType(0)) as TypeAST,
-        visit(ctx.pairElemType(1)) as TypeAST
+        return PairTypeAST(
+            ctx, visit(ctx.pairElemType(0)) as TypeAST,
+            visit(ctx.pairElemType(1)) as TypeAST
         )
     }
 
@@ -189,10 +194,12 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
             "||" -> BoolBinOp.OR
             else -> throw RuntimeException()
         }
-        return BinOpExprAST(ctx,
+        return BinOpExprAST(
+            ctx,
             binOp as BinOp,
             visit(ctx.expr(0)) as ExprAST,
-            visit(ctx.expr(1)) as ExprAST)
+            visit(ctx.expr(1)) as ExprAST
+        )
     }
 
     override fun visitExprUnOp(ctx: WACCParser.ExprUnOpContext): ASTNode {
@@ -219,10 +226,11 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
         for (expr in ctx.expr()) {
             listOfIndex.add(visit(expr) as ExprAST)
         }
-        return ArrayElemAST(ctx,
+        return ArrayElemAST(
+            ctx,
             visit(ctx.ident()) as IdentAST,
             listOfIndex
-            )
+        )
     }
 
     override fun visitArrayLiter(ctx: WACCParser.ArrayLiterContext): ASTNode {
@@ -274,11 +282,13 @@ class BuildAST : WACCParserBaseVisitor<ASTNode>() {
     override fun visitStatBegin(ctx: WACCParser.StatBeginContext): ASTNode {
         val ctxStat = visit(ctx.stat()) as StatAST
         return if (ctxStat is StatMultiAST) {
-            BeginAST (ctx,
+            BeginAST(
+                ctx,
                 ctxStat.stats
             )
         } else {
-            BeginAST (ctx,
+            BeginAST(
+                ctx,
                 mutableListOf(ctxStat)
             )
         }
