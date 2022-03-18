@@ -1,5 +1,7 @@
 package frontend.ast.type
 
+import LANGUAGE
+import backend.Language
 import frontend.SymbolTable
 import org.antlr.v4.runtime.ParserRuleContext
 import java.util.*
@@ -9,7 +11,7 @@ import java.util.*
  * are passed into the constructor. For example, int[][] will have type int and dimension 2.
  */
 class ArrayTypeAST(ctx: ParserRuleContext, val type: TypeAST, val dimension: Int) : TypeAST(ctx) {
-    override val size = 4
+    override val size = if (LANGUAGE == Language.ARM) 4 else 8
 
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable

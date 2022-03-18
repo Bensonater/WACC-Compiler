@@ -1,5 +1,7 @@
 package frontend.ast.type
 
+import LANGUAGE
+import backend.Language
 import frontend.SymbolTable
 import org.antlr.v4.runtime.ParserRuleContext
 
@@ -9,7 +11,7 @@ import org.antlr.v4.runtime.ParserRuleContext
  */
 class PairTypeAST(ctx: ParserRuleContext, val typeFst: TypeAST, val typeSnd: TypeAST) :
     TypeAST(ctx) {
-    override val size = 4
+    override val size = if (LANGUAGE == Language.ARM) 4 else 8
 
     override fun check(symbolTable: SymbolTable): Boolean {
         this.symbolTable = symbolTable

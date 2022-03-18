@@ -1,5 +1,7 @@
 package frontend.ast.type
 
+import LANGUAGE
+import backend.Language
 import org.antlr.v4.runtime.ParserRuleContext
 
 enum class BaseType {
@@ -16,7 +18,13 @@ enum class BaseType {
 class BaseTypeAST(ctx: ParserRuleContext, val type: BaseType) : TypeAST(ctx) {
 
     override val size = when (type) {
-        BaseType.INT, BaseType.STRING -> 4
+        BaseType.STRING -> {
+            when (LANGUAGE) {
+                Language.ARM -> 4
+                Language.X86_64 -> 8
+            }
+        }
+        BaseType.INT -> 4
         BaseType.BOOL, BaseType.CHAR -> 1
     }
 
