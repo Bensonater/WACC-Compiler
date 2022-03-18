@@ -139,7 +139,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     if (ast.pointerArithmetic) {
                         instructions.add(ArithmeticInstruction(instr, reg1, reg1, RegisterOperandWithShift(reg2, ShiftType.LSL, ast.shiftOffset), true))
                     } else {
-                        instructions.add(ArithmeticInstruction(instr, reg1, reg1, RegisterOperand(reg2), true))
+                        instructions.add(ArithmeticInstruction(instr, reg1, reg1, RegisterOperand(reg2), true, reg2, true))
                     }
                 }
                 if (LANGUAGE == Language.ARM) {
@@ -164,7 +164,8 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                     instructions.add(IMultiplyInstruction(reg2, reg1))
 //                    instructions.add(MoveInstruction(Condition.AL, reg1, RegisterMode(Register.R0)))
 //                    instructions.add(CompareInstruction(reg2, RegisterOperandWithShift(reg1, ShiftType.ASR, shiftAmount)))
-//                     instructions.add(BranchInstruction(Condition.NE, RuntimeErrors.throwOverflowErrorLabel, false))
+//                    instructions.add(BranchInstruction(Condition.NE, RuntimeErrors.throwOverflowErrorLabel, false))
+                    instructions.add(BranchInstruction(Condition.VS, RuntimeErrors.throwOverflowErrorLabel, false))
                 }
                 ProgramState.runtimeErrors.addOverflowError()
             }
