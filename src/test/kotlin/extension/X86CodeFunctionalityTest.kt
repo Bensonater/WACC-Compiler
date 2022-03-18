@@ -69,7 +69,18 @@ class X86CodeFunctionalityTest {
     companion object {
         @JvmStatic
         fun testFiles(): List<File> {
-            return getEachFile(File("wacc_examples/valid/"))
+            val root = "wacc_examples/valid"
+            return getEachFile(File(root),
+                listOf(
+                    File("$root/array/array.wacc"),
+                    File("$root/array/arrayPrint.wacc"),
+                    File("$root/array/printRef.wacc"),
+                    File("$root/function/functionManyArguments.wacc"),
+                    File("$root/pairs/checkRefPair.wacc"),
+                    File("$root/pairs/printPair.wacc"),
+                    File("$root/pairs/printPairOfNulls.wacc"),
+                    File("$root/scope/printAllTypes.wacc")
+            ))
         }
     }
 }
