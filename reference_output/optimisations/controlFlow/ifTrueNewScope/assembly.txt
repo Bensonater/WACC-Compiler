@@ -17,6 +17,7 @@ main:
 	STR r4, [sp]
 	SUB sp, sp, #4
 	LDR r4, =2
+	STR r4, [sp]
 	MOV r0, r4
 	BL p_print_int
 	BL p_print_ln
