@@ -1,12 +1,10 @@
 package extension
 
 import getEachFile
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.util.concurrent.TimeUnit
-import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 class OptimisationTest {
@@ -16,7 +14,6 @@ class OptimisationTest {
      * Tests the output of all valid WACC example files, comparing them to the output
      * of the reference compiler (testing functional correctness)
      */
-    @Disabled
     @ParameterizedTest
     @MethodSource("testFiles")
     fun assemblyIsOptimised(file: File) {
