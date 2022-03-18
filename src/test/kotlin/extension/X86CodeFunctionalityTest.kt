@@ -79,7 +79,13 @@ class X86CodeFunctionalityTest {
                     File("$root/pairs/checkRefPair.wacc"),
                     File("$root/pairs/printPair.wacc"),
                     File("$root/pairs/printPairOfNulls.wacc"),
-                    File("$root/scope/printAllTypes.wacc")
+                    File("$root/scope/printAllTypes.wacc"),
+                    File("$root/pointers/charPointerArithmetic.wacc"),
+                    File("$root/pointers/intPointerArithmetic.wacc"),
+                    File("$root/pointers/pointerArray.wacc"),
+                    File("$root/pointers/pointerBasic.wacc"),
+                    File("$root/pointers/pointerBinExp.wacc"),
+
             ))
         }
     }
