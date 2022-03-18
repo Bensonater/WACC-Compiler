@@ -65,7 +65,8 @@ class OptimisationTest {
                         file.invariantSeparatorsPath.split(".wacc").first()
                             .split("wacc_examples/valid/")
                             .last() + "/assembly.txt"
-            val assemblyText = File(assemblyFile).inputStream().bufferedReader().use { it.readText() }
+            val assemblyText =
+                File(assemblyFile).inputStream().bufferedReader().use { it.readText() }
             map[file.nameWithoutExtension] = assemblyText
         }
         return map

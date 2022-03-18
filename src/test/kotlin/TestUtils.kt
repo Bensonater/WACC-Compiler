@@ -26,7 +26,7 @@ fun getEachFile(file: File, exclusions: List<File>): List<File> {
             listOfFiles += getEachFile(subFile, exclusions)
         }
     } else {
-        if (!exclusions.contains(file)){
+        if (!exclusions.contains(file)) {
             listOfFiles += file
         }
     }
