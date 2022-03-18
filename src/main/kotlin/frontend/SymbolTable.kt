@@ -19,6 +19,9 @@ open class SymbolTable {
     // Size of the total declared variables in current scope
     var totalDeclaredSize = 0
 
+    // Size of all the variables in current scope including parameters
+    var totalSize = 0
+
     // Adjusts for stack offset when setting up call arguments
     var callOffset = 0
 
