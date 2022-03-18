@@ -127,6 +127,7 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
                 MoveInstruction(Condition.AL, Register.R2, RegisterOperand(Register.R0)),
                 LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R1),
                 ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R1, Register.R1, ImmediateIntOperand(4)),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
                 BranchInstruction(Condition.AL, GeneralLabel(Funcs.SCANF.toString()), true)
             )
         }
