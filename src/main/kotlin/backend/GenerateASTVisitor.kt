@@ -921,7 +921,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         val type = expr.getType(expr.symbolTable)
         val isBoolOrChar = type is BaseTypeAST && (type.type == BaseType.BOOL || type.type == BaseType.CHAR)
         val memoryType: Memory? = when (language) {
-            Language.ARM -> if (isBoolOrChar) Memory.SB else null
+            Language.ARM -> if (isBoolOrChar) Memory.B else null
             Language.X86_64 -> {
                 if (isBoolOrChar) {
                     Memory.B
