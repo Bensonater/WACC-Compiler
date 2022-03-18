@@ -75,7 +75,7 @@ class X86CodeFunctionalityTest {
                     File("$root/array/array.wacc"),
                     File("$root/array/arrayPrint.wacc"),
                     File("$root/array/printRef.wacc"),
-                    File("$root/function/functionManyArguments.wacc"),
+                    File("$root/function/simple_functions/functionManyArguments.wacc"),
                     File("$root/pairs/checkRefPair.wacc"),
                     File("$root/pairs/printPair.wacc"),
                     File("$root/pairs/printPairOfNulls.wacc"),
