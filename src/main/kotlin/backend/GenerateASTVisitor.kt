@@ -935,7 +935,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         }
         // Loads content at address back to register
         if (expr is PairElemAST || expr is ArrayElemAST || expr is PointerElemAST) {
-            instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg, memoryType))
+            if (LANGUAGE == Language.ARM) {
+                instructions.add(LoadInstruction(Condition.AL, RegisterMode(reg), reg, memoryType))
+            } else {
+                instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(reg, 0), reg, memoryType))
+            }
         }
 
         return memoryType
