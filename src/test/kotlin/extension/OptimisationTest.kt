@@ -32,8 +32,6 @@ class OptimisationTest {
         ).start().waitFor(20, TimeUnit.SECONDS)
 
         val assemblyCode = File("$name.s").inputStream().bufferedReader().use { it.readText() }
-        println("----------------------------")
-        println(assemblyCode)
 
         val success = (assemblyCode == optimisedCode)
 
@@ -41,6 +39,10 @@ class OptimisationTest {
             println("- PASS: Assembly Optimised for $name")
         } else {
             println("- FAIL: Assembly NOT Optimised for $name")
+            println("------REFERENCE Assembly------")
+            println(optimisedCode)
+            println("------OUR OUTPUT------")
+            println(assemblyCode)
         }
         ProcessBuilder("rm", "$name.s").start().waitFor(20, TimeUnit.SECONDS)
         assertTrue(success)
