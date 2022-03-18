@@ -19,6 +19,10 @@ fun main(args: Array<String>) {
     }
     val input = CharStreams.fromFileName(args[0])
 
+    if (args.contains("-x86")) {
+        LANGUAGE = Language.X86_64
+    }
+
     // Use frontend to parse input WACC file and output AST with symbol table
     val astStatusPair = frontend.main(input)
     if (astStatusPair.first != SUCCESS_CODE) {
@@ -32,10 +36,6 @@ fun main(args: Array<String>) {
     val constEvalProp = optimiseAll || args.contains("-oCEP")
     val controlFlow = optimiseAll || args.contains("-oCF")
     val instrEval = optimiseAll || args.contains("-oIE")
-
-    if (args.contains("-x86")) {
-        LANGUAGE = Language.X86_64
-    }
 
     if (constEvalProp) {
         ast = ConstEvalPropVisitor().visit(ast)
