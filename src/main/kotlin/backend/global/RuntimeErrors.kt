@@ -6,7 +6,7 @@ import backend.addressingmodes.*
 import backend.enums.Condition
 import backend.enums.Register
 import backend.instruction.*
-import language
+import LANGUAGE
 
 class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
 
@@ -57,7 +57,7 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
      */
     fun addThrowRuntimeError() {
         if (!errors.containsKey(ErrorType.RUNTIME_ERROR)) {
-            if (language == Language.ARM) {
+            if (LANGUAGE == Language.ARM) {
                 errors[ErrorType.RUNTIME_ERROR] = listOf(
                         throwRuntimeErrorLabel,
                         BranchInstruction(Condition.AL, GeneralLabel(CallFunc.PRINT_STRING.toString()), true),
@@ -117,7 +117,7 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
     fun addDivideByZeroCheck() {
         if (!errors.containsKey(ErrorType.DIVIDE_BY_ZERO)) {
             val errorMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.DIVIDE_BY_ZERO.toString())
-            errors[ErrorType.DIVIDE_BY_ZERO] = when (language) {
+            errors[ErrorType.DIVIDE_BY_ZERO] = when (LANGUAGE) {
                 Language.ARM -> listOf(
                         divideZeroCheckLabel,
                         PushInstruction(Register.LR),
@@ -151,7 +151,7 @@ class RuntimeErrors(private val globalVals: ProgramState.GlobalVals) {
         if (!errors.containsKey(ErrorType.ARRAY_OUT_OF_BOUNDS)) {
             val negativeMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.NEGATIVE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
             val tooLargeMsgLabel = globalVals.dataDirective.addStringLabel(ErrorType.LARGE_ARRAY_INDEX_OUT_OF_BOUNDS.toString())
-            errors[ErrorType.DIVIDE_BY_ZERO] = when (language) {
+            errors[ErrorType.DIVIDE_BY_ZERO] = when (LANGUAGE) {
                 Language.ARM -> listOf(
                     checkArrayBoundsLabel,
                     PushInstruction(Register.LR),

@@ -4,7 +4,7 @@ import backend.Language
 import backend.instruction.DirectiveInstruction
 import backend.instruction.Instruction
 import backend.instruction.MessageLabel
-import language
+import LANGUAGE
 
 /**
  * Generate, store and translate all directives with labels for the .data directive.
@@ -14,7 +14,7 @@ class DataDirective {
 
     fun addStringLabel(stringLabel: String) : String {
         var output = ""
-        if (language == Language.X86_64) {
+        if (LANGUAGE == Language.X86_64) {
             output = "$"
         }
         output += if (dataLabels.contains(stringLabel)) {
@@ -28,7 +28,7 @@ class DataDirective {
 
     fun toStringLabel(string: String): String {
         var output = ""
-        if (language == Language.X86_64) {
+        if (LANGUAGE == Language.X86_64) {
             output = "$"
         }
         return output + "msg_${dataLabels.indexOf(string)}"

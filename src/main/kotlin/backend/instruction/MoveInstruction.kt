@@ -3,13 +3,12 @@ package backend.instruction
 import backend.Language
 import backend.addressingmodes.AddressingMode
 import backend.enums.Condition
-import backend.enums.Memory
 import backend.enums.Register
-import language
+import LANGUAGE
 
 class MoveInstruction (val condition: Condition, val reg: Register, val value: AddressingMode) : Instruction {
     override fun toString(): String {
-        return when (language) {
+        return when (LANGUAGE) {
             Language.ARM -> "MOV$condition $reg, $value"
             Language.X86_64 -> "mov $value, $reg"
         }

@@ -5,7 +5,7 @@ import backend.global.DataDirective
 import backend.global.Library
 import backend.global.RuntimeErrors
 import backend.instruction.GeneralLabel
-import language
+import LANGUAGE
 import java.util.*
 
 class ProgramState {
@@ -23,7 +23,7 @@ class ProgramState {
     /**
      * Stacks storing the free and used callee saved registers.
      */
-    val freeCalleeSavedRegs: ArrayDeque<Register> = if (language == Language.ARM) ArrayDeque<Register>(listOf(
+    val freeCalleeSavedRegs: ArrayDeque<Register> = if (LANGUAGE == Language.ARM) ArrayDeque<Register>(listOf(
         Register.R4, Register.R5,
         Register.R6, Register.R7, Register.R8, Register.R9, Register.R10, Register.R11)) else ArrayDeque<Register>(listOf(
         Register.R7, Register.R8, Register.R9, Register.R10, Register.R11))

@@ -1,7 +1,7 @@
 package backend.enums
 
 import backend.Language
-import language
+import LANGUAGE
 
 enum class Condition {
     EQ,
@@ -15,7 +15,7 @@ enum class Condition {
     AL;
 
     override fun toString(): String {
-        return when (language) {
+        return when (LANGUAGE) {
             Language.ARM -> {
                 if (this == AL) {
                     ""
