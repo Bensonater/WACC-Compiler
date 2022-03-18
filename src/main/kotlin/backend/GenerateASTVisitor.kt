@@ -818,7 +818,7 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 )
             )
         }
-        instructions.add(BranchInstruction(Condition.AL, GeneralLabel("malloc"), true))
+        instructions.add(BranchInstruction(Condition.AL, GeneralLabel(Funcs.MALLOC.toString()), true))
         val stackReg = programState.getFreeCalleeReg()
         instructions.add(MoveInstruction(Condition.AL, stackReg, RegisterOperand(Register.R0)))
 
