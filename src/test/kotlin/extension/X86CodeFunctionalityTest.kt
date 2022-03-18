@@ -12,8 +12,9 @@ class X86CodeFunctionalityTest {
     private val map = MapOfFilesToOutput.getMap()
 
     /**
-     * Tests the output of all valid WACC example files, comparing them to the output
-     * of the reference compiler (testing functional correctness)
+     * Tests the output of running all valid WACC example files, after compiling to
+     * x86 assembly code, comparing them to the output of the reference compiler
+     * (Testing functional correctness)
      */
     @ParameterizedTest
     @MethodSource("testFiles")
@@ -69,9 +70,9 @@ class X86CodeFunctionalityTest {
         fun testFiles(): List<File> {
             val root = "wacc_examples/valid"
             /**
-             * We have had to exclude some tests for arrays, as a different address has been used
-             * for the x86 compared to ARM architecture- they are still functionally correct. We
-             * have also excluded the pair and pointer test files
+             * We have excluded some tests for arrays, as a different address has been used
+             * for x86 compared to the ARM architecture- they are still functionally correct.
+             * We have also excluded the pair and pointer test files
              */
             return getEachFile(
                 File(root),

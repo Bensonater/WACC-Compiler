@@ -11,8 +11,9 @@ class ARMCodeFunctionalityTest {
     private val map = MapOfFilesToOutput.getMap()
 
     /**
-     * Tests the output of all valid WACC example files, comparing them to the output
-     * of the reference compiler (testing functional correctness)
+     * Tests the output of running all valid WACC example files, after compiling to
+     * ARM assembly code, comparing them to the output of the reference compiler
+     * (Testing functional correctness)
      */
     @ParameterizedTest
     @MethodSource("testFiles")

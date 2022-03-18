@@ -76,6 +76,9 @@ class ConstEvalPropVisitor : OptimisationVisitor() {
         return unOpHelper(expr, ast)
     }
 
+    /**
+     * Flattens tree for unary operators when possible
+     */
     private fun unOpHelper(expr: ASTNode, ast: UnOpExprAST): ASTNode {
         return when {
             (expr is IntLiterAST) && (ast.unOp == UnOp.CHR) -> {
@@ -132,6 +135,9 @@ class ConstEvalPropVisitor : OptimisationVisitor() {
         return binOpHelper(expr1, expr2, ast)
     }
 
+    /**
+     * Flattens tree for binary operators when possible
+     */
     private fun binOpHelper(expr1: ASTNode, expr2: ASTNode, ast: BinOpExprAST): ASTNode {
         if (((expr1 is IntLiterAST) and (expr2 is IntLiterAST)) or
             ((expr1 is BoolLiterAST) and (expr2 is BoolLiterAST))
@@ -184,6 +190,9 @@ class ConstEvalPropVisitor : OptimisationVisitor() {
         }
     }
 
+    /**
+     * Function to uniformly apply integer operations to values
+     */
     private fun apply(op: IntBinOp, val1: Int, val2: Int): Int {
         return when (op) {
             IntBinOp.PLUS -> {
@@ -204,6 +213,9 @@ class ConstEvalPropVisitor : OptimisationVisitor() {
         }
     }
 
+    /**
+     * Function to uniformly apply boolean operations to values
+     */
     private fun apply(op: BoolBinOp, val1: Boolean, val2: Boolean): Boolean {
         return when (op) {
             BoolBinOp.AND -> {

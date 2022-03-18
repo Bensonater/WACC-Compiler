@@ -11,8 +11,9 @@ class OptimisationTest {
     private val map = getAssemblyMap()
 
     /**
-     * Tests the output of all valid WACC example files, comparing them to the output
-     * of the reference compiler (testing functional correctness)
+     * Tests the assembly code produced by compiling some additional WACC example files,
+     * comparing them to an optimised version of the assembly originally produced
+     * (Testing assembly has been optimised)
      */
     @ParameterizedTest
     @MethodSource("testFiles")
@@ -56,6 +57,10 @@ class OptimisationTest {
         }
     }
 
+    /**
+     * Returns a mapping of new WACC example files to their optimised assembly
+     * code
+     */
     private fun getAssemblyMap(): HashMap<String, String> {
         val map = HashMap<String, String>()
         val root = "wacc_examples/valid/optimisations"
