@@ -441,7 +441,11 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             }
             is ArrayElemAST, is PairElemAST, is PointerElemAST -> {
                 instructions.addAll(visit(ast.assignLhs))
-                instructions.add(StoreInstruction(RegisterMode(programState.recentlyUsedCalleeReg()), reg, memoryType))
+                if (LANGUAGE == Language.ARM) {
+                    instructions.add(StoreInstruction(RegisterMode(programState.recentlyUsedCalleeReg()), reg, memoryType))
+                } else {
+                    instructions.add(StoreInstruction(RegisterModeWithOffset(programState.recentlyUsedCalleeReg(), 0), reg, memoryType))
+                }
                 programState.freeCalleeReg()
             }
         }
@@ -768,8 +772,8 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
             instructions.add(BranchInstruction(Condition.AL, RuntimeErrors.checkArrayBoundsLabel, true))
             ProgramState.runtimeErrors.addArrayBoundsCheck()
 
-            // Add pointer offset
-            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, ImmediateIntOperand(SIZE_OF_POINTER)))
+            // Add array size offset
+            instructions.add(ArithmeticInstruction(ArithmeticInstrType.ADD, stackReg, stackReg, ImmediateIntOperand(4)))
 
             val identType = ast.ident.getType(ast.symbolTable)
             if ((identType is ArrayTypeAST) && (identType.type is BaseTypeAST &&
@@ -785,9 +789,6 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                         RegisterOperandWithShift(reg, ShiftType.LSL, multiplyByFour), true, reg))
                 }
 
-            }
-            if (LANGUAGE == Language.X86_64) {
-                instructions.add(LoadInstruction(Condition.AL, RegisterModeWithOffset(stackReg, 0), stackReg))
             }
             programState.freeCalleeReg()
         }
