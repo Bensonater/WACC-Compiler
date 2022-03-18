@@ -267,19 +267,35 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
     private fun generateFreePairCall(): List<Instruction> {
         val label = globalVals.dataDirective.addStringLabel(RuntimeErrors.ErrorType.NULL_REFERENCE.toString())
 
-        val instructions = listOf(
-            CompareInstruction(Register.R0, ImmediateIntOperand(0)),
-            LoadInstruction(Condition.EQ, ImmediateLabel(label), Register.R0),
-            BranchInstruction(Condition.EQ, throwRuntimeErrorLabel, false),
-            PushInstruction(Register.R0),
-            LoadInstruction(Condition.AL, RegisterMode(Register.R0), Register.R0),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true),
-            LoadInstruction(Condition.AL, RegisterMode(Register.SP), Register.R0),
-            LoadInstruction(Condition.AL, RegisterModeWithOffset(Register.R0, 4), Register.R0),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true),
-            PopInstruction(Register.R0),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true)
-        )
+        val instructions = if (LANGUAGE == Language.ARM) {
+            listOf(
+                CompareInstruction(Register.R0, ImmediateIntOperand(0)),
+                LoadInstruction(Condition.EQ, ImmediateLabel(label), Register.R0),
+                BranchInstruction(Condition.EQ, throwRuntimeErrorLabel, false),
+                PushInstruction(Register.R0),
+                LoadInstruction(Condition.AL, RegisterMode(Register.R0), Register.R0),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true),
+                LoadInstruction(Condition.AL, RegisterMode(Register.SP), Register.R0),
+                LoadInstruction(Condition.AL, RegisterModeWithOffset(Register.R0, 4), Register.R0),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true),
+                PopInstruction(Register.R0),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true)
+            )
+        } else {
+            listOf(
+                CompareInstruction(Register.R0, ImmediateIntOperand(0)),
+                LoadInstruction(Condition.EQ, ImmediateLabel(label), Register.R0),
+                BranchInstruction(Condition.EQ, throwRuntimeErrorLabel, false),
+                PushInstruction(Register.R0),
+                LoadInstruction(Condition.AL, RegisterMode(Register.R0), Register.R1),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true),
+                LoadInstruction(Condition.AL, RegisterMode(Register.SP), Register.R1),
+                LoadInstruction(Condition.AL, RegisterModeWithOffset(Register.R1, 4), Register.R1),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true),
+                PopInstruction(Register.R1),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true)
+            )
+        }
         globalVals.runtimeErrors.addThrowRuntimeError()
         return instructions
     }
@@ -291,11 +307,19 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
         val errorMessage = RuntimeErrors.ErrorType.NULL_REFERENCE.toString()
         val errorLabel = globalVals.dataDirective.addStringLabel(errorMessage)
 
-        return listOf(
-            CompareInstruction(Register.R0, ImmediateIntOperand(0)),
-            LoadInstruction(Condition.EQ, ImmediateLabel(errorLabel), Register.R0),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true)
-        )
+        return if (LANGUAGE == Language.ARM) {
+            listOf(
+                CompareInstruction(Register.R0, ImmediateIntOperand(0)),
+                LoadInstruction(Condition.EQ, ImmediateLabel(errorLabel), Register.R0),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true)
+            )
+        } else {
+            listOf(
+                CompareInstruction(Register.R0, ImmediateIntOperand(0)),
+                LoadInstruction(Condition.EQ, ImmediateLabel(errorLabel), Register.R1),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.FREE.toString()), true)
+            )
+        }
     }
 
 
