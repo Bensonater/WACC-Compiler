@@ -115,12 +115,22 @@ class Library(private val globalVals: ProgramState.GlobalVals) {
 
         val stringTypeLabel = globalVals.dataDirective.addStringLabel(stringType)
 
-        return listOf(
-            MoveInstruction(Condition.AL, Register.R1, RegisterOperand(Register.R0)),
-            LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
-            ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
-            BranchInstruction(Condition.AL, GeneralLabel(Funcs.SCANF.toString()), true)
-        )
+        return if (LANGUAGE == Language.ARM) {
+            listOf(
+                MoveInstruction(Condition.AL, Register.R1, RegisterOperand(Register.R0)),
+                LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R0),
+                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R0, Register.R0, ImmediateIntOperand(4)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.SCANF.toString()), true)
+            )
+        } else {
+            listOf(
+                MoveInstruction(Condition.AL, Register.R2, RegisterOperand(Register.R0)),
+                LoadInstruction(Condition.AL, ImmediateLabel(stringTypeLabel), Register.R1),
+                ArithmeticInstruction(ArithmeticInstrType.ADD, Register.R1, Register.R1, ImmediateIntOperand(4)),
+                MoveInstruction(Condition.AL, Register.R0, ImmediateIntOperand(0)),
+                BranchInstruction(Condition.AL, GeneralLabel(Funcs.SCANF.toString()), true)
+            )
+        }
     }
 
     /**

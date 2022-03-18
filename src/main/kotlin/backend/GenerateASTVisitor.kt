@@ -633,18 +633,18 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
         // Load content at address back to register for elem expressions
         loadAddress(ast.expr, instructions, reg)
 
+        if (LANGUAGE == Language.X86_64 && ast.command == Command.EXIT) {
+            instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(reg)))
+        } else {
+            instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
+        }
+
         when (ast.command) {
             Command.EXIT -> {
-                if (LANGUAGE == Language.ARM) {
-                    instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
-                } else {
-                    instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(reg)))
-                }
                 instructions.add(BranchInstruction(Condition.AL, GeneralLabel("exit"), true))
                 programState.freeAllCalleeRegs()
             }
             Command.PRINT, Command.PRINTLN -> {
-                instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                 when (exprType) {
                     is BaseTypeAST -> {
                         // Stores base types and their respective function calls
@@ -688,12 +688,6 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 programState.freeCalleeReg()
             }
             Command.FREE -> {
-                if (LANGUAGE == Language.ARM) {
-                    instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
-                } else {
-                    instructions.add(MoveInstruction(Condition.AL, Register.R1, RegisterOperand(reg)))
-                }
-
                 // Determine which type of data structure to free
                 val freeType = if (exprType is ArrayTypeAST) {
                     CallFunc.FREE_ARRAY
@@ -706,7 +700,6 @@ class GenerateASTVisitor (val programState: ProgramState): ASTVisitor<List<Instr
                 programState.freeCalleeReg()
             }
             Command.RETURN -> {
-                instructions.add(MoveInstruction(Condition.AL, Register.R0, RegisterOperand(reg)))
                 moveStackPointer(ArithmeticInstrType.ADD, checkFuncOffset(ast.symbolTable), instructions)
                 instructions.add(EndInstruction())
                 programState.freeAllCalleeRegs()
